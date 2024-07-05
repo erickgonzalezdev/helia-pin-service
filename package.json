@@ -1,0 +1,51 @@
+{
+  "name": "api-rest-starter",
+  "version": "1.0.0",
+  "description": "api rest",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test:e2e": "export ENVIROMENT=test && mocha --exit --timeout 15000 test/e2e/",
+    "test:unit": "export ENVIROMENT=test && mocha --exit --timeout 15000 --recursive test/unit/",
+    "test:all": "export ENVIROMENT=test && c8 --reporter=text mocha --exit --timeout 15000 --recursive test/unit test/e2e/",
+    "coverage:report": "export ENVIROMENT=test && c8 --reporter=html mocha --exit --timeout 15000 --recursive test/unit/ test/e2e/",
+    "lint": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erickgonzalezdev/api-rest-starter.git"
+  },
+  "author": "erickgonzalezdev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erickgonzalezdev/api-rest-starter/issues"
+  },
+  "homepage": "https://github.com/erickgonzalezdev/api-rest-starter#readme",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "kcors": "^2.2.2",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-generic-session": "^2.3.1",
+    "koa-mount": "^4.0.0",
+    "koa-passport": "^6.0.0",
+    "koa-router": "^12.0.1",
+    "koa-send": "^5.0.1",
+    "koa-session": "^6.4.0",
+    "koa-static": "^5.0.0",
+    "mongoose": "^8.4.3",
+    "passport-local": "^1.0.0",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "c8": "^9.1.0",
+    "chai": "^5.1.1",
+    "mocha": "^10.4.0",
+    "sinon": "^18.0.0",
+    "standard": "^17.1.0"
+  }
+}
