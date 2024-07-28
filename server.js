@@ -14,15 +14,18 @@ import Controller from './src/controller.js'
 
 import passportStrategy from './src/utils/passport.js'
 
+import serve from 'koa-static'
+import mount from 'koa-mount'
+
 class Server {
-  constructor () {
+  constructor() {
     this.mongoose = mongoose
     this.config = config
     this.port = this.config.port || 8085
     this.start = this.start.bind(this)
   }
 
-  async start () {
+  async start() {
     // Connect to the Mongo Database.
     this.mongoose.Promise = global.Promise
     // this.mongoose.set('useCreateIndex', true) // Stop deprecation warning.
@@ -36,6 +39,9 @@ class Server {
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(cors({ origin: '*' }))
+
+    // Used to generate the docs.
+    app.use(mount('/', serve(`${process.cwd()}/docs`)))
 
     this.controller = new Controller(config)
     this.controller.start(app)
