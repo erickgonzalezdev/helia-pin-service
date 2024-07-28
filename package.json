@@ -1,7 +1,7 @@
 {
-  "name": "api-rest-starter",
+  "name": "helia-pin",
   "version": "1.0.0",
-  "description": "api rest",
+  "description": "helia pin api rest",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erickgonzalezdev/api-rest-starter.git"
+    "url": "git+https://github.com/erickgonzalezdev/helia-pin.git"
   },
   "author": "erickgonzalezdev",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/erickgonzalezdev/api-rest-starter/issues"
+    "url": "https://github.com/erickgonzalezdev/helia-pin/issues"
   },
-  "homepage": "https://github.com/erickgonzalezdev/api-rest-starter#readme",
+  "homepage": "https://github.com/erickgonzalezdev/helia-pin#readme",
   "dependencies": {
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
@@ -51,9 +51,9 @@
     "standard": "^17.1.0"
   },
   "apidoc": {
-    "name": "api-rest-starter",
+    "name": "helia-pin",
     "url": "localhost:5001",
     "version": "1.0.0",
-    "description": "api-rest-starter-doc"
+    "description": "helia-pin-doc"
   }
 }
