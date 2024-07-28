@@ -1,4 +1,3 @@
-
 'use strict'
 
 // Global npm libraries
@@ -29,7 +28,7 @@ export default class Logger {
       )
     })
 
-    //this.transport.on('rotate', this.notifyRotation)
+    // this.transport.on('rotate', this.notifyRotation)
 
     // This controls what goes into the log FILES
     this.wlogger = winston.createLogger({
@@ -47,7 +46,7 @@ export default class Logger {
     })
   }
 
-/*   notifyRotation (oldFilename, newFilename) {
+  /*   notifyRotation (oldFilename, newFilename) {
     this.wlogger.info('Rotating log files')
   } */
 
@@ -60,5 +59,3 @@ export default class Logger {
     )
   }
 }
-
-

@@ -1,22 +1,21 @@
 class ErrorHandler {
-  constructor() {
+  constructor () {
 
   }
 
-  handleCtxError(ctx, err) {
+  handleCtxError (ctx, err) {
     if (err.status) {
       if (err.message) {
         ctx.throw(err.status, err.message)
       } else {
-        ctx.throw(err.status , 'Unknow Error')
+        ctx.throw(err.status, 'Unknow Error')
       }
-    } else if(err.message){
+    } else if (err.message) {
       ctx.throw(422, err.message)
-    }else{
+    } else {
       ctx.throw(422, 'Unknow Error')
     }
   }
-
 }
 
 export default ErrorHandler

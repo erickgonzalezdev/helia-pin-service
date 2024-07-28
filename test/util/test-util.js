@@ -7,8 +7,6 @@ export const cleanDb = async () => {
   mongoose.connection.db.dropDatabase()
 }
 
-
-
 // StartDB
 export const startDb = async () => {
   // Connect to the Mongo Database.
@@ -17,4 +15,3 @@ export const startDb = async () => {
   await mongoose.connect(`mongodb://localhost:27017/${config.database}`)
   console.log(`Db connected to ${config.database}`)
 }
-

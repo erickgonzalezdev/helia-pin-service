@@ -7,7 +7,6 @@ export default class InitRouter {
 
     // Bind function to this class.
     this.start = this.start.bind(this)
-
   }
 
   start (app) {

@@ -1,5 +1,5 @@
 export default class UsersUseCases {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.db = config.libraries.dbModels
     this.wlogger = config.libraries.wlogger
     this.passport = config.libraries.passport
@@ -11,7 +11,7 @@ export default class UsersUseCases {
     this.updateUser = this.updateUser.bind(this)
   }
 
-  async createUser(inObj = {}) {
+  async createUser (inObj = {}) {
     try {
       const { username, password } = inObj
       if (!username || typeof username !== 'string') {
@@ -21,7 +21,7 @@ export default class UsersUseCases {
       if (!password || typeof password !== 'string') {
         throw new Error('password is required!')
       }
-      
+
       const user = new this.db.Users(inObj)
       await user.save()
 
@@ -40,12 +40,12 @@ export default class UsersUseCases {
     }
   }
 
-  async authUser(ctx) {
+  async authUser (ctx) {
     try {
       const user = await this.passport.authUser(ctx)
       if (!user) {
-        const err =  new Error('Unauthorized')
-        err.status= 401
+        const err = new Error('Unauthorized')
+        err.status = 401
         throw err
       }
 
@@ -65,7 +65,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUser(inObj = {}) {
+  async getUser (inObj = {}) {
     try {
       const { id } = inObj
 
@@ -80,7 +80,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUsers() {
+  async getUsers () {
     try {
       const users = await this.db.Users.find({}, ['-password'])
       return users
@@ -90,17 +90,16 @@ export default class UsersUseCases {
     }
   }
 
-  async updateUser(inObj = {}) {
+  async updateUser (inObj = {}) {
     try {
       const { existingData, newData } = inObj
-      if(!existingData || typeof existingData !== 'object'){
+      if (!existingData || typeof existingData !== 'object') {
         throw new Error('existingData is required!')
       }
 
-      if(!newData || typeof newData !== 'object'){
+      if (!newData || typeof newData !== 'object') {
         throw new Error('newData data is required!')
       }
-
 
       Object.assign(existingData, newData)
 

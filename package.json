@@ -40,7 +40,8 @@
     "mongoose": "^8.4.3",
     "passport-local": "^1.0.0",
     "winston": "^3.13.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "helia-ipfs-node" : "https://github.com/erickgonzalezdev/helia-ipfs-node.git#master"
   },
   "devDependencies": {
     "apidoc": "^1.2.0",

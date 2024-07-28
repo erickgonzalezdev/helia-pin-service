@@ -1,4 +1,3 @@
-
 import { assert } from 'chai'
 import sinon from 'sinon'
 
@@ -34,13 +33,13 @@ describe('#util-error.js', () => {
       try {
         const e = new Error('not found!')
         e.status = 400
-        await uut.handleCtxError(fakeCtx , e)
+        await uut.handleCtxError(fakeCtx, e)
 
         assert.fail('Unexpected code path')
       } catch (error) {
         console.log(error)
         assert.equal(error.status, 400)
-        assert.include(error.message, "not found!")
+        assert.include(error.message, 'not found!')
       }
     })
     it('should set default message if the error does not include it', async () => {
@@ -52,7 +51,7 @@ describe('#util-error.js', () => {
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.equal(error.status, 401)
-        assert.include(error.message , 'Unknow Error')
+        assert.include(error.message, 'Unknow Error')
       }
     })
 
@@ -65,7 +64,7 @@ describe('#util-error.js', () => {
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.equal(error.status, 422)
-        assert.include(error.message, "an error")
+        assert.include(error.message, 'an error')
       }
     })
     it('should handle unknow error , and throw a default error', async () => {
@@ -77,7 +76,7 @@ describe('#util-error.js', () => {
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.equal(error.status, 422)
-        assert.include(error.message, "Unknow Error")
+        assert.include(error.message, 'Unknow Error')
       }
     })
   })
