@@ -10,7 +10,8 @@
     "test:unit": "export ENVIROMENT=test && mocha --exit --timeout 15000 --recursive test/unit/",
     "test:all": "export ENVIROMENT=test && c8 --reporter=text mocha --exit --timeout 15000 --recursive test/unit test/e2e/",
     "coverage:report": "export ENVIROMENT=test && c8 --reporter=html mocha --exit --timeout 15000 --recursive test/unit/ test/e2e/",
-    "lint": "standard --fix"
+    "lint": "standard --fix",
+    "docs": "./node_modules/.bin/apidoc -i src/ -o docs"
   },
   "repository": {
     "type": "git",
@@ -42,10 +43,17 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
+    "apidoc": "^1.2.0",
     "c8": "^9.1.0",
     "chai": "^5.1.1",
     "mocha": "^10.4.0",
     "sinon": "^18.0.0",
     "standard": "^17.1.0"
+  },
+  "apidoc": {
+    "name": "api-rest-starter",
+    "url": "localhost:5001",
+    "version": "1.0.0",
+    "description": "api-rest-starter-doc"
   }
 }
