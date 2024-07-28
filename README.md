@@ -1,2 +1,2 @@
-# api-rest-starter
-api rest using koa and mongodb
+# helia-pin
+IPFS pin service using helia.js
