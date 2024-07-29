@@ -26,9 +26,11 @@
   "dependencies": {
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
+    "helia-ipfs-node": "https://github.com/erickgonzalezdev/helia-ipfs-node.git#master",
     "jsonwebtoken": "^9.0.2",
     "kcors": "^2.2.2",
     "koa": "^2.15.3",
+    "koa-body": "^6.0.1",
     "koa-bodyparser": "^4.4.1",
     "koa-generic-session": "^2.3.1",
     "koa-mount": "^4.0.0",
@@ -40,8 +42,7 @@
     "mongoose": "^8.4.3",
     "passport-local": "^1.0.0",
     "winston": "^3.13.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "helia-ipfs-node" : "https://github.com/erickgonzalezdev/helia-ipfs-node.git#master"
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "apidoc": "^1.2.0",
