@@ -9,6 +9,7 @@ export default class PinController {
 
     // Bind function to this class.
     this.pin = this.pin.bind(this)
+    this.getPins =  this.getPins.bind(this)
 
   }
 
@@ -33,6 +34,29 @@ export default class PinController {
 
       const cid =  await this.useCases.pin.pinFile({ file })
       ctx.body = { cid }
+    } catch (error) {
+      console.log("pin error", error)
+      this.handleError(ctx, error)
+    }
+  }
+
+
+  /**
+ * @api {get} /users/:id Get Pins
+ * @apiPermission user
+ * @apiName GetPins
+ * @apiGroup Pin
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/pins
+ *
+ */
+  async getPins(ctx) {
+    try {
+
+      const pins =  await this.useCases.pin.getPins()
+      ctx.body = pins
     } catch (error) {
       console.log("pin error", error)
       this.handleError(ctx, error)

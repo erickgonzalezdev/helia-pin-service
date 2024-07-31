@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import UseCase from '../../../src/use-cases/pin.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb } from '../../util/test-util.js'
-
+import { HeliaNodeMock , FileMock } from '../mocks/helia-node-mock.js'
 describe('#pin-use-case', () => {
   let uut
   let sandbox
@@ -13,7 +13,7 @@ describe('#pin-use-case', () => {
   before(async () => {
     uut = new UseCase({ libraries: new Libraries() })
     // Mock node 
-    uut.heliaNode.node = { uploadFile : ()=>{ return }}
+    uut.heliaNode.node = new HeliaNodeMock()
     await startDb()
     await cleanDb()
   })
@@ -42,9 +42,8 @@ describe('#pin-use-case', () => {
 
     it('should handle node error', async () => {
       try {
-        console.log(uut.heliaNode)
         sandbox.stub(uut.heliaNode.node, 'uploadFile').throws(new Error('test error'))
-        await uut.pinFile({ file: {}})
+        await uut.pinFile({ file: FileMock})
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -52,11 +51,50 @@ describe('#pin-use-case', () => {
       }
     })
 
+    it('should handle pin file error', async () => {
+      try {
+        sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('test error'))
+        await uut.pinFile({ file: FileMock})
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+
+
+    it('should ignore "already pinned" error', async () => {
+      
+        sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('already pinned'))
+        await uut.pinFile({ file: FileMock})
+    })
+
     it('should pin file', async () => {
       sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('cid')
-      const result = await uut.pinFile({ file: {}})
+      const result = await uut.pinFile({ file: FileMock })
 
       assert.equal(result , 'cid')
+    })
+  })
+
+  describe('#getPins', () => {
+
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.Pin, 'find').throws(new Error('test error'))
+        await uut.getPins()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+
+    it('should get pins', async () => {
+      //sandbox.stub(uut.db.Pin, 'find').resolves([])
+      const result = await uut.getPins()
+
+      assert.isArray(result)
     })
   })
 })

@@ -3,18 +3,20 @@ import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
 import SERVER from '../../server.js'
-import { cleanDb } from '../util/test-util.js'
+import { cleanDb, cleanNode , startApp } from '../util/test-util.js'
 
 const testData = {}
 const LOCALHOST = `http://localhost:${config.port}`
 
+let app // global var
+
 describe('e2e-users', () => {
   let sandbox
-  let app
   before(async () => {
-    app = new SERVER()
-    await app.start()
+
+    app = await  startApp()
     await cleanDb()
+    await cleanNode()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()

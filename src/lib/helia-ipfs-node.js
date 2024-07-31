@@ -13,7 +13,7 @@ class HeliaNode {
 
   async start () {
     try {
-      this.node = new this.HeliaNode()
+      this.node = new this.HeliaNode(this.config)
       await this.node.start()
       console.log('node started!')
 

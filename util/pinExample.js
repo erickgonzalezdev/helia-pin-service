@@ -1,8 +1,8 @@
 import axios from 'axios'
 // import fs from 'fs'
 import FormData from 'form-data'
-const pin = async ()=>{
 
+const pin = async ()=>{
 
   // Create a form and append the file to it.
   const form = new FormData()
