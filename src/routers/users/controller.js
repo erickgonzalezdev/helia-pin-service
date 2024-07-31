@@ -1,5 +1,5 @@
 export default class UsersController {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.useCases = config.useCases
 
     if (!this.useCases) { throw new Error('Uses cases must be provided when instantiate a Controller') }
@@ -32,7 +32,7 @@ export default class UsersController {
  * @apiSuccess {String}   users.username  User username
  *
  */
-  async createUser(ctx) {
+  async createUser (ctx) {
     try {
       const inObj = ctx.request.body
       const user = await this.useCases.users.createUser(inObj)
@@ -53,10 +53,10 @@ export default class UsersController {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X POST -d '{ "username": "username", "password": "mypass" }' localhost:5001/users/auth
  *
- * 
+ *
  * @apiParam {String} username  User username.
  * @apiParam {String} password  User password.
- * 
+ *
  * @apiSuccess {String}   token          Encoded JWT
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
@@ -64,7 +64,7 @@ export default class UsersController {
  *
  */
 
-  async authUser(ctx) {
+  async authUser (ctx) {
     try {
       const res = await this.useCases.users.authUser(ctx)
       ctx.body = {
@@ -82,17 +82,17 @@ export default class UsersController {
  * @apiName GetUser
  * @apiGroup Users
  * @apiVersion 1.0.0
- * 
+ *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/users/<id>
  *
  * @apiParam {String} :id  User _id.
- * 
+ *
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   users.username  User username
  */
-  async getUser(ctx, next) {
+  async getUser (ctx, next) {
     try {
       const user = await this.useCases.users.getUser(ctx.params)
       ctx.body = user
@@ -121,7 +121,7 @@ export default class UsersController {
 * @apiSuccess {ObjectId} users._id       User id
 * @apiSuccess {String}   users.username  User username
 */
-  async getUsers(ctx) {
+  async getUsers (ctx) {
     try {
       const users = await this.useCases.users.getUsers()
       ctx.body = users
@@ -136,7 +136,7 @@ export default class UsersController {
  * @apiName UpdateUser
  * @apiGroup Users
  * @apiVersion 1.0.0
- * 
+ *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "username": "new username" }' localhost:5001/users/<id>
  *
@@ -147,7 +147,7 @@ export default class UsersController {
  * @apiSuccess {String}   users.username  Updated username
  */
 
-  async updateUser(ctx) {
+  async updateUser (ctx) {
     try {
       const existingData = ctx.body
       const newData = ctx.request.body

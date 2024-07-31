@@ -1,4 +1,3 @@
-
 import { assert } from 'chai'
 import sinon from 'sinon'
 
@@ -9,7 +8,7 @@ import { cleanDb, startDb } from '../../util/test-util.js'
 describe('#users-use-case', () => {
   let uut
   let sandbox
-  let testData = {}
+  const testData = {}
 
   before(async () => {
     uut = new UseCase({ libraries: new Libraries() })
@@ -35,8 +34,7 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-
-        assert.include(error.message, "username is required!")
+        assert.include(error.message, 'username is required!')
       }
     })
 
@@ -46,7 +44,7 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, "username is required!")
+        assert.include(error.message, 'username is required!')
       }
     })
 
@@ -83,23 +81,21 @@ describe('#users-use-case', () => {
     })
 
     it('should create an user', async () => {
-        const usrObj = {
-          password: 'anypass',
-          username: 'test'
-        }
-        const user = await uut.createUser(usrObj)
+      const usrObj = {
+        password: 'anypass',
+        username: 'test'
+      }
+      const user = await uut.createUser(usrObj)
 
-        testData.user = user
-
+      testData.user = user
     })
-
   })
 
   describe('#authUser', () => {
     it('should handle passport auth error', async () => {
       try {
         sandbox.stub(uut.passport, 'authUser').throws(new Error('Authentication error'))
-        
+
         const koaContex = {}
         await uut.authUser(koaContex)
 
@@ -124,17 +120,14 @@ describe('#users-use-case', () => {
       }
     })
     it('should get all users', async () => {
-
       const res = await uut.getUsers()
       assert.isArray(res)
-
     })
   })
 
   describe('#getUser', () => {
     it('should throw error if input is missing', async () => {
       try {
-
         await uut.getUser()
 
         assert.fail('Unexpected code path')
@@ -155,12 +148,11 @@ describe('#users-use-case', () => {
       }
     })
     it('should get user', async () => {
-      const res = await uut.getUser( {  id: testData.user._id.toString() })
-      testData.user =  res
+      const res = await uut.getUser({ id: testData.user._id.toString() })
+      testData.user = res
       assert.isObject(res)
     })
   })
-
 
   describe('#updateUser', () => {
     it('should throw an error if no input is given', async () => {
@@ -180,21 +172,19 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, "newData data is required!")
+        assert.include(error.message, 'newData data is required!')
       }
     })
-
 
     it('should update the existing user', async () => {
       const existingData = testData.user
       const newData = { username: 'test2' }
 
-      const result = await uut.updateUser({existingData, newData})
+      const result = await uut.updateUser({ existingData, newData })
 
       assert.isObject(result)
       assert.property(result, 'username')
       assert.equal(result.username, newData.username)
-
     })
   })
 })

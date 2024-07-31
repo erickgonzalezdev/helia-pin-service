@@ -4,6 +4,7 @@ import cors from 'kcors'
 import bodyParser from 'koa-bodyparser'
 import session from 'koa-generic-session'
 import passport from 'koa-passport'
+//import {koaBody} from 'koa-body'
 
 // import serve from 'koa-static'
 // import mount from 'koa-mount'
@@ -18,14 +19,14 @@ import serve from 'koa-static'
 import mount from 'koa-mount'
 
 class Server {
-  constructor() {
+  constructor () {
     this.mongoose = mongoose
     this.config = config
     this.port = this.config.port || 8085
     this.start = this.start.bind(this)
   }
 
-  async start() {
+  async start () {
     // Connect to the Mongo Database.
     this.mongoose.Promise = global.Promise
     // this.mongoose.set('useCreateIndex', true) // Stop deprecation warning.
@@ -33,18 +34,20 @@ class Server {
     console.log(`Db connected to ${this.config.database}`)
     const app = new Koa()
     app.keys = [this.config.koaSessionKey]
-    app.use(bodyParser())
+    app.use(bodyParser({ multipart: true }))
     app.use(session({}, app))
     passportStrategy(passport)
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(cors({ origin: '*' }))
+    //app.use(koaBody({ multipart: true }))
+
 
     // Used to generate the docs.
     app.use(mount('/', serve(`${process.cwd()}/docs`)))
 
     this.controller = new Controller(config)
-    this.controller.start(app)
+    await this.controller.start(app)
     app.listen(this.port)
 
     this.controller.libraries.wlogger.info(`Server started on port : ${this.port}`)

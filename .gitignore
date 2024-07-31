@@ -2,3 +2,5 @@ node_modules
 coverage/*
 logs/*
 docs/*
+helia-data/*
+helia-data-test/*

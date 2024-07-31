@@ -3,18 +3,20 @@ import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
 import SERVER from '../../server.js'
-import { cleanDb } from '../util/test-util.js'
+import { cleanDb, cleanNode , startApp } from '../util/test-util.js'
 
 const testData = {}
 const LOCALHOST = `http://localhost:${config.port}`
 
+let app // global var
+
 describe('e2e-users', () => {
   let sandbox
-  let app
   before(async () => {
-     app = new SERVER()
-    await app.start()
+
+    app = await  startApp()
     await cleanDb()
+    await cleanNode()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -28,7 +30,7 @@ describe('e2e-users', () => {
       try {
         const options = {
           method: 'post',
-          url: `${LOCALHOST}/users`,
+          url: `${LOCALHOST}/users`
 
         }
         const result = await axios(options)
@@ -38,7 +40,7 @@ describe('e2e-users', () => {
         assert.fail('Unexpected code path.')
       } catch (error) {
         assert(error.response.status === 422)
-        assert.isString(error.response.data )
+        assert.isString(error.response.data)
       }
     })
     it('should create user', async () => {
@@ -70,7 +72,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname',
+            username: 'testname'
           }
         }
         const result = await axios(options)
@@ -80,7 +82,7 @@ describe('e2e-users', () => {
         assert.fail('Unexpected code path.')
       } catch (error) {
         assert(error.response.status === 401)
-        assert.isString(error.response.data )
+        assert.isString(error.response.data)
       }
     })
     it('should handle unknow user', async () => {
@@ -100,7 +102,7 @@ describe('e2e-users', () => {
         assert.fail('Unexpected code path.')
       } catch (error) {
         assert(error.response.status === 401)
-        assert.isString(error.response.data )
+        assert.isString(error.response.data)
       }
     })
     it('should handle invalid password', async () => {
@@ -120,7 +122,7 @@ describe('e2e-users', () => {
         assert.fail('Unexpected code path.')
       } catch (error) {
         assert(error.response.status === 401)
-        assert.isString(error.response.data )
+        assert.isString(error.response.data)
       }
     })
     it('should auth user', async () => {
@@ -173,7 +175,7 @@ describe('e2e-users', () => {
           method: 'GET',
           url: `${LOCALHOST}/users`,
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           }
         }
         await axios(options)
@@ -287,7 +289,7 @@ describe('e2e-users', () => {
           method: 'GET',
           url: `${LOCALHOST}/users/${testData.user._id}`,
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           }
         }
         await axios(options)
@@ -385,7 +387,7 @@ describe('e2e-users', () => {
             Authorization: `Bearer ${testData.token}`
 
           },
-          data : 'error data'
+          data: 'error data'
         }
         await axios(options)
 
@@ -393,7 +395,6 @@ describe('e2e-users', () => {
       } catch (error) {
         assert.equal(error.response.status, 422)
         assert.isString(error.response.data)
-
       }
     })
     it('should not fetch users if the authorization header is missing', async () => {
@@ -402,7 +403,7 @@ describe('e2e-users', () => {
           method: 'PUT',
           url: `${LOCALHOST}/users/${testData.user._id}`,
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           },
           data: {
             username: 'newname'
@@ -462,7 +463,7 @@ describe('e2e-users', () => {
           url: `${LOCALHOST}/users/${testData.user._id}`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer invalidtoken`
+            Authorization: 'Bearer invalidtoken'
           },
           data: {
             username: 'newname'

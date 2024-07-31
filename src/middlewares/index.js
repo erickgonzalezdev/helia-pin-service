@@ -5,7 +5,5 @@ export default class Middleware {
     if (!config.libraries) { throw new Error('Lib instance should be passed in UseCases Constructor.') }
 
     this.userValidators = new UserValidators(config)
-
-
   }
 }
