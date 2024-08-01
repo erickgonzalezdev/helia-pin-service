@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
-import { cleanDb , startApp } from '../util/test-util.js'
+import { cleanDb, startApp , cleanNode } from '../util/test-util.js'
 import FormData from 'form-data'
 
 const testData = {}
@@ -13,7 +13,8 @@ describe('e2e-pin', () => {
   let sandbox
   before(async () => {
     app = await startApp()
-    cleanDb()
+    await cleanDb()
+    await cleanNode()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()

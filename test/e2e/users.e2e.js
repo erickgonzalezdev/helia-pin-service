@@ -2,7 +2,6 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
-import SERVER from '../../server.js'
 import { cleanDb, cleanNode , startApp } from '../util/test-util.js'
 
 const testData = {}
