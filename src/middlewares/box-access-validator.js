@@ -15,24 +15,23 @@ export default class BoxValidator {
     this.getToken = this.getToken.bind(this)
   }
 
-
-  async ensureBoxSignature(ctx){
+  async ensureBoxSignature (ctx) {
     try {
       try {
         if (!ctx) throw new Error('Koa context (ctx) is required!')
         const token = this.getToken(ctx)
-  
+
         if (!token) {
           throw new Error('Token could not be retrieved from header')
         }
-  
+
         let decoded = null
         try {
           decoded = this.jwt.verify(token, this.config.passKey)
         } catch (err) {
           throw new Error('Could not verify JWT')
         }
-        if(decoded.type !== 'boxAccess'){
+        if (decoded.type !== 'boxAccess') {
           throw new Error('Could not verify JWT')
         }
         ctx.state.user = await this.dbModels.Users.findById(decoded.userId, '-password')
@@ -45,7 +44,7 @@ export default class BoxValidator {
         if (!ctx.state.box) {
           throw new Error('Could not find box')
         }
-  
+
         return true
       } catch (error) {
         if (!ctx) throw error

@@ -1,5 +1,5 @@
 export default class PinBoxController {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.useCases = config.useCases
 
     if (!this.useCases) { throw new Error('Uses cases must be provided when instantiate a Controller') }
@@ -31,7 +31,7 @@ export default class PinBoxController {
  *
  *
  */
-  async createBox(ctx) {
+  async createBox (ctx) {
     try {
       const inObj = ctx.request.body
       inObj.user = ctx.state.user
@@ -44,7 +44,6 @@ export default class PinBoxController {
     }
   }
 
-
   /**
  * @api {get} /box/:id Get Box
  * @apiPermission user
@@ -56,7 +55,7 @@ export default class PinBoxController {
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/<id>
  *
  */
-  async getBox(ctx, next) {
+  async getBox (ctx, next) {
     try {
       const box = await this.useCases.Box.getBox(ctx.params)
       ctx.body = { box }
@@ -80,7 +79,7 @@ export default class PinBoxController {
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box
 *
 */
-  async getBoxes(ctx) {
+  async getBoxes (ctx) {
     try {
       const boxes = await this.useCases.Box.getBoxes()
       ctx.body = boxes
@@ -101,7 +100,7 @@ export default class PinBoxController {
 
  */
 
-  async updateBox(ctx) {
+  async updateBox (ctx) {
     try {
       const existingData = ctx.body.box
       const newData = ctx.request.body
@@ -111,8 +110,6 @@ export default class PinBoxController {
       this.handleError(ctx, error)
     }
   }
-
-
 
   /**
    * @api {delete} /box/:id Delete a box
@@ -125,7 +122,7 @@ export default class PinBoxController {
    *
    */
 
-  async deleteBox(ctx) {
+  async deleteBox (ctx) {
     try {
       const box = ctx.body.box
       const result = await this.useCases.Box.deleteBox(box)
@@ -146,7 +143,7 @@ export default class PinBoxController {
  *
  */
 
-  async addPin(ctx) {
+  async addPin (ctx) {
     try {
       const type = ctx.state.jwtType
       const input = ctx.request.body
@@ -178,7 +175,7 @@ export default class PinBoxController {
 *
 */
 
-  async boxSignature(ctx) {
+  async boxSignature (ctx) {
     try {
       const input = ctx.request.body
       input.user = ctx.state.user

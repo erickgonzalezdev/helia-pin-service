@@ -1,24 +1,23 @@
 // Mocks for helia-ipfs-node module
 
 class HeliaNodeMock {
-  constructor () {}
+  constructor (config = {}) { this.condig = config }
   async start () {}
 
-  async pinCid(){ return 'cid'}
-  async uploadFile(){ return 'cid'}
+  async pinCid () { return 'cid' }
+  async uploadFile () { return 'cid' }
 }
 
 class HeliaServerMock {
-  constructor () {}
+  constructor (config = {}) { this.condig = config }
   async start () {}
 }
 
-
-const  FileMock = {
-  size : 1,
+const FileMock = {
+  size: 1,
   mimetype: 'text/plain',
-  path :'some path',
-  name : 'text.txt'
+  path: 'some path',
+  name: 'text.txt'
 }
 
-export { HeliaNodeMock, HeliaServerMock , FileMock }
+export { HeliaNodeMock, HeliaServerMock, FileMock }

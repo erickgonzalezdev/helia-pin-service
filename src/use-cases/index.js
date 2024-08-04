@@ -7,7 +7,7 @@ export default class UseCases {
     if (!config.libraries) { throw new Error('Libraries instance should be passed in UseCases Constructor.') }
 
     this.users = new UsersUseCases(config)
-    this.pin= new PinUseCases(config)
+    this.pin = new PinUseCases(config)
     this.Box = new BoxUseCases(config)
   }
 }

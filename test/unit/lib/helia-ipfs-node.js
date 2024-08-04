@@ -9,7 +9,8 @@ describe('#helia-ipfs-node.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new LibUnderTest()
+    const config = { wlogger: { error: () => {} } }
+    uut = new LibUnderTest(config)
     uut.HeliaNode = HeliaNodeMock
     uut.HeliaServer = HeliaServerMock
   })

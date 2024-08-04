@@ -1,6 +1,5 @@
-
 export default class PinController {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.useCases = config.useCases
 
     if (!this.useCases) { throw new Error('Uses cases must be provided when instantiate a Controller') }
@@ -9,8 +8,7 @@ export default class PinController {
 
     // Bind function to this class.
     this.pin = this.pin.bind(this)
-    this.getPins =  this.getPins.bind(this)
-
+    this.getPins = this.getPins.bind(this)
   }
 
   /**
@@ -28,18 +26,16 @@ export default class PinController {
  * @apiSuccess {String}   CID  content id.
  *
  */
-  async pin(ctx) {
+  async pin (ctx) {
     try {
-      const file =  ctx.request.files.file || ctx.request.files.upload
+      const file = ctx.request.files.file || ctx.request.files.upload
 
-      const result =  await this.useCases.pin.pinFile({ file })
+      const result = await this.useCases.pin.pinFile({ file })
       ctx.body = result
     } catch (error) {
-      console.log("pin error", error)
       this.handleError(ctx, error)
     }
   }
-
 
   /**
  * @api {get} /users/:id Get Pins
@@ -52,13 +48,11 @@ export default class PinController {
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/pins
  *
  */
-  async getPins(ctx) {
+  async getPins (ctx) {
     try {
-
-      const pins =  await this.useCases.pin.getPins()
+      const pins = await this.useCases.pin.getPins()
       ctx.body = pins
     } catch (error) {
-      console.log("pin error", error)
       this.handleError(ctx, error)
     }
   }

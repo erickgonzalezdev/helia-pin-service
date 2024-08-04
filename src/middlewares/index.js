@@ -2,7 +2,7 @@ import UserValidators from './user-validators.js'
 import BoxValidator from './box-access-validator.js'
 
 export default class Middleware {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.config = config
     if (!config.libraries) { throw new Error('Lib instance should be passed in UseCases Constructor.') }
     this.jwt = config.libraries.jwt
@@ -13,7 +13,7 @@ export default class Middleware {
     this.getJWTType = this.getJWTType.bind(this)
   }
 
-  getJWTType(ctx) {
+  getJWTType (ctx) {
     try {
       const token = this.userValidators.getToken(ctx)
       let decoded = null

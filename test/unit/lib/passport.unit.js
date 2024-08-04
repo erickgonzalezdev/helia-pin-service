@@ -6,7 +6,7 @@ import LibUnderTest from '../../../src/lib/passport.js'
 describe('#passport.js', () => {
   let uut
   let sandbox
-  const testData = {}
+  // const testData = {}
 
   before(async () => {
     uut = new LibUnderTest()
@@ -44,7 +44,6 @@ describe('#passport.js', () => {
     })
     it('should reject authentication', async () => {
       try {
-        const userMock = { _id: 'userId' }
         sandbox.stub(uut.passport, 'authenticate').yields(new Error('auth error'), null)
 
         const ctx = {}

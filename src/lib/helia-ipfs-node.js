@@ -7,7 +7,9 @@ class HeliaNode {
     this.HeliaServer = Server
     this.node = null
     this.gateway = null
+    this.wlogger = this.config.wlogger
 
+    // Bind function
     this.start = this.start.bind(this)
   }
 
@@ -21,6 +23,7 @@ class HeliaNode {
       this.gateway = new this.HeliaServer({ node: this.node, port: this.config.gatewayPort })
       await this.gateway.start()
     } catch (error) {
+      this.wlogger.error(`Error in helia-node-ipfs/start() $ ${error.message}`)
       throw error
     }
   }

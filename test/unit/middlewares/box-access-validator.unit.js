@@ -18,7 +18,7 @@ describe('#Box-Access-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel , Box: BoxModel } } })
+    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel, Box: BoxModel } } })
   })
 
   beforeEach(() => {
@@ -62,7 +62,6 @@ describe('#Box-Access-Validators.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.include(error.message, 'Could not verify JWT')
       }
     })
@@ -70,10 +69,9 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error if received token owner is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
-        sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
+        sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
         sandbox.stub(uut.dbModels.Box, 'findById').resolves({})
-
 
         ctxMock.request.header.authorization = 'Bearer token'
         await uut.ensureBoxSignature(ctxMock)
@@ -86,10 +84,9 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error if received Box is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
-        sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
+        sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves({})
         sandbox.stub(uut.dbModels.Box, 'findById').resolves(null)
-
 
         ctxMock.request.header.authorization = 'Bearer token'
         await uut.ensureBoxSignature(ctxMock)
@@ -117,7 +114,7 @@ describe('#Box-Access-Validators.js', () => {
 
     it('should return true', async () => {
       sandbox.stub(uut, 'getToken').returns('token')
-      sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
+      sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
       sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
       sandbox.stub(uut.dbModels.Box, 'findById').resolves({ _id: 'muBoxId' })
 
