@@ -5,22 +5,19 @@ import Libraries from '../../src/lib/index.js'
 import UseCases from '../../src/use-cases/index.js'
 import SERVER from '../../server.js'
 
-
-const libraries =  new Libraries()
+const libraries = new Libraries()
 const useCases = new UseCases({ libraries })
 let APP
 
-
-export const createTestUser = async (inObj = { username : 'test' , password: '1234'})=>{
+export const createTestUser = async (inObj = { username: 'test', password: '1234' }) => {
   try {
     const result = await useCases.users.createUser(inObj)
     return result
   } catch (error) {
-    console.log(` Error in test/util.js/createTestUser()`, error)
+    console.log(' Error in test/util.js/createTestUser()', error)
     throw error
   }
 }
-
 
 // Remove all collections from the DB.
 export const startApp = async () => {
@@ -57,11 +54,3 @@ export const cleanNode = async (nodePath = './helia-data-test') => {
   }
   fs.rmdirSync(nodePath, { recursive: true })
 }
-
-
-
-
-
-
-
-

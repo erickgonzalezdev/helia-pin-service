@@ -7,8 +7,7 @@ export default class PinUseCases {
 
     // Bind function to this class.
     this.pinFile = this.pinFile.bind(this)
-    this.getPins =  this.getPins.bind(this)
-
+    this.getPins = this.getPins.bind(this)
   }
 
   async pinFile (inObj = {}) {
@@ -19,26 +18,25 @@ export default class PinUseCases {
       }
 
       // Upload file to the ipfs node
-      const cidObject =  await this.heliaNode.node.uploadFile(file.filepath)
-      const cid =  cidObject.toString()
+      const cidObject = await this.heliaNode.node.uploadFile(file.filepath)
+      const cid = cidObject.toString()
       // Pin file into ipfs node
       try {
         await this.heliaNode.node.pinCid(cidObject)
       } catch (error) {
         // ignore if is already pinned
-        if(!error.message.match('Already')) throw error
+        if (!error.message.match('Already')) throw error
       }
 
       let pin = await this.db.Pin.findOne({ cid })
       // create pin data into the db
-      if(!pin){
+      if (!pin) {
         pin = new this.db.Pin({ cid })
         pin.createdAt = new Date().getTime()
-        pin.type =  file.mimetype
+        pin.type = file.mimetype
         pin.name = file.originalFilename
         pin.size = file.size
         await pin.save()
-
       }
 
       return pin
@@ -58,4 +56,3 @@ export default class PinUseCases {
     }
   }
 }
-

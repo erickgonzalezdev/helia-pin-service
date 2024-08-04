@@ -1,6 +1,6 @@
 export default class BoxUseCases {
-  constructor(config = {}) {
-    this.config =  config
+  constructor (config = {}) {
+    this.config = config
     this.db = config.libraries.dbModels
     this.jwt = config.libraries.jwt
     this.wlogger = config.libraries.wlogger
@@ -17,9 +17,9 @@ export default class BoxUseCases {
     this.boxSignature = this.boxSignature.bind(this)
   }
 
-  async createBox(inObj = {}) {
+  async createBox (inObj = {}) {
     try {
-      const { label, description , user } = inObj
+      const { label, description, user } = inObj
       if (!label || typeof label !== 'string') {
         throw new Error('label is required!')
       }
@@ -27,10 +27,9 @@ export default class BoxUseCases {
       if (!description || typeof description !== 'string') {
         throw new Error('description is required!')
       }
-      if (!user ) {
+      if (!user) {
         throw new Error('user is required!')
       }
-
 
       const box = new this.db.Box(inObj)
       box.createdAt = new Date().getTime()
@@ -45,8 +44,7 @@ export default class BoxUseCases {
     }
   }
 
-
-  async getBox(inObj = {}) {
+  async getBox (inObj = {}) {
     try {
       const { id } = inObj
 
@@ -61,7 +59,7 @@ export default class BoxUseCases {
     }
   }
 
-  async getBoxes() {
+  async getBoxes () {
     try {
       const box = await this.db.Box.find({})
       return box
@@ -71,7 +69,7 @@ export default class BoxUseCases {
     }
   }
 
-  async updateBox(inObj = {}) {
+  async updateBox (inObj = {}) {
     try {
       const { existingData, newData } = inObj
 
@@ -94,9 +92,9 @@ export default class BoxUseCases {
     }
   }
 
-  async deleteBox(box) {
+  async deleteBox (box) {
     try {
-      if(!box ) throw new Error('box is required!')
+      if (!box) throw new Error('box is required!')
       await box.deleteOne()
       return true
     } catch (error) {
@@ -106,24 +104,22 @@ export default class BoxUseCases {
   }
 
   // add pin by user
-  async  addPinByUser(inObj = {}){
+  async addPinByUser (inObj = {}) {
     try {
-      const {  pinId  , boxId  , user  } =  inObj
-      if(!pinId) throw new Error('pinId is required!')
-      if(!boxId) throw new Error('boxId is required!')
-      if(!user) throw new Error('user is required!')
-
+      const { pinId, boxId, user } = inObj
+      if (!pinId) throw new Error('pinId is required!')
+      if (!boxId) throw new Error('boxId is required!')
+      if (!user) throw new Error('user is required!')
 
       const box = await this.db.Box.findById(boxId)
-      if(!box) throw new Error('Box not found!')
+      if (!box) throw new Error('Box not found!')
 
-      if(box.owner.toString() !==  user._id.toString()){
+      if (box.owner.toString() !== user._id.toString()) {
         throw new Error('Unauthorized!')
       }
 
-      
       const pin = await this.db.Pin.findById(pinId)
-      if(!pin) throw new Error('Pin not found!')
+      if (!pin) throw new Error('Pin not found!')
 
       box.pinList.push(pin._id.toString())
 
@@ -131,28 +127,30 @@ export default class BoxUseCases {
 
       return box
     } catch (error) {
+      this.wlogger.error(`Error in use-cases/addPinByUser() $ ${error.message}`)
       throw error
     }
   }
-  // add pin by external
-  async  addPinBySignature(inObj = {}){
-    try {
-      const {  pinId  , box  , user , boxId } =  inObj
-      if(!pinId) throw new Error('pinId is required!')
-      if(!box) throw new Error('box is required!')
-      if(!user) throw new Error('user is required!')
 
-      if(box.owner.toString() !==  user._id.toString()){
+  // add pin by external
+  async addPinBySignature (inObj = {}) {
+    try {
+      const { pinId, box, user, boxId } = inObj
+      if (!pinId) throw new Error('pinId is required!')
+      if (!box) throw new Error('box is required!')
+      if (!user) throw new Error('user is required!')
+
+      if (box.owner.toString() !== user._id.toString()) {
         throw new Error('Unauthorized!')
       }
 
       // Ensure that the signature belongs to the provided boxid
-      if(boxId && boxId !== box._id){
+      if (boxId && boxId !== box._id) {
         throw new Error('The signature does not belong to provided box.')
       }
 
       const pin = await this.db.Pin.findById(pinId)
-      if(!pin) throw new Error('Pin not found!')
+      if (!pin) throw new Error('Pin not found!')
 
       box.pinList.push(pin._id.toString())
 
@@ -160,32 +158,33 @@ export default class BoxUseCases {
 
       return box
     } catch (error) {
+      this.wlogger.error(`Error in use-cases/addPinBySignature() $ ${error.message}`)
       throw error
     }
   }
 
-  async  boxSignature(inObj = {}){
+  async boxSignature (inObj = {}) {
     try {
-      const { boxId , user , label } =  inObj
-      if(!boxId) throw new Error('boxId is required!')
-      if(!user) throw new Error('user is required!')
-      if(!label || typeof label !== 'string') throw new Error('label is required!')
+      const { boxId, user, label } = inObj
+      if (!boxId) throw new Error('boxId is required!')
+      if (!user) throw new Error('user is required!')
+      if (!label || typeof label !== 'string') throw new Error('label is required!')
 
-      
       const box = await this.db.Box.findById(boxId)
-      if(!box){ throw new Error('Box not found!')}
+      if (!box) { throw new Error('Box not found!') }
 
-      if(box.owner !== user._id.toString()){
+      if (box.owner !== user._id.toString()) {
         throw new Error('Unauthorized!')
       }
 
-      const key = this.jwt.sign({ userId: user._id.toString() , boxId :  box._id.toString() , type:'boxAccess' }, this.config.passKey)
-      box.signatures.push({ label , key })
+      const key = this.jwt.sign({ userId: user._id.toString(), boxId: box._id.toString(), type: 'boxAccess' }, this.config.passKey)
+      box.signatures.push({ label, key })
       await box.save()
 
-      return { label , key }
+      return { label, key }
     } catch (error) {
+      this.wlogger.error(`Error in use-cases/boxSignature() $ ${error.message}`)
       throw error
     }
-  } 
+  }
 }

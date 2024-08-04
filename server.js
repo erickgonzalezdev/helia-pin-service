@@ -4,7 +4,7 @@ import cors from 'kcors'
 import bodyParser from 'koa-bodyparser'
 import session from 'koa-generic-session'
 import passport from 'koa-passport'
-//import {koaBody} from 'koa-body'
+// import {koaBody} from 'koa-body'
 
 // import serve from 'koa-static'
 // import mount from 'koa-mount'
@@ -40,8 +40,7 @@ class Server {
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(cors({ origin: '*' }))
-    //app.use(koaBody({ multipart: true }))
-
+    // app.use(koaBody({ multipart: true }))
 
     // Used to generate the docs.
     app.use(mount('/', serve(`${process.cwd()}/docs`)))

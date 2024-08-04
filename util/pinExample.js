@@ -2,8 +2,7 @@ import axios from 'axios'
 // import fs from 'fs'
 import FormData from 'form-data'
 
-const pin = async ()=>{
-
+const pin = async () => {
   // Create a form and append the file to it.
   const form = new FormData()
   const axiosConfig = {
@@ -18,7 +17,7 @@ const pin = async ()=>{
   form.append('file', 'Text data', 'test.txt')
 
   // Send the file to the server
-  const result = await axios.post(`http://localhost:5001/pin`, form, axiosConfig)
+  const result = await axios.post('http://localhost:5001/pin', form, axiosConfig)
   console.log('result', result.data)
 }
 

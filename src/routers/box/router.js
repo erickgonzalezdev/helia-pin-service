@@ -2,7 +2,7 @@ import Router from 'koa-router'
 import Controller from './controller.js'
 
 class RouterHanlder {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.middleware = config.middleware
 
     if (!this.middleware) { throw new Error('Middleware must be provided when instantiate a Router') }
@@ -24,7 +24,7 @@ class RouterHanlder {
     this.boxSignature = this.boxSignature.bind(this)
   }
 
-  async start(app) {
+  async start (app) {
     if (!app) { throw new Error('App is required!') }
 
     this.router.post('/', this.createBox)
@@ -35,36 +35,38 @@ class RouterHanlder {
     this.router.post('/add', this.addPin)
     this.router.post('/sign', this.boxSignature)
 
-
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
   }
 
-  async createBox(ctx, next) {
+  async createBox (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.createBox(ctx, next)
   }
 
-  async getBoxes(ctx, next) {
+  async getBoxes (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getBoxes(ctx, next)
   }
-  async getBox(ctx, next) {
+
+  async getBox (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getBox(ctx, next)
   }
-  async updateBox(ctx, next) {
+
+  async updateBox (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getBox(ctx, next)
     await this.controller.updateBox(ctx, next)
   }
-  async deleteBox(ctx, next) {
+
+  async deleteBox (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getBox(ctx, next)
     await this.controller.deleteBox(ctx, next)
   }
 
-  async addPin(ctx, next) {
+  async addPin (ctx, next) {
     const type = await this.middleware.getJWTType(ctx)
     if (type === 'userAccess') {
       await this.middleware.userValidators.ensureUser(ctx, next)
@@ -76,7 +78,7 @@ class RouterHanlder {
     await this.controller.addPin(ctx, next)
   }
 
-  async boxSignature(ctx, next) {
+  async boxSignature (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.boxSignature(ctx, next)
   }

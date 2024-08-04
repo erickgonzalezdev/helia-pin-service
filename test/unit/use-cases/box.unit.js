@@ -52,7 +52,7 @@ describe('#box-use-case', () => {
     it('should throw an error if description is not provided', async () => {
       try {
         const inObj = {
-          label: 'box1',
+          label: 'box1'
         }
 
         await uut.createBox(inObj)
@@ -204,7 +204,6 @@ describe('#box-use-case', () => {
 
     it('should delete the box from the database', async () => {
       await uut.deleteBox(testData.box)
-
     })
   })
 
@@ -222,7 +221,7 @@ describe('#box-use-case', () => {
     it('should throw error if no boxId provided', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          pinId: 'pinid'
         }
         await uut.addPinByUser(input)
 
@@ -320,8 +319,6 @@ describe('#box-use-case', () => {
     })
   })
 
-
-
   describe('#addPinBySignature', () => {
     it('should throw error if no pinId provided', async () => {
       try {
@@ -336,7 +333,7 @@ describe('#box-use-case', () => {
     it('should throw error if no box provided', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          pinId: 'pinid'
         }
         await uut.addPinBySignature(input)
 
@@ -350,7 +347,7 @@ describe('#box-use-case', () => {
       try {
         const input = {
           pinId: 'pinid',
-          box: { _id: 'my box id' , save:()=>{}}
+          box: { _id: 'my box id', save: () => {} }
         }
         await uut.addPinBySignature(input)
 
@@ -362,11 +359,10 @@ describe('#box-use-case', () => {
     })
     it('should throw error if box owner and user does not match.', async () => {
       try {
-
         const input = {
           pinId: 'pinid',
           user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id' , owner: 'an user id',save:()=>{}}
+          box: { _id: 'my box id', owner: 'an user id', save: () => {} }
         }
         await uut.addPinBySignature(input)
 
@@ -378,11 +374,10 @@ describe('#box-use-case', () => {
     })
     it('should throw error if  box signature and provided boxId does not match.', async () => {
       try {
-
         const input = {
           pinId: 'pinid',
           user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id' , owner: 'userId',save:()=>{}},
+          box: { _id: 'my box id', owner: 'userId', save: () => {} },
           boxId: 'random box id'
         }
         await uut.addPinBySignature(input)
@@ -401,7 +396,7 @@ describe('#box-use-case', () => {
         const input = {
           pinId: 'pinid',
           user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id' , owner: 'userId',save:()=>{}},
+          box: { _id: 'my box id', owner: 'userId', save: () => {} },
           boxId: 'my box id'
         }
         await uut.addPinBySignature(input)
@@ -418,7 +413,7 @@ describe('#box-use-case', () => {
       const input = {
         pinId: 'pinid',
         user: { save: () => { }, _id: 'userId' },
-        box: { _id: 'my box id' ,pinList :[], owner: 'userId',save:()=>{}},
+        box: { _id: 'my box id', pinList: [], owner: 'userId', save: () => {} },
         boxId: 'my box id'
       }
       const result = await uut.addPinBySignature(input)
@@ -447,7 +442,7 @@ describe('#box-use-case', () => {
     it('should throw error if no user provided', async () => {
       try {
         const input = {
-          boxId: 'my box id',
+          boxId: 'my box id'
         }
         await uut.boxSignature(input)
 
@@ -461,7 +456,7 @@ describe('#box-use-case', () => {
       try {
         const input = {
           boxId: 'my box id',
-          user: { _id: 'my user id' , save:()=>{}}
+          user: { _id: 'my user id', save: () => {} }
         }
         await uut.boxSignature(input)
 
@@ -490,7 +485,7 @@ describe('#box-use-case', () => {
     })
     it('should throw error if box owner and user does not match.', async () => {
       try {
-        sandbox.stub(uut.db.Box, 'findById').resolves({ _id: 'my box id' , owner: 'unknow user id'})
+        sandbox.stub(uut.db.Box, 'findById').resolves({ _id: 'my box id', owner: 'unknow user id' })
 
         const input = {
           label: 'this is my key',
@@ -508,7 +503,7 @@ describe('#box-use-case', () => {
 
     it('should generate signature', async () => {
       uut.config.passKey = 'key to sign'
-      const boxMock = {_id: 'my box id' , owner: 'userId', signatures :[] , save: ()=>{}}
+      const boxMock = { _id: 'my box id', owner: 'userId', signatures: [], save: () => {} }
       sandbox.stub(uut.db.Box, 'findById').resolves(boxMock)
 
       const input = {
@@ -525,7 +520,6 @@ describe('#box-use-case', () => {
       assert.equal(result.label, 'this is my key')
       assert.isString(result.key)
       assert.isArray(boxMock.signatures)
-      
 
       // Testing updated signature list content.
       const addedSignature = boxMock.signatures[0]
@@ -534,7 +528,6 @@ describe('#box-use-case', () => {
       assert.property(addedSignature, 'key')
       assert.equal(addedSignature.label, 'this is my key')
       assert.isString(addedSignature.key)
-
     })
   })
 })

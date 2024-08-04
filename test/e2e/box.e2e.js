@@ -10,9 +10,8 @@ let app // global var
 
 describe('e2e-box', () => {
   let sandbox
-  let testData = {}
+  const testData = {}
   before(async () => {
-
     app = await startApp()
     await cleanDb()
     await cleanNode()
@@ -44,7 +43,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box`,
@@ -63,7 +61,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box`,
@@ -86,7 +83,7 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           }
         }
         await axios(options)
@@ -136,7 +133,7 @@ describe('e2e-box', () => {
 
         assert(result.status === 200)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -160,7 +157,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'GET',
           url: `${LOCALHOST}/box`,
@@ -179,7 +175,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'GET',
           url: `${LOCALHOST}/box`,
@@ -202,7 +197,7 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           }
         }
         await axios(options)
@@ -247,7 +242,7 @@ describe('e2e-box', () => {
         assert(result.status === 200)
         assert.isArray(result.data)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -271,7 +266,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'GET',
           url: `${LOCALHOST}/box/${testData.box._id}`,
@@ -290,7 +284,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'GET',
           url: `${LOCALHOST}/box/${testData.box._id}`,
@@ -313,7 +306,7 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box/${testData.box._id}`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           }
         }
         await axios(options)
@@ -361,9 +354,8 @@ describe('e2e-box', () => {
 
         assert(result.status === 200)
         assert.isObject(result.data.box)
-
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -488,26 +480,25 @@ describe('e2e-box', () => {
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
 
-
   describe('POST /box/sign', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
-       // sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
+        // sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
 
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           },
           data: {
-            boxId : testData.box._id,
-            label : 'label'
+            boxId: testData.box._id,
+            label: 'label'
           }
         }
         await axios(options)
@@ -519,7 +510,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
@@ -528,8 +518,8 @@ describe('e2e-box', () => {
             Authorization: '1'
           },
           data: {
-            boxId : testData.box._id,
-            label : 'label'
+            boxId: testData.box._id,
+            label: 'label'
           }
         }
         await axios(options)
@@ -542,7 +532,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
@@ -551,8 +540,8 @@ describe('e2e-box', () => {
             Authorization: `Unknow ${token}`
           },
           data: {
-            boxId : testData.box._id,
-            label : 'label'
+            boxId: testData.box._id,
+            label: 'label'
           }
         }
         await axios(options)
@@ -569,11 +558,11 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box/sign`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           },
           data: {
-            boxId : testData.box._id,
-            label : 'label'
+            boxId: testData.box._id,
+            label: 'label'
           }
         }
         await axios(options)
@@ -585,7 +574,6 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
@@ -594,7 +582,7 @@ describe('e2e-box', () => {
             Authorization: `Bearer ${testData.user.token}`
           },
           data: {
-            boxId : testData.box._id,
+            boxId: testData.box._id
           }
         }
         await axios(options)
@@ -607,7 +595,7 @@ describe('e2e-box', () => {
     })
     it('should generate box signature', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
@@ -617,8 +605,8 @@ describe('e2e-box', () => {
             Authorization: `Bearer ${testData.user.token}`
           },
           data: {
-            boxId : testData.box._id,
-            label : 'my key'
+            boxId: testData.box._id,
+            label: 'my key'
           }
         }
         const result = await axios(options)
@@ -626,25 +614,23 @@ describe('e2e-box', () => {
         assert.isObject(result.data)
         testData.signature = result.data
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
 
-
   describe('POST /box/add', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/add`,
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           },
           data: {
-            boxId : testData.box._id,
-            pinId : 'mockPin'
+            boxId: testData.box._id,
+            pinId: 'mockPin'
           }
         }
         await axios(options)
@@ -656,7 +642,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/add`,
@@ -665,8 +650,8 @@ describe('e2e-box', () => {
             Authorization: '1'
           },
           data: {
-            boxId : testData.box._id,
-            pinId : 'mockPin'
+            boxId: testData.box._id,
+            pinId: 'mockPin'
           }
         }
         await axios(options)
@@ -679,7 +664,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/add`,
@@ -688,8 +672,8 @@ describe('e2e-box', () => {
             Authorization: `Unknow ${token}`
           },
           data: {
-            boxId : testData.box._id,
-            pinId : 'mockPin'
+            boxId: testData.box._id,
+            pinId: 'mockPin'
           }
         }
         await axios(options)
@@ -706,11 +690,11 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box/add`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           },
           data: {
-            boxId : testData.box._id,
-            pinId : 'mockPin'
+            boxId: testData.box._id,
+            pinId: 'mockPin'
           }
         }
         await axios(options)
@@ -722,7 +706,6 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/add`,
@@ -743,7 +726,7 @@ describe('e2e-box', () => {
     })
     it('should add pin to box  by owner', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
@@ -753,20 +736,20 @@ describe('e2e-box', () => {
             Authorization: `Bearer ${testData.user.token}`
           },
           data: {
-            boxId : testData.box._id,
-            pinId : 'smoke pin',
+            boxId: testData.box._id,
+            pinId: 'smoke pin'
           }
         }
         const result = await axios(options)
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
     it('should add pin to box  by key', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
 
         const boxSignature = testData.signature.key
         const options = {
@@ -777,18 +760,17 @@ describe('e2e-box', () => {
             Authorization: `Bearer ${boxSignature}`
           },
           data: {
-            pinId : 'smoke pin',
+            pinId: 'smoke pin'
           }
         }
         const result = await axios(options)
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
-
 
   describe('DELETE /box/:id', () => {
     it('should reject if the authorization header is missing', async () => {
@@ -809,7 +791,6 @@ describe('e2e-box', () => {
     })
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
-
         const options = {
           method: 'DELETE',
           url: `${LOCALHOST}/box/${testData.box._id}`,
@@ -828,7 +809,6 @@ describe('e2e-box', () => {
     it('should reject if the authorization header has invalid scheme', async () => {
       const { token } = testData.user
       try {
-
         const options = {
           method: 'DELETE',
           url: `${LOCALHOST}/box/${testData.box._id}`,
@@ -851,7 +831,7 @@ describe('e2e-box', () => {
           url: `${LOCALHOST}/box/${testData.box._id}`,
           headers: {
             Accept: 'application/json',
-            Authorization: `Bearer 1`
+            Authorization: 'Bearer 1'
           }
         }
         await axios(options)
@@ -897,7 +877,7 @@ describe('e2e-box', () => {
         assert(result.status === 200)
         assert.isTrue(result.data)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })

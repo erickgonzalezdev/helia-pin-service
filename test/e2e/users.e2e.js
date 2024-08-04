@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
-import { cleanDb, cleanNode , startApp } from '../util/test-util.js'
+import { cleanDb, cleanNode, startApp } from '../util/test-util.js'
 
 const testData = {}
 const LOCALHOST = `http://localhost:${config.port}`
@@ -12,8 +12,7 @@ let app // global var
 describe('e2e-users', () => {
   let sandbox
   before(async () => {
-
-    app = await  startApp()
+    app = await startApp()
     await cleanDb()
     await cleanNode()
   })
@@ -60,7 +59,7 @@ describe('e2e-users', () => {
         assert(result.data.user.username === 'testname')
         assert(result.data.user.password === undefined)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -140,7 +139,7 @@ describe('e2e-users', () => {
         assert(result.data.user.username === 'testname')
         assert(result.data.user.password === undefined)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -254,7 +253,7 @@ describe('e2e-users', () => {
         assert(user.username === 'testname')
         assert(user.password === undefined)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -368,7 +367,7 @@ describe('e2e-users', () => {
         assert(result.data.username === 'testname')
         assert(result.data.password === undefined)
       } catch (error) {
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })
@@ -496,8 +495,7 @@ describe('e2e-users', () => {
         assert(result.data.password === undefined)
         assert.equal(result.data.username, options.data.username)
       } catch (error) {
-        // console.log(error)
-        throw error
+        assert.fail('Unexpected code path.')
       }
     })
   })

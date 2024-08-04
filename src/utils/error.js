@@ -1,6 +1,6 @@
 class ErrorHandler {
-  constructor () {
-
+  constructor (config = {}) {
+    this.config = config
   }
 
   handleCtxError (ctx, err) {

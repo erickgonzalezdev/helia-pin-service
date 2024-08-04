@@ -68,7 +68,7 @@ describe('#User-Validators.js', () => {
     it('should throw an error received token owner is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
-        sandbox.stub(uut.jwt, 'verify').returns({ type : 'userAccess'})
+        sandbox.stub(uut.jwt, 'verify').returns({ type: 'userAccess' })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
 
         ctxMock.request.header.authorization = 'Bearer token'
@@ -97,7 +97,7 @@ describe('#User-Validators.js', () => {
 
     it('should return true', async () => {
       sandbox.stub(uut, 'getToken').returns('token')
-      sandbox.stub(uut.jwt, 'verify').returns({ type : 'userAccess'})
+      sandbox.stub(uut.jwt, 'verify').returns({ type: 'userAccess' })
       sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
 
       ctxMock.request.header.authorization = 'Bearer token'
