@@ -18,6 +18,7 @@ class RouterHanlder {
     this.start = this.start.bind(this)
     this.pin = this.pin.bind(this)
     this.getPins = this.getPins.bind(this)
+    this.getPin = this.getPin.bind(this)
   }
 
   async start (app) {
@@ -25,17 +26,25 @@ class RouterHanlder {
 
     this.router.post('/', koaBody({ multipart: true }), this.pin)
     this.router.get('/', this.getPins)
+    this.router.get('/:id', this.getPin)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
   }
 
   async pin (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.pin(ctx, next)
   }
 
   async getPins (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getPins(ctx, next)
+  }
+
+  async getPin (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.getPin(ctx, next)
   }
 }
 

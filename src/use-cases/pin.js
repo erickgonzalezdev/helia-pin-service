@@ -8,6 +8,7 @@ export default class PinUseCases {
     // Bind function to this class.
     this.pinFile = this.pinFile.bind(this)
     this.getPins = this.getPins.bind(this)
+    this.getPin = this.getPin.bind(this)
   }
 
   async pinFile (inObj = {}) {
@@ -52,6 +53,21 @@ export default class PinUseCases {
       return pins
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getPins() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getPin (inObj = {}) {
+    try {
+      const { id } = inObj
+
+      if (!id || typeof id !== 'string') {
+        throw new Error('id is required')
+      }
+      const pin = await this.db.Pin.findById(id)
+      return pin
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/getPin() $ ${error.message}`)
       throw error
     }
   }
