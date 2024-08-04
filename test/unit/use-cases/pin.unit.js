@@ -8,7 +8,7 @@ import { HeliaNodeMock, FileMock } from '../mocks/helia-node-mock.js'
 describe('#pin-use-case', () => {
   let uut
   let sandbox
-
+  const testData = {}
   before(async () => {
     uut = new UseCase({ libraries: new Libraries() })
     // Mock node
@@ -74,6 +74,7 @@ describe('#pin-use-case', () => {
       assert.property(result, 'cid')
       assert.property(result, '_id')
       assert.equal(result.cid, 'pinnedcid')
+      testData.pin = result
     })
   })
 
@@ -94,6 +95,35 @@ describe('#pin-use-case', () => {
       const result = await uut.getPins()
 
       assert.isArray(result)
+    })
+  })
+
+  describe('#getPin', () => {
+    it('should throw error if input is missing', async () => {
+      try {
+        await uut.getPin()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'id is required')
+      }
+    })
+    it('should catch and throw an error', async () => {
+      try {
+        // Force an error.
+        sandbox.stub(uut.db.Pin, 'findById').throws(new Error('test error'))
+
+        await uut.getPin({ id: 'myid' })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should get pin', async () => {
+      const res = await uut.getPin({ id: testData.pin._id.toString() })
+      testData.box = res
+      assert.isObject(res)
     })
   })
 })
