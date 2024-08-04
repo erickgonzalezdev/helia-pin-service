@@ -1,5 +1,5 @@
 export default class PinBoxController {
-  constructor (config = {}) {
+  constructor(config = {}) {
     this.useCases = config.useCases
 
     if (!this.useCases) { throw new Error('Uses cases must be provided when instantiate a Controller') }
@@ -12,6 +12,8 @@ export default class PinBoxController {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
+    this.addPin = this.addPin.bind(this)
+    this.boxSignature = this.boxSignature.bind(this)
   }
 
   /**
@@ -22,16 +24,17 @@ export default class PinBoxController {
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{  "label": "my box", "description": "art box"  }' localhost:5001/box
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "label": "my box", "description": "art box"  }' localhost:5001/box
  *
  * @apiParam {String} label Box title.
  * @apiParam {String} description  Box description.
  *
  *
  */
-  async createBox (ctx) {
+  async createBox(ctx) {
     try {
       const inObj = ctx.request.body
+      inObj.user = ctx.state.user
       const box = await this.useCases.Box.createBox(inObj)
       ctx.body = {
         box
@@ -53,7 +56,7 @@ export default class PinBoxController {
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/<id>
  *
  */
-  async getBox (ctx, next) {
+  async getBox(ctx, next) {
     try {
       const box = await this.useCases.Box.getBox(ctx.params)
       ctx.body = { box }
@@ -77,7 +80,7 @@ export default class PinBoxController {
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box
 *
 */
-  async getBoxes (ctx) {
+  async getBoxes(ctx) {
     try {
       const boxes = await this.useCases.Box.getBoxes()
       ctx.body = boxes
@@ -98,7 +101,7 @@ export default class PinBoxController {
 
  */
 
-  async updateBox (ctx) {
+  async updateBox(ctx) {
     try {
       const existingData = ctx.body.box
       const newData = ctx.request.body
@@ -118,17 +121,71 @@ export default class PinBoxController {
    * @apiGroup Box
    *
    * @apiExample Example usage:
-   * curl -H "Content-Type: application/json" -X DELETE localhost:5000/box/56bd1da600a526986cf65c80
+   * curl -H "Content-Type: application/json" -X DELETE localhost:5001/box/<id>
    *
    */
 
-    async deleteBox (ctx) {
-      try {
-        const box =  ctx.body.box
-        const result = await this.useCases.Box.deleteBox(box)
-        ctx.body = result
-      } catch (error) {
-        this.handleError(ctx, error)
-      }
+  async deleteBox(ctx) {
+    try {
+      const box = ctx.body.box
+      const result = await this.useCases.Box.deleteBox(box)
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
     }
+  }
+
+  /**
+ * @api {post} /box/add Add a pin to box.
+ * @apiPermission User || Box Signature
+ * @apiName AddPin
+ * @apiGroup Box
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "pinId": "my pin id", "boxId": "my box id"  }' localhost:5001/box/add
+ *
+ */
+
+  async addPin(ctx) {
+    try {
+      const type = ctx.state.jwtType
+      const input = ctx.request.body
+      input.user = ctx.state.user
+      input.box = ctx.state.box
+
+      let result
+      if (type === 'userAccess') {
+        result = await this.useCases.Box.addPinByUser(input)
+      }
+
+      if (type === 'boxAccess') {
+        result = await this.useCases.Box.addPinBySignature(input)
+      }
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+* @api {post} /box/sign Box signature.
+* @apiPermission user
+* @apiName BoxSignature
+* @apiGroup Box
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "label": "signature label", "boxId": "my box id"  }' localhost:5001/box/sign
+*
+*/
+
+  async boxSignature(ctx) {
+    try {
+      const input = ctx.request.body
+      input.user = ctx.state.user
+      const result = await this.useCases.Box.boxSignature(input)
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
 }

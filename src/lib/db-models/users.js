@@ -38,8 +38,7 @@ User.methods.validatePassword = async function validatePassword (password) {
 // Generate a JWT token.
 User.methods.generateToken = function generateToken () {
   const user = this
-
-  const token = jwt.sign({ id: user.id }, config.passKey)
+  const token = jwt.sign({ id: user.id , type:'userAccess'}, config.passKey)
 
   return token
 }

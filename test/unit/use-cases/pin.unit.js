@@ -65,15 +65,19 @@ describe('#pin-use-case', () => {
 
     it('should ignore "already pinned" error', async () => {
       
-        sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('already pinned'))
+        sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('Already pinned'))
         await uut.pinFile({ file: FileMock})
     })
 
     it('should pin file', async () => {
-      sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('cid')
+      sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('pinnedcid')
       const result = await uut.pinFile({ file: FileMock })
 
-      assert.equal(result , 'cid')
+      assert.isObject(result )
+      assert.property(result ,'cid')
+      assert.property(result ,'_id')
+      assert.equal(result.cid , 'pinnedcid')
+
     })
   })
 

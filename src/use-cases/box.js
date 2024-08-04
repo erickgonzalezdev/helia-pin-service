@@ -1,6 +1,8 @@
 export default class BoxUseCases {
   constructor(config = {}) {
+    this.config =  config
     this.db = config.libraries.dbModels
+    this.jwt = config.libraries.jwt
     this.wlogger = config.libraries.wlogger
     // this.passport = config.libraries.passport
 
@@ -10,11 +12,14 @@ export default class BoxUseCases {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
+    this.addPinByUser = this.addPinByUser.bind(this)
+    this.addPinBySignature = this.addPinBySignature.bind(this)
+    this.boxSignature = this.boxSignature.bind(this)
   }
 
   async createBox(inObj = {}) {
     try {
-      const { label, description } = inObj
+      const { label, description , user } = inObj
       if (!label || typeof label !== 'string') {
         throw new Error('label is required!')
       }
@@ -22,9 +27,14 @@ export default class BoxUseCases {
       if (!description || typeof description !== 'string') {
         throw new Error('description is required!')
       }
+      if (!user ) {
+        throw new Error('user is required!')
+      }
+
 
       const box = new this.db.Box(inObj)
       box.createdAt = new Date().getTime()
+      box.owner = user._id
 
       await box.save()
 
@@ -94,4 +104,88 @@ export default class BoxUseCases {
       throw error
     }
   }
+
+  // add pin by user
+  async  addPinByUser(inObj = {}){
+    try {
+      const {  pinId  , boxId  , user  } =  inObj
+      if(!pinId) throw new Error('pinId is required!')
+      if(!boxId) throw new Error('boxId is required!')
+      if(!user) throw new Error('user is required!')
+
+
+      const box = await this.db.Box.findById(boxId)
+      if(!box) throw new Error('Box not found!')
+
+      if(box.owner.toString() !==  user._id.toString()){
+        throw new Error('Unauthorized!')
+      }
+
+      
+      const pin = await this.db.Pin.findById(pinId)
+      if(!pin) throw new Error('Pin not found!')
+
+      box.pinList.push(pin._id.toString())
+
+      await box.save()
+
+      return box
+    } catch (error) {
+      throw error
+    }
+  }
+  // add pin by external
+  async  addPinBySignature(inObj = {}){
+    try {
+      const {  pinId  , box  , user , boxId } =  inObj
+      if(!pinId) throw new Error('pinId is required!')
+      if(!box) throw new Error('box is required!')
+      if(!user) throw new Error('user is required!')
+
+      if(box.owner.toString() !==  user._id.toString()){
+        throw new Error('Unauthorized!')
+      }
+
+      // Ensure that the signature belongs to the provided boxid
+      if(boxId && boxId !== box._id){
+        throw new Error('The signature does not belong to provided box.')
+      }
+
+      const pin = await this.db.Pin.findById(pinId)
+      if(!pin) throw new Error('Pin not found!')
+
+      box.pinList.push(pin._id.toString())
+
+      await box.save()
+
+      return box
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async  boxSignature(inObj = {}){
+    try {
+      const { boxId , user , label } =  inObj
+      if(!boxId) throw new Error('boxId is required!')
+      if(!user) throw new Error('user is required!')
+      if(!label || typeof label !== 'string') throw new Error('label is required!')
+
+      
+      const box = await this.db.Box.findById(boxId)
+      if(!box){ throw new Error('Box not found!')}
+
+      if(box.owner !== user._id.toString()){
+        throw new Error('Unauthorized!')
+      }
+
+      const key = this.jwt.sign({ userId: user._id.toString() , boxId :  box._id.toString() , type:'boxAccess' }, this.config.passKey)
+      box.signatures.push({ label , key })
+      await box.save()
+
+      return { label , key }
+    } catch (error) {
+      throw error
+    }
+  } 
 }
