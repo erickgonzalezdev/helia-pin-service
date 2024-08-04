@@ -2,6 +2,7 @@ import DbModels from './db-models/index.js'
 import Passport from './passport.js'
 import Logger from './winston-logger.js'
 import HeliaNode from './helia-ipfs-node.js'
+import jwt from 'jsonwebtoken'
 
 class Lib {
   constructor (config = {}) {
@@ -18,6 +19,8 @@ class Lib {
     this.passport = new Passport(this.config)
 
     this.heliaNode = new HeliaNode(this.config)
+
+    this.jwt = jwt
   }
 
   // Start libraries functionalities

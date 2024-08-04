@@ -26,23 +26,22 @@ export default class PinUseCases {
         await this.heliaNode.node.pinCid(cidObject)
       } catch (error) {
         // ignore if is already pinned
-        if(!error.message.match('already')) throw error
+        if(!error.message.match('Already')) throw error
       }
 
-      const pin = await this.db.Pin.findOne({ cid })
-
+      let pin = await this.db.Pin.findOne({ cid })
       // create pin data into the db
       if(!pin){
-        const newPin = new this.db.Pin({ cid })
-        newPin.createdAt = new Date().getTime()
-        newPin.type =  file.mimetype
-        newPin.name = file.originalFilename
-        newPin.size = file.size
-        await newPin.save()
+        pin = new this.db.Pin({ cid })
+        pin.createdAt = new Date().getTime()
+        pin.type =  file.mimetype
+        pin.name = file.originalFilename
+        pin.size = file.size
+        await pin.save()
 
       }
 
-      return cid
+      return pin
     } catch (error) {
       this.wlogger.error(`Error in use-cases/pinFile() ${error.message}`)
       throw error

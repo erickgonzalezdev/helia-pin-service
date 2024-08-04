@@ -32,8 +32,8 @@ export default class PinController {
     try {
       const file =  ctx.request.files.file || ctx.request.files.upload
 
-      const cid =  await this.useCases.pin.pinFile({ file })
-      ctx.body = { cid }
+      const result =  await this.useCases.pin.pinFile({ file })
+      ctx.body = result
     } catch (error) {
       console.log("pin error", error)
       this.handleError(ctx, error)
@@ -44,8 +44,8 @@ export default class PinController {
   /**
  * @api {get} /users/:id Get Pins
  * @apiPermission user
- * @apiName GetPins
- * @apiGroup Pin
+ * @apiName GetPINs
+ * @apiGroup PIN
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:

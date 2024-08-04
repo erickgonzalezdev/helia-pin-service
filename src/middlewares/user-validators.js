@@ -30,7 +30,9 @@ export default class UserValidator {
       } catch (err) {
         throw new Error('Could not verify JWT')
       }
-
+      if(decoded.type !== 'userAccess'){
+        throw new Error('Could not verify JWT')
+      }
       ctx.state.user = await this.dbModels.Users.findById(decoded.id, '-password')
 
       if (!ctx.state.user) {

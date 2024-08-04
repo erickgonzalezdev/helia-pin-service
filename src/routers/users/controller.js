@@ -47,7 +47,7 @@ export default class UsersController {
   /**
  * @api {post} /users/auth Authenticate user
  * @apiName AuthUser
- * @apiGroup Auth
+ * @apiGroup Users
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:

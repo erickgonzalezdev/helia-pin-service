@@ -2,7 +2,9 @@ import { assert } from 'chai'
 import sinon from 'sinon'
 
 import UserModel from '../../../src/lib/db-models/users.js'
-import MiddlewareUnderTest from '../../../src/middlewares/user-validators.js'
+import BoxModel from '../../../src/lib/db-models/box.js'
+
+import MiddlewareUnderTest from '../../../src/middlewares/box-access-validator.js'
 
 const KoaContextMock = {
   state: {},
@@ -11,12 +13,12 @@ const KoaContextMock = {
 }
 
 let ctxMock
-describe('#User-Validators.js', () => {
+describe('#Box-Access-Validators.js', () => {
   let uut
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel } } })
+    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel , Box: BoxModel } } })
   })
 
   beforeEach(() => {
@@ -30,10 +32,10 @@ describe('#User-Validators.js', () => {
 
   after(async () => {
   })
-  describe('#ensureUser', () => {
+  describe('#ensureBoxSignature', () => {
     it('should throw an error if ctx is not provided', async () => {
       try {
-        await uut.ensureUser()
+        await uut.ensureBoxSignature()
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'Koa context (ctx) is required!')
@@ -43,7 +45,7 @@ describe('#User-Validators.js', () => {
       try {
         sandbox.stub(uut, 'getToken').returns(null)
 
-        await uut.ensureUser(ctxMock)
+        await uut.ensureBoxSignature(ctxMock)
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -56,7 +58,7 @@ describe('#User-Validators.js', () => {
         sandbox.stub(uut.jwt, 'verify').throws(new Error('Could not verify JWT'))
 
         ctxMock.request.header.authorization = 'Bearer token'
-        await uut.ensureUser(ctxMock)
+        await uut.ensureBoxSignature(ctxMock)
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -65,18 +67,36 @@ describe('#User-Validators.js', () => {
       }
     })
 
-    it('should throw an error received token owner is not found', async () => {
+    it('should throw an error if received token owner is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
-        sandbox.stub(uut.jwt, 'verify').returns({ type : 'userAccess'})
+        sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
+        sandbox.stub(uut.dbModels.Box, 'findById').resolves({})
+
 
         ctxMock.request.header.authorization = 'Bearer token'
-        await uut.ensureUser(ctxMock)
+        await uut.ensureBoxSignature(ctxMock)
 
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'Could not find user')
+      }
+    })
+    it('should throw an error if received Box is not found', async () => {
+      try {
+        sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
+        sandbox.stub(uut.dbModels.Users, 'findById').resolves({})
+        sandbox.stub(uut.dbModels.Box, 'findById').resolves(null)
+
+
+        ctxMock.request.header.authorization = 'Bearer token'
+        await uut.ensureBoxSignature(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not find box')
       }
     })
 
@@ -87,7 +107,7 @@ describe('#User-Validators.js', () => {
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
 
         ctxMock.request.header.authorization = 'Bearer token'
-        await uut.ensureUser(ctxMock)
+        await uut.ensureBoxSignature(ctxMock)
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -97,11 +117,12 @@ describe('#User-Validators.js', () => {
 
     it('should return true', async () => {
       sandbox.stub(uut, 'getToken').returns('token')
-      sandbox.stub(uut.jwt, 'verify').returns({ type : 'userAccess'})
+      sandbox.stub(uut.jwt, 'verify').returns({ type : 'boxAccess'})
       sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
+      sandbox.stub(uut.dbModels.Box, 'findById').resolves({ _id: 'muBoxId' })
 
       ctxMock.request.header.authorization = 'Bearer token'
-      const result = await uut.ensureUser(ctxMock)
+      const result = await uut.ensureBoxSignature(ctxMock)
 
       assert.isTrue(result)
     })
