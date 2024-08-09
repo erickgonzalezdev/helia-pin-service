@@ -4,7 +4,8 @@ import sinon from 'sinon'
 import UseCase from '../../../src/use-cases/pin.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb } from '../../util/test-util.js'
-import { HeliaNodeMock, FileMock } from '../mocks/helia-node-mock.js'
+import { HeliaNodeMock, FileMock, PinRPCMock } from '../mocks/helia-node-mock.js'
+
 describe('#pin-use-case', () => {
   let uut
   let sandbox
@@ -13,6 +14,7 @@ describe('#pin-use-case', () => {
     uut = new UseCase({ libraries: new Libraries() })
     // Mock node
     uut.heliaNode.node = new HeliaNodeMock()
+    uut.heliaNode.rpc = new PinRPCMock()
     await startDb()
     await cleanDb()
   })
@@ -52,18 +54,13 @@ describe('#pin-use-case', () => {
 
     it('should handle pin file error', async () => {
       try {
-        sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('test error'))
+        sandbox.stub(uut.heliaNode.rpc, 'requestRemotePin').throws(new Error('test error'))
         await uut.pinFile({ file: FileMock })
 
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'test error')
       }
-    })
-
-    it('should ignore "already pinned" error', async () => {
-      sandbox.stub(uut.heliaNode.node, 'pinCid').throws(new Error('Already pinned'))
-      await uut.pinFile({ file: FileMock })
     })
 
     it('should pin file', async () => {

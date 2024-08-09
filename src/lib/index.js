@@ -16,6 +16,7 @@ class Lib {
     this.config.wlogger = this.wlogger
 
     this.dbModels = new DbModels(this.config)
+    this.config.dbModels = this.dbModels
     this.passport = new Passport(this.config)
 
     this.heliaNode = new HeliaNode(this.config)

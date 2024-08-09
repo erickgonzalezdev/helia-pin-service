@@ -5,7 +5,9 @@ const Pin = new mongoose.Schema({
   createdAt: { type: Number, required: true },
   name: { type: String },
   type: { type: String },
-  size: { type: Number }
+  size: { type: Number },
+  host: { type: Array, default: [] },
+  pinned: { type: Boolean, default: false }
   // expiredAt: { type: String, required: true }
 })
 

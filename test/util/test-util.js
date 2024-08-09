@@ -19,6 +19,26 @@ export const createTestUser = async (inObj = { username: 'test', password: '1234
   }
 }
 
+export const createTestPinModel = async (inObj = {
+  cid: 'test cid',
+  name: 'testimg',
+  type: 'image/jpeg',
+  size: 5000,
+  createdAt: Date.now()
+}) => {
+  try {
+    const PinModel = libraries.dbModels.Pin
+    const pin = new PinModel(inObj)
+
+    await pin.save()
+
+    return pin
+  } catch (error) {
+    console.log(' Error in test/util.js/createTestUser()', error)
+    throw error
+  }
+}
+
 // Remove all collections from the DB.
 export const startApp = async () => {
   if (process.env.ENVIROMENT !== 'test') { throw new Error('Trying to start app without the `test` enviroment') }

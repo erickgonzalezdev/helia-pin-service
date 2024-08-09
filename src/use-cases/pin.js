@@ -1,5 +1,6 @@
 export default class PinUseCases {
   constructor (config = {}) {
+    this.config = config
     this.db = config.libraries.dbModels
     this.heliaNode = config.libraries.heliaNode
     this.wlogger = config.libraries.wlogger
@@ -23,8 +24,14 @@ export default class PinUseCases {
       const cid = cidObject.toString()
       // Pin file into ipfs node
       try {
-        await this.heliaNode.node.pinCid(cidObject)
+        const rpcObj = {
+          toPeerId: this.config.pinHostPeerId,
+          fromPeerId: this.heliaNode.node.peerId.toString(),
+          cid
+        }
+        await this.heliaNode.rpc.requestRemotePin(rpcObj)
       } catch (error) {
+        this.wlogger.error('Error on pin file RPC ', error)
         // ignore if is already pinned
         if (!error.message.match('Already')) throw error
       }
