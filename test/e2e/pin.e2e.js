@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
-import { cleanDb, startApp, cleanNode, createTestUser } from '../util/test-util.js'
+import { cleanDb, startApp, cleanNode, createTestUser, createTestBoxModel } from '../util/test-util.js'
 import FormData from 'form-data'
 
 const LOCALHOST = `http://localhost:${config.port}`
@@ -12,10 +12,12 @@ describe('e2e-pin', () => {
   let sandbox
   const testData = {}
   before(async () => {
-    app = await startApp()
+    config.passKey = 'testKey'
+    app = await startApp(config)
     await cleanDb()
     await cleanNode()
     testData.user = await createTestUser()
+    testData.box = await createTestBoxModel()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -113,6 +115,24 @@ describe('e2e-pin', () => {
           headers: form.getHeaders()
         }
         axiosConfig.headers.Authorization = `Bearer ${testData.user.token}`
+        form.append('file', Buffer.from('Unit under test'), 'test.txt')
+
+        // Send the file to the ipfs-file-stage server.
+        const result = await axios.post(`${LOCALHOST}/pin`, form, axiosConfig)
+        testData.pin = result.data
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+    it('should pin file with a boxkey', async () => {
+      try {
+        // Create a form and append the file to it.
+        const form = new FormData()
+        const axiosConfig = {
+          headers: form.getHeaders()
+        }
+        axiosConfig.headers.Authorization = `Bearer ${testData.box.signatures[0].key}`
         form.append('file', Buffer.from('Unit under test'), 'test.txt')
 
         // Send the file to the ipfs-file-stage server.

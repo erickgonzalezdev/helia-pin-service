@@ -6,7 +6,8 @@ import UseCases from '../../src/use-cases/index.js'
 import SERVER from '../../server.js'
 
 const libraries = new Libraries()
-const useCases = new UseCases({ libraries })
+config.libraries = libraries
+const useCases = new UseCases(config)
 let APP
 
 export const createTestUser = async (inObj = { username: 'test', password: '1234' }) => {
@@ -35,6 +36,25 @@ export const createTestPinModel = async (inObj = {
     return pin
   } catch (error) {
     console.log(' Error in test/util.js/createTestUser()', error)
+    throw error
+  }
+}
+
+export const createTestBoxModel = async (inObj = {
+  label: 'testBox',
+  description: 'test box'
+}) => {
+  try {
+    const user = await createTestUser({ username: 'boxOwner', password: 'testpass' })
+    inObj.user = user
+    const box = await useCases.Box.createBox(inObj)
+
+    const signature = await useCases.Box.boxSignature({ label: 'testSign', boxId: box._id.toString(), user })
+    box.signatures.push(signature)
+
+    return box
+  } catch (error) {
+    console.log('Error in test/util.js/createTestBoxModel()', error)
     throw error
   }
 }
