@@ -33,7 +33,13 @@ class RouterHanlder {
   }
 
   async pin (ctx, next) {
-    await this.middleware.userValidators.ensureUser(ctx, next)
+    const type = await this.middleware.getJWTType(ctx)
+    if (type === 'userAccess') {
+      await this.middleware.userValidators.ensureUser(ctx, next)
+    }
+    if (type === 'boxAccess') {
+      await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
+    }
     await this.controller.pin(ctx, next)
   }
 
