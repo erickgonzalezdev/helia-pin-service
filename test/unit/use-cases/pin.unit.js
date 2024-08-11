@@ -15,6 +15,7 @@ describe('#pin-use-case', () => {
     // Mock node
     uut.heliaNode.node = new HeliaNodeMock()
     uut.heliaNode.rpc = new PinRPCMock()
+    uut.handleUnpinedDelay = 1
     await startDb()
     await cleanDb()
   })
@@ -121,6 +122,27 @@ describe('#pin-use-case', () => {
       const res = await uut.getPin({ id: testData.pin._id.toString() })
       testData.box = res
       assert.isObject(res)
+    })
+  })
+
+  describe('#handleUnpinedFiles', () => {
+    it('should send pin request for unpinned files', async () => {
+      sandbox.stub(uut.db.Pin, 'find').resolves([
+        { cid: 'cid', pinned: false }
+      ])
+
+      const res = await uut.handleUnpinedFiles()
+      assert.isTrue(res)
+    })
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.Pin, 'find').throws(new Error('test error'))
+        await uut.handleUnpinedFiles()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
     })
   })
 })

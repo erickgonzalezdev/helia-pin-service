@@ -8,7 +8,7 @@ const config = {
   env,
   gatewayPort: process.env.GATEWAY_PORT || 8080,
   rpcTopic: process.env.TOPIC || 'pin-rpc-topic',
-  pinHostPeerId: process.env.PIN_HOST || '12D3KooWQiZR8xx4jtEdpq221gGFRCqHY2pDmuVAKfTSR43dGanU'
+  pinHostPeerId: process.env.PIN_HOST || '12D3KooWE2d8BnfLqVRJ3HZusgTUVHFq5EJezp49firDSbUe7MoR'
 }
 
 export default config

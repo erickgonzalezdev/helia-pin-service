@@ -56,7 +56,7 @@ class HeliaNode {
       pin.pinned = true
       pin.host.push(host)
       await pin.save()
-
+      console.log(`${cid} pin updated!`)
       return pin
     } catch (error) {
       this.wlogger.error('Error on onSuccessRemotePin() ', error)
