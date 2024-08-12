@@ -5,3 +5,4 @@ docs/*
 helia-data/*
 helia-data-test/*
 note.txt
+start-dev.sh
