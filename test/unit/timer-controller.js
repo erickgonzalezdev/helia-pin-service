@@ -13,7 +13,7 @@ describe('#TimerController', () => {
   before(async () => {
     const useCases = new UseCases({ libraries: new Libraries() })
     // mock function
-    useCases.pin.handleUnpinedFiles = async () => { return true }
+    useCases.files.handleUnpinedFiles = async () => { return true }
 
     uut = new TimerController({ useCases })
 
@@ -70,7 +70,7 @@ describe('#TimerController', () => {
         const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
         const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
         // Force an error.
-        sandbox.stub(uut.useCases.pin, 'handleUnpinedFiles').throws(new Error('test error'))
+        sandbox.stub(uut.useCases.files, 'handleUnpinedFiles').throws(new Error('test error'))
 
         const res = await uut.handleUnpinedFiles()
         assert.isFalse(res)

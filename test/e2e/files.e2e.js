@@ -8,7 +8,7 @@ import FormData from 'form-data'
 const LOCALHOST = `http://localhost:${config.port}`
 
 let app
-describe('e2e-pin', () => {
+describe('e2e-file', () => {
   let sandbox
   const testData = {}
   before(async () => {
@@ -26,7 +26,7 @@ describe('e2e-pin', () => {
     sandbox.restore()
   })
 
-  describe('POST /pin', () => {
+  describe('POST /files', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
         const options = {
@@ -35,7 +35,7 @@ describe('e2e-pin', () => {
           }
         }
         const form = new FormData()
-        await axios.post(`${LOCALHOST}/pin`, form, options)
+        await axios.post(`${LOCALHOST}/files`, form, options)
 
         assert.fail('Invalid code path.')
       } catch (err) {
@@ -51,7 +51,7 @@ describe('e2e-pin', () => {
           }
         }
         const form = new FormData()
-        await axios.post(`${LOCALHOST}/pin`, form, options)
+        await axios.post(`${LOCALHOST}/files`, form, options)
         assert.fail('Invalid code path.')
       } catch (err) {
         assert.equal(err.response.status, 401)
@@ -67,7 +67,7 @@ describe('e2e-pin', () => {
           }
         }
         const form = new FormData()
-        await axios.post(`${LOCALHOST}/pin`, form, options)
+        await axios.post(`${LOCALHOST}/files`, form, options)
 
         assert.fail('Invalid code path.')
       } catch (err) {
@@ -83,7 +83,7 @@ describe('e2e-pin', () => {
           }
         }
         const form = new FormData()
-        await axios.post(`${LOCALHOST}/pin`, form, options)
+        await axios.post(`${LOCALHOST}/files`, form, options)
 
         assert.fail('Invalid code path.')
       } catch (err) {
@@ -100,14 +100,14 @@ describe('e2e-pin', () => {
         axiosConfig.headers.Authorization = `Bearer ${testData.user.token}`
 
         // Send the file to the ipfs-file-stage server.
-        await axios.post(`${LOCALHOST}/pin`, form, axiosConfig)
+        await axios.post(`${LOCALHOST}/files`, form, axiosConfig)
 
         assert.fail('Unexpected code path.')
       } catch (error) {
         assert.isString(error.response.data)
       }
     })
-    it('should pin file', async () => {
+    it('should upload file', async () => {
       try {
         // Create a form and append the file to it.
         const form = new FormData()
@@ -118,14 +118,14 @@ describe('e2e-pin', () => {
         form.append('file', Buffer.from('Unit under test'), 'test.txt')
 
         // Send the file to the ipfs-file-stage server.
-        const result = await axios.post(`${LOCALHOST}/pin`, form, axiosConfig)
-        testData.pin = result.data
+        const result = await axios.post(`${LOCALHOST}/files`, form, axiosConfig)
+        testData.file = result.data
         assert(result.status === 200)
       } catch (error) {
         assert.fail('Unexpected code path.')
       }
     })
-    it('should pin file with a boxkey', async () => {
+    it('should upload file with a boxkey', async () => {
       try {
         // Create a form and append the file to it.
         const form = new FormData()
@@ -136,8 +136,8 @@ describe('e2e-pin', () => {
         form.append('file', Buffer.from('Unit under test'), 'test.txt')
 
         // Send the file to the ipfs-file-stage server.
-        const result = await axios.post(`${LOCALHOST}/pin`, form, axiosConfig)
-        testData.pin = result.data
+        const result = await axios.post(`${LOCALHOST}/files`, form, axiosConfig)
+        testData.file = result.data
         assert(result.status === 200)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -145,12 +145,12 @@ describe('e2e-pin', () => {
     })
   })
 
-  describe('GET /pin', () => {
+  describe('GET /files', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json'
           }
@@ -166,7 +166,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json',
             Authorization: '1'
@@ -184,7 +184,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json',
             Authorization: `Unknow ${token}`
@@ -201,7 +201,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json',
             Authorization: 'Bearer 1'
@@ -216,11 +216,11 @@ describe('e2e-pin', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.pin, 'getPins').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.files, 'getFiles').throws(new Error('test error'))
 
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
@@ -233,11 +233,11 @@ describe('e2e-pin', () => {
         assert.isString(error.response.data)
       }
     })
-    it('should get pins', async () => {
+    it('should get files', async () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin`,
+          url: `${LOCALHOST}/files`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
@@ -252,12 +252,12 @@ describe('e2e-pin', () => {
     })
   })
 
-  describe('GET /pin/:id', () => {
+  describe('GET /files/:id', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json'
           }
@@ -273,7 +273,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json',
             Authorization: '1'
@@ -291,7 +291,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Unknow ${token}`
@@ -308,7 +308,7 @@ describe('e2e-pin', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json',
             Authorization: 'Bearer 1'
@@ -323,11 +323,11 @@ describe('e2e-pin', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.pin, 'getPin').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.files, 'getFile').throws(new Error('test error'))
 
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
@@ -340,11 +340,11 @@ describe('e2e-pin', () => {
         assert.isString(error.response.data)
       }
     })
-    it('should get pins', async () => {
+    it('should get files', async () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          url: `${LOCALHOST}/files/${testData.file._id}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`

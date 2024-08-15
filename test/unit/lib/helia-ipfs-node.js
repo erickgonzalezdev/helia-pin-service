@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import LibUnderTest from '../../../src/lib/helia-ipfs-node.js'
 import { HeliaNodeMock, HeliaServerMock } from '../mocks/helia-node-mock.js'
 import DbModels from '../../../src/lib/db-models/index.js'
-import { cleanDb, startDb, createTestPinModel } from '../../util/test-util.js'
+import { cleanDb, startDb, createTestFileModel } from '../../util/test-util.js'
 describe('#helia-ipfs-node.js', () => {
   let uut
   let sandbox
@@ -12,7 +12,7 @@ describe('#helia-ipfs-node.js', () => {
   before(async () => {
     await startDb()
     await cleanDb()
-    testData.pin = await createTestPinModel()
+    testData.file = await createTestFileModel()
   })
 
   beforeEach(() => {
@@ -59,11 +59,11 @@ describe('#helia-ipfs-node.js', () => {
   describe('#onSuccessRemotePin', () => {
     it('should update pin model', async () => {
       const inObj = {
-        cid: testData.pin.cid,
+        cid: testData.file.cid,
         host: 'peerId'
       }
       const result = await uut.onSuccessRemotePin(inObj)
-      assert.equal(result._id.toString(), testData.pin._id.toString())
+      assert.equal(result._id.toString(), testData.file._id.toString())
       assert.isTrue(result.pinned)
       assert.isString(result.host[0])
       assert.equal(result.host[0], inObj.host)

@@ -106,8 +106,8 @@ export default class BoxUseCases {
   // add pin by user
   async addPinByUser (inObj = {}) {
     try {
-      const { pinId, boxId, user } = inObj
-      if (!pinId) throw new Error('pinId is required!')
+      const { fileId, boxId, user } = inObj
+      if (!fileId) throw new Error('fileId is required!')
       if (!boxId) throw new Error('boxId is required!')
       if (!user) throw new Error('user is required!')
 
@@ -118,10 +118,10 @@ export default class BoxUseCases {
         throw new Error('Unauthorized!')
       }
 
-      const pin = await this.db.Pin.findById(pinId)
-      if (!pin) throw new Error('Pin not found!')
+      const file = await this.db.Files.findById(fileId)
+      if (!file) throw new Error('File not found!')
 
-      box.pinList.push(pin._id.toString())
+      box.pinList.push(file._id.toString())
 
       await box.save()
 
@@ -135,8 +135,8 @@ export default class BoxUseCases {
   // add pin by external
   async addPinBySignature (inObj = {}) {
     try {
-      const { pinId, box, user, boxId } = inObj
-      if (!pinId) throw new Error('pinId is required!')
+      const { fileId, box, user, boxId } = inObj
+      if (!fileId) throw new Error('fileId is required!')
       if (!box) throw new Error('box is required!')
       if (!user) throw new Error('user is required!')
 
@@ -149,10 +149,10 @@ export default class BoxUseCases {
         throw new Error('The signature does not belong to provided box.')
       }
 
-      const pin = await this.db.Pin.findById(pinId)
-      if (!pin) throw new Error('Pin not found!')
+      const file = await this.db.Files.findById(fileId)
+      if (!file) throw new Error('File not found!')
 
-      box.pinList.push(pin._id.toString())
+      box.pinList.push(file._id.toString())
 
       await box.save()
 

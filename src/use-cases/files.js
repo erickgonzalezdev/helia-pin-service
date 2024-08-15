@@ -1,4 +1,4 @@
-export default class PinUseCases {
+export default class FileUseCases {
   constructor (config = {}) {
     this.config = config
     this.db = config.libraries.dbModels
@@ -9,14 +9,14 @@ export default class PinUseCases {
     this.handleUnpinedDelay = 1000 // 1seg
 
     // Bind function to this class.
-    this.pinFile = this.pinFile.bind(this)
-    this.getPins = this.getPins.bind(this)
-    this.getPin = this.getPin.bind(this)
+    this.uploadFile = this.uploadFile.bind(this)
+    this.getFiles = this.getFiles.bind(this)
+    this.getFile = this.getFile.bind(this)
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.sleep = this.sleep.bind(this)
   }
 
-  async pinFile (inObj = {}) {
+  async uploadFile (inObj = {}) {
     try {
       const { file } = inObj
       if (!file) {
@@ -27,21 +27,21 @@ export default class PinUseCases {
       const cidObject = await this.heliaNode.node.uploadFile(file.filepath)
       const cid = cidObject.toString()
 
-      let pin = await this.db.Pin.findOne({ cid })
+      let fileObj = await this.db.Files.findOne({ cid })
 
-      // create pin data into the db
-      if (!pin) {
-        pin = new this.db.Pin({ cid })
-        pin.createdAt = new Date().getTime()
-        pin.type = file.mimetype
-        pin.name = file.originalFilename
-        pin.size = file.size
-        pin.pinned = false
-        await pin.save()
+      // create file data into the db
+      if (!fileObj) {
+        fileObj = new this.db.Files({ cid })
+        fileObj.createdAt = new Date().getTime()
+        fileObj.type = file.mimetype
+        fileObj.name = file.originalFilename
+        fileObj.size = file.size
+        fileObj.pinned = false
+        await fileObj.save()
       }
 
       // ignore pinned files
-      if (pin && !pin.pinned) {
+      if (fileObj && !fileObj.pinned) {
         // Pin file into ipfs node
         try {
           const rpcObj = {
@@ -57,49 +57,49 @@ export default class PinUseCases {
         }
       }
 
-      return pin
+      return fileObj
     } catch (error) {
-      this.wlogger.error(`Error in use-cases/pinFile() ${error.message}`)
+      this.wlogger.error(`Error in use-cases/uploadFile() ${error.message}`)
       throw error
     }
   }
 
-  async getPins () {
+  async getFiles () {
     try {
-      const pins = await this.db.Pin.find({})
-      return pins
+      const files = await this.db.Files.find({})
+      return files
     } catch (error) {
-      this.wlogger.error(`Error in use-cases/getPins() $ ${error.message}`)
+      this.wlogger.error(`Error in use-cases/getFiles() $ ${error.message}`)
       throw error
     }
   }
 
-  async getPin (inObj = {}) {
+  async getFile (inObj = {}) {
     try {
       const { id } = inObj
 
       if (!id || typeof id !== 'string') {
         throw new Error('id is required')
       }
-      const pin = await this.db.Pin.findById(id)
-      return pin
+      const file = await this.db.Files.findById(id)
+      return file
     } catch (error) {
-      this.wlogger.error(`Error in use-cases/getPin() $ ${error.message}`)
+      this.wlogger.error(`Error in use-cases/getFile() $ ${error.message}`)
       throw error
     }
   }
 
   async handleUnpinedFiles () {
     try {
-      const unpinedCID = await this.db.Pin.find({ pinned: false })
+      const unpinedCID = await this.db.Files.find({ pinned: false })
       console.log(`Unpined files : ${unpinedCID.length}`)
 
       for (let i = 0; i < unpinedCID.length; i++) {
-        const pinObj = unpinedCID[i]
+        const fileObj = unpinedCID[i]
         const rpcObj = {
           toPeerId: this.config.pinHostPeerId,
           fromPeerId: this.heliaNode.node.peerId.toString(),
-          cid: pinObj.cid
+          cid: fileObj.cid
         }
         this.wlogger.info('handling unpined cid ', rpcObj)
         this.heliaNode.rpc.requestRemotePin(rpcObj)

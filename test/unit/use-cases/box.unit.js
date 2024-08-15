@@ -208,20 +208,20 @@ describe('#box-use-case', () => {
   })
 
   describe('#addPinByUser', () => {
-    it('should throw error if no pinId provided', async () => {
+    it('should throw error if no fileId provided', async () => {
       try {
         await uut.addPinByUser()
 
         assert.fail('Unexpected code path.')
       } catch (err) {
         // console.log(err)
-        assert.include(err.message, 'pinId is required!')
+        assert.include(err.message, 'fileId is required!')
       }
     })
     it('should throw error if no boxId provided', async () => {
       try {
         const input = {
-          pinId: 'pinid'
+          fileId: 'fileId'
         }
         await uut.addPinByUser(input)
 
@@ -234,7 +234,7 @@ describe('#box-use-case', () => {
     it('should throw error if no user provided', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           boxId: 'boxId'
         }
         await uut.addPinByUser(input)
@@ -251,7 +251,7 @@ describe('#box-use-case', () => {
         sandbox.stub(uut.db.Box, 'findById').resolves(null)
 
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           boxId: 'boxId',
           user: { save: () => { }, _id: 'userId' }
         }
@@ -268,7 +268,7 @@ describe('#box-use-case', () => {
         sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'another user id' })
 
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           boxId: 'boxId',
           user: { save: () => { }, _id: 'userId' }
         }
@@ -283,10 +283,10 @@ describe('#box-use-case', () => {
     it('should throw error if pin is not found.', async () => {
       try {
         sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId' })
-        sandbox.stub(uut.db.Pin, 'findById').resolves(null)
+        sandbox.stub(uut.db.Files, 'findById').resolves(null)
 
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           boxId: 'boxId',
           user: { save: () => { }, _id: 'myUserId' }
         }
@@ -295,15 +295,15 @@ describe('#box-use-case', () => {
         assert.fail('Unexpected code path.')
       } catch (err) {
         // console.log(err)
-        assert.include(err.message, 'Pin not found!')
+        assert.include(err.message, 'File not found!')
       }
     })
-    it('should add pin to box', async () => {
+    it('should add file to box', async () => {
       sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId', pinList: [], save: () => { } })
-      sandbox.stub(uut.db.Pin, 'findById').resolves({ _id: 'a pin id' })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id' })
 
       const input = {
-        pinId: 'pinid',
+        fileId: 'fileId',
         boxId: 'boxId',
         user: { save: () => { }, _id: 'myUserId' }
       }
@@ -313,27 +313,27 @@ describe('#box-use-case', () => {
       assert.property(result, 'pinList')
 
       assert.isArray(result.pinList)
-      const pinId = result.pinList[0]
-      assert.isString(pinId)
-      assert.equal(pinId, 'a pin id')
+      const fileId = result.pinList[0]
+      assert.isString(fileId)
+      assert.equal(fileId, 'a file id')
     })
   })
 
   describe('#addPinBySignature', () => {
-    it('should throw error if no pinId provided', async () => {
+    it('should throw error if no fileId provided', async () => {
       try {
         await uut.addPinBySignature()
 
         assert.fail('Unexpected code path.')
       } catch (err) {
         // console.log(err)
-        assert.include(err.message, 'pinId is required!')
+        assert.include(err.message, 'fileId is required!')
       }
     })
     it('should throw error if no box provided', async () => {
       try {
         const input = {
-          pinId: 'pinid'
+          fileId: 'fileId'
         }
         await uut.addPinBySignature(input)
 
@@ -346,7 +346,7 @@ describe('#box-use-case', () => {
     it('should throw error if no user provided', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           box: { _id: 'my box id', save: () => {} }
         }
         await uut.addPinBySignature(input)
@@ -360,7 +360,7 @@ describe('#box-use-case', () => {
     it('should throw error if box owner and user does not match.', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           user: { save: () => { }, _id: 'userId' },
           box: { _id: 'my box id', owner: 'an user id', save: () => {} }
         }
@@ -375,7 +375,7 @@ describe('#box-use-case', () => {
     it('should throw error if  box signature and provided boxId does not match.', async () => {
       try {
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           user: { save: () => { }, _id: 'userId' },
           box: { _id: 'my box id', owner: 'userId', save: () => {} },
           boxId: 'random box id'
@@ -391,10 +391,10 @@ describe('#box-use-case', () => {
 
     it('should throw error if pin is not found.', async () => {
       try {
-        sandbox.stub(uut.db.Pin, 'findById').resolves(null)
+        sandbox.stub(uut.db.Files, 'findById').resolves(null)
 
         const input = {
-          pinId: 'pinid',
+          fileId: 'fileId',
           user: { save: () => { }, _id: 'userId' },
           box: { _id: 'my box id', owner: 'userId', save: () => {} },
           boxId: 'my box id'
@@ -404,14 +404,14 @@ describe('#box-use-case', () => {
         assert.fail('Unexpected code path.')
       } catch (err) {
         // console.log(err)
-        assert.include(err.message, 'Pin not found!')
+        assert.include(err.message, 'File not found!')
       }
     })
     it('should add pin to box', async () => {
-      sandbox.stub(uut.db.Pin, 'findById').resolves({ _id: 'pinid' })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'fileId' })
 
       const input = {
-        pinId: 'pinid',
+        fileId: 'fileId',
         user: { save: () => { }, _id: 'userId' },
         box: { _id: 'my box id', pinList: [], owner: 'userId', save: () => {} },
         boxId: 'my box id'
@@ -422,9 +422,9 @@ describe('#box-use-case', () => {
       assert.property(result, 'pinList')
 
       assert.isArray(result.pinList)
-      const pinId = result.pinList[0]
-      assert.isString(pinId)
-      assert.equal(pinId, 'pinid')
+      const fileId = result.pinList[0]
+      assert.isString(fileId)
+      assert.equal(fileId, 'fileId')
     })
   })
 

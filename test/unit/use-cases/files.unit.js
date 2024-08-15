@@ -1,12 +1,12 @@
 import { assert } from 'chai'
 import sinon from 'sinon'
 
-import UseCase from '../../../src/use-cases/pin.js'
+import UseCase from '../../../src/use-cases/files.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb } from '../../util/test-util.js'
 import { HeliaNodeMock, FileMock, PinRPCMock } from '../mocks/helia-node-mock.js'
 
-describe('#pin-use-case', () => {
+describe('#file-use-case', () => {
   let uut
   let sandbox
   const testData = {}
@@ -31,10 +31,10 @@ describe('#pin-use-case', () => {
   after(async () => {
     await cleanDb()
   })
-  describe('#pinFile', () => {
+  describe('#uploadFile', () => {
     it('should throw an error if no input is given', async () => {
       try {
-        await uut.pinFile()
+        await uut.uploadFile()
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -45,7 +45,7 @@ describe('#pin-use-case', () => {
     it('should handle node error', async () => {
       try {
         sandbox.stub(uut.heliaNode.node, 'uploadFile').throws(new Error('test error'))
-        await uut.pinFile({ file: FileMock })
+        await uut.uploadFile({ file: FileMock })
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -53,10 +53,10 @@ describe('#pin-use-case', () => {
       }
     })
 
-    it('should handle pin file error', async () => {
+    it('should handle upload file error', async () => {
       try {
         sandbox.stub(uut.heliaNode.rpc, 'requestRemotePin').throws(new Error('test error'))
-        await uut.pinFile({ file: FileMock })
+        await uut.uploadFile({ file: FileMock })
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -64,23 +64,23 @@ describe('#pin-use-case', () => {
       }
     })
 
-    it('should pin file', async () => {
+    it('should upload file', async () => {
       sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('pinnedcid')
-      const result = await uut.pinFile({ file: FileMock })
+      const result = await uut.uploadFile({ file: FileMock })
 
       assert.isObject(result)
       assert.property(result, 'cid')
       assert.property(result, '_id')
       assert.equal(result.cid, 'pinnedcid')
-      testData.pin = result
+      testData.file = result
     })
   })
 
-  describe('#getPins', () => {
+  describe('#getFiles', () => {
     it('should handle error', async () => {
       try {
-        sandbox.stub(uut.db.Pin, 'find').throws(new Error('test error'))
-        await uut.getPins()
+        sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
+        await uut.getFiles()
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -89,17 +89,16 @@ describe('#pin-use-case', () => {
     })
 
     it('should get pins', async () => {
-      // sandbox.stub(uut.db.Pin, 'find').resolves([])
-      const result = await uut.getPins()
+      const result = await uut.getFiles()
 
       assert.isArray(result)
     })
   })
 
-  describe('#getPin', () => {
+  describe('#getFile', () => {
     it('should throw error if input is missing', async () => {
       try {
-        await uut.getPin()
+        await uut.getFile()
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -109,9 +108,9 @@ describe('#pin-use-case', () => {
     it('should catch and throw an error', async () => {
       try {
         // Force an error.
-        sandbox.stub(uut.db.Pin, 'findById').throws(new Error('test error'))
+        sandbox.stub(uut.db.Files, 'findById').throws(new Error('test error'))
 
-        await uut.getPin({ id: 'myid' })
+        await uut.getFile({ id: 'myid' })
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -119,7 +118,7 @@ describe('#pin-use-case', () => {
       }
     })
     it('should get pin', async () => {
-      const res = await uut.getPin({ id: testData.pin._id.toString() })
+      const res = await uut.getFile({ id: testData.file._id.toString() })
       testData.box = res
       assert.isObject(res)
     })
@@ -127,7 +126,7 @@ describe('#pin-use-case', () => {
 
   describe('#handleUnpinedFiles', () => {
     it('should send pin request for unpinned files', async () => {
-      sandbox.stub(uut.db.Pin, 'find').resolves([
+      sandbox.stub(uut.db.Files, 'find').resolves([
         { cid: 'cid', pinned: false }
       ])
 
@@ -136,7 +135,7 @@ describe('#pin-use-case', () => {
     })
     it('should handle error', async () => {
       try {
-        sandbox.stub(uut.db.Pin, 'find').throws(new Error('test error'))
+        sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
         await uut.handleUnpinedFiles()
 
         assert.fail('Unexpected code path')
