@@ -11,28 +11,28 @@ class RouterHanlder {
     this.controller = new Controller(config)
     this.port = config.port
 
-    const baseUrl = '/pin'
+    const baseUrl = '/files'
     this.router = new Router({ prefix: baseUrl })
 
     // Bind function to this class.
     this.start = this.start.bind(this)
-    this.pin = this.pin.bind(this)
-    this.getPins = this.getPins.bind(this)
-    this.getPin = this.getPin.bind(this)
+    this.uploadFile = this.uploadFile.bind(this)
+    this.getFiles = this.getFiles.bind(this)
+    this.getFile = this.getFile.bind(this)
   }
 
   async start (app) {
     if (!app) { throw new Error('App is required!') }
 
-    this.router.post('/', koaBody({ multipart: true }), this.pin)
-    this.router.get('/', this.getPins)
-    this.router.get('/:id', this.getPin)
+    this.router.post('/', koaBody({ multipart: true }), this.uploadFile)
+    this.router.get('/', this.getFiles)
+    this.router.get('/:id', this.getFile)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
   }
 
-  async pin (ctx, next) {
+  async uploadFile (ctx, next) {
     const type = await this.middleware.getJWTType(ctx)
     if (type === 'userAccess') {
       await this.middleware.userValidators.ensureUser(ctx, next)
@@ -40,17 +40,17 @@ class RouterHanlder {
     if (type === 'boxAccess') {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
-    await this.controller.pin(ctx, next)
+    await this.controller.uploadFile(ctx, next)
   }
 
-  async getPins (ctx, next) {
+  async getFiles (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
-    await this.controller.getPins(ctx, next)
+    await this.controller.getFiles(ctx, next)
   }
 
-  async getPin (ctx, next) {
+  async getFile (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
-    await this.controller.getPin(ctx, next)
+    await this.controller.getFile(ctx, next)
   }
 }
 

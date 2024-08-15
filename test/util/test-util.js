@@ -20,7 +20,7 @@ export const createTestUser = async (inObj = { username: 'test', password: '1234
   }
 }
 
-export const createTestPinModel = async (inObj = {
+export const createTestFileModel = async (inObj = {
   cid: 'test cid',
   name: 'testimg',
   type: 'image/jpeg',
@@ -28,12 +28,12 @@ export const createTestPinModel = async (inObj = {
   createdAt: Date.now()
 }) => {
   try {
-    const PinModel = libraries.dbModels.Pin
-    const pin = new PinModel(inObj)
+    const FilesModel = libraries.dbModels.Files
+    const file = new FilesModel(inObj)
 
-    await pin.save()
+    await file.save()
 
-    return pin
+    return file
   } catch (error) {
     console.log(' Error in test/util.js/createTestUser()', error)
     throw error

@@ -11,7 +11,7 @@ export default class TimerController {
 
     this.setInterval = setInterval
     this.clearInterval = clearInterval
-    this.wlogger = this.useCases.pin.wlogger
+    this.wlogger = this.useCases.files.wlogger
     // State
     this.handleUnpinedPeriod = 2 * 60000
 
@@ -40,8 +40,7 @@ export default class TimerController {
       this.clearInterval(this.handleUnpinedTimer)
 
       this.wlogger.info('Stopped handleUnpinedFiles interval , waiting for handler to be done!.')
-      await this.useCases.pin.handleUnpinedFiles()
-      await this.useCases.pin.sleep(20000)
+      await this.useCases.files.handleUnpinedFiles()
 
       // After finish process re-start the interval
       this.wlogger.info(`Starting handleUnpinedFiles interval  for ${this.handleUnpinedPeriod / 60000} minutes`)

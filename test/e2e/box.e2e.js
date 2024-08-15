@@ -488,8 +488,6 @@ describe('e2e-box', () => {
   describe('POST /box/sign', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
-        // sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id : 'smoke pin' })
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
@@ -595,7 +593,7 @@ describe('e2e-box', () => {
     })
     it('should generate box signature', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
@@ -630,7 +628,7 @@ describe('e2e-box', () => {
           },
           data: {
             boxId: testData.box._id,
-            pinId: 'mockPin'
+            fileId: 'mockFileId'
           }
         }
         await axios(options)
@@ -651,7 +649,7 @@ describe('e2e-box', () => {
           },
           data: {
             boxId: testData.box._id,
-            pinId: 'mockPin'
+            fileId: 'mockFileId'
           }
         }
         await axios(options)
@@ -673,7 +671,7 @@ describe('e2e-box', () => {
           },
           data: {
             boxId: testData.box._id,
-            pinId: 'mockPin'
+            fileId: 'mockFileId'
           }
         }
         await axios(options)
@@ -694,7 +692,7 @@ describe('e2e-box', () => {
           },
           data: {
             boxId: testData.box._id,
-            pinId: 'mockPin'
+            fileId: 'mockFileId'
           }
         }
         await axios(options)
@@ -726,7 +724,7 @@ describe('e2e-box', () => {
     })
     it('should add pin to box  by owner', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
@@ -737,7 +735,7 @@ describe('e2e-box', () => {
           },
           data: {
             boxId: testData.box._id,
-            pinId: 'smoke pin'
+            fileId: 'mockFileId'
           }
         }
         const result = await axios(options)
@@ -749,7 +747,7 @@ describe('e2e-box', () => {
     })
     it('should add pin to box  by key', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Pin, 'findById').resolves({ _id: 'smoke pin' })
+        sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const boxSignature = testData.signature.key
         const options = {
@@ -760,7 +758,7 @@ describe('e2e-box', () => {
             Authorization: `Bearer ${boxSignature}`
           },
           data: {
-            pinId: 'smoke pin'
+            fileId: 'mockFileId'
           }
         }
         const result = await axios(options)

@@ -1,4 +1,4 @@
-import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/index.js'
+import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/lib.js'
 
 class HeliaNode {
   constructor (config = {}) {
@@ -50,14 +50,14 @@ class HeliaNode {
 
       this.wlogger.info('success remote pin ', data)
 
-      const pin = await this.dbModels.Pin.findOne({ cid })
-      if (!pin) throw new Error('pin not found!')
+      const file = await this.dbModels.Files.findOne({ cid })
+      if (!file) throw new Error('file not found!')
 
-      pin.pinned = true
-      pin.host.push(host)
-      await pin.save()
-      console.log(`${cid} pin updated!`)
-      return pin
+      file.pinned = true
+      file.host.push(host)
+      await file.save()
+      console.log(`${cid} file updated after pin.!`)
+      return file
     } catch (error) {
       this.wlogger.error('Error on onSuccessRemotePin() ', error)
       // skip error

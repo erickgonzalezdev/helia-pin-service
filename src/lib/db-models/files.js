@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const Pin = new mongoose.Schema({
+const Files = new mongoose.Schema({
   cid: { type: String, unique: true },
   createdAt: { type: Number, required: true },
   name: { type: String },
@@ -11,4 +11,4 @@ const Pin = new mongoose.Schema({
   // expiredAt: { type: String, required: true }
 })
 
-export default mongoose.model('pin', Pin)
+export default mongoose.model('files', Files)

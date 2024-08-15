@@ -1,5 +1,5 @@
 import UsersUseCases from './users.js'
-import PinUseCases from './pin.js'
+import FilesUseCases from './files.js'
 import BoxUseCases from './box.js'
 
 export default class UseCases {
@@ -7,7 +7,7 @@ export default class UseCases {
     if (!config.libraries) { throw new Error('Libraries instance should be passed in UseCases Constructor.') }
 
     this.users = new UsersUseCases(config)
-    this.pin = new PinUseCases(config)
+    this.files = new FilesUseCases(config)
     this.Box = new BoxUseCases(config)
   }
 }
