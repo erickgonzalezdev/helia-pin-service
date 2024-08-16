@@ -5,7 +5,7 @@ const Box = new mongoose.Schema({
   pinList: { type: Array, default: [] },
   label: { type: String, required: true },
   desription: { type: String },
-  owner: { type: String },
+  owner: { type: String, ref: 'user' },
   type: { type: String },
   parent: { type: String },
   signatures: { type: Array, default: [] }
