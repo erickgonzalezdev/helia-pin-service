@@ -40,23 +40,6 @@ export default class FileUseCases {
         await fileObj.save()
       }
 
-      // ignore pinned files
-      if (fileObj && !fileObj.pinned) {
-        // Pin file into ipfs node
-        try {
-          const rpcObj = {
-            toPeerId: this.config.pinHostPeerId,
-            fromPeerId: this.heliaNode.node.peerId.toString(),
-            cid
-          }
-          this.heliaNode.rpc.requestRemotePin(rpcObj)
-        } catch (error) {
-          this.wlogger.error('Error on pin file RPC ', error)
-          // ignore if is already pinned
-          if (!error.message.match('Already')) throw error
-        }
-      }
-
       return fileObj
     } catch (error) {
       this.wlogger.error(`Error in use-cases/uploadFile() ${error.message}`)
@@ -96,13 +79,8 @@ export default class FileUseCases {
 
       for (let i = 0; i < unpinedCID.length; i++) {
         const fileObj = unpinedCID[i]
-        const rpcObj = {
-          toPeerId: this.config.pinHostPeerId,
-          fromPeerId: this.heliaNode.node.peerId.toString(),
-          cid: fileObj.cid
-        }
-        this.wlogger.info('handling unpined cid ', rpcObj)
-        this.heliaNode.rpc.requestRemotePin(rpcObj)
+        this.wlogger.info('handling unpined cid ', fileObj.cid)
+        this.heliaNode.remotePin(fileObj.cid)
         await this.sleep(this.handleUnpinedDelay)
       }
       return true

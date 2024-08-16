@@ -55,7 +55,7 @@ describe('#file-use-case', () => {
 
     it('should handle upload file error', async () => {
       try {
-        sandbox.stub(uut.heliaNode.rpc, 'requestRemotePin').throws(new Error('test error'))
+        sandbox.stub(uut.heliaNode.node, 'uploadFile').throws(new Error('test error'))
         await uut.uploadFile({ file: FileMock })
 
         assert.fail('Unexpected code path')
