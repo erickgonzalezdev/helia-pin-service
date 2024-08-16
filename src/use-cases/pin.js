@@ -95,7 +95,7 @@ export default class PinUseCases {
          throw new Error('Unauthorized')
         } */
 
-      const pins = await this.db.Pin.find({ owner: boxId })
+      const pins = await this.db.Pin.find({ boxOwner: boxId })
 
       return pins
     } catch (error) {

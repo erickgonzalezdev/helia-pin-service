@@ -12,13 +12,13 @@ export default class PinController {
   }
 
   /**
- * @api {post} /box/add Add a pin to box.
+ * @api {post} /pin Add a pin to box.
  * @apiPermission User || Box Signature
  * @apiName AddPin
- * @apiGroup Box
+ * @apiGroup Pin
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "pinId": "my pin id", "boxId": "my box id"  }' localhost:5001/box/add
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "pinId": "my pin id", "boxId": "my box id"  }' localhost:5001/pin
  *
  */
 
@@ -43,6 +43,16 @@ export default class PinController {
     }
   }
 
+  /**
+ * @api {get} /pin/box/:id Get box pins.
+ * @apiPermission User || Box Signature
+ * @apiName GetPinsByBox
+ * @apiGroup Pin
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/pin/box/<id>
+ *
+ */
   async getPinsByBox (ctx) {
     try {
       const boxId = ctx.request.params.id

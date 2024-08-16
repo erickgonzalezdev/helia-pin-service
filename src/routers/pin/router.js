@@ -31,7 +31,6 @@ class RouterHanlder {
 
   async addPin (ctx, next) {
     const type = await this.middleware.getJWTType(ctx)
-    console.log('type', type)
     if (type === 'userAccess') {
       await this.middleware.userValidators.ensureUser(ctx, next)
     }
