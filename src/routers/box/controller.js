@@ -12,7 +12,6 @@ export default class PinBoxController {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
-    this.addPin = this.addPin.bind(this)
     this.boxSignature = this.boxSignature.bind(this)
   }
 
@@ -126,38 +125,6 @@ export default class PinBoxController {
     try {
       const box = ctx.body.box
       const result = await this.useCases.Box.deleteBox(box)
-      ctx.body = result
-    } catch (error) {
-      this.handleError(ctx, error)
-    }
-  }
-
-  /**
- * @api {post} /box/add Add a pin to box.
- * @apiPermission User || Box Signature
- * @apiName AddPin
- * @apiGroup Box
- *
- * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "pinId": "my pin id", "boxId": "my box id"  }' localhost:5001/box/add
- *
- */
-
-  async addPin (ctx) {
-    try {
-      const type = ctx.state.jwtType
-      const input = ctx.request.body
-      input.user = ctx.state.user
-      input.box = ctx.state.box
-
-      let result
-      if (type === 'userAccess') {
-        result = await this.useCases.Box.addPinByUser(input)
-      }
-
-      if (type === 'boxAccess') {
-        result = await this.useCases.Box.addPinBySignature(input)
-      }
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
