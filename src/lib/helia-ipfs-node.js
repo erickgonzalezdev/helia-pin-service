@@ -18,6 +18,7 @@ class HeliaNode {
     // Bind function
     this.start = this.start.bind(this)
     this.onSuccessRemotePin = this.onSuccessRemotePin.bind(this)
+    this.remotePin = this.remotePin.bind(this)
   }
 
   async start () {
@@ -62,6 +63,25 @@ class HeliaNode {
       this.wlogger.error('Error on onSuccessRemotePin() ', error)
       // skip error
       return false
+    }
+  }
+
+  // pin file remotely
+  async remotePin (cid) {
+    try {
+      if (!cid) throw new Error('cid must be a string!')
+      const rpcObj = {
+        toPeerId: this.config.pinHostPeerId,
+        fromPeerId: this.node.peerId.toString(),
+        cid
+      }
+
+      this.rpc.requestRemotePin(rpcObj)
+      return true
+    } catch (error) {
+      this.wlogger.error('Error on remotePin() ', error)
+      // skip error
+      throw error
     }
   }
 }

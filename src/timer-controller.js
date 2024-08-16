@@ -13,7 +13,7 @@ export default class TimerController {
     this.clearInterval = clearInterval
     this.wlogger = this.useCases.files.wlogger
     // State
-    this.handleUnpinedPeriod = 2 * 60000
+    this.handleUnpinedPeriod = 60000 * this.config.reviewPinsPeriod
 
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.startTimers = this.startTimers.bind(this)

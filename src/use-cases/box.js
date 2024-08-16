@@ -4,6 +4,8 @@ export default class BoxUseCases {
     this.db = config.libraries.dbModels
     this.jwt = config.libraries.jwt
     this.wlogger = config.libraries.wlogger
+    this.heliaNode = config.libraries.heliaNode
+
     // this.passport = config.libraries.passport
 
     // Bind function to this class.
@@ -123,6 +125,9 @@ export default class BoxUseCases {
 
       box.pinList.push(file._id.toString())
 
+      // Pin file
+      this.heliaNode.remotePin(file.cid)
+
       await box.save()
 
       return box
@@ -153,6 +158,9 @@ export default class BoxUseCases {
       if (!file) throw new Error('File not found!')
 
       box.pinList.push(file._id.toString())
+
+      // Pin file
+      this.heliaNode.remotePin(file.cid)
 
       await box.save()
 
