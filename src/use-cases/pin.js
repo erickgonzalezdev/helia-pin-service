@@ -3,12 +3,12 @@ export default class PinUseCases {
     this.config = config
     this.db = config.libraries.dbModels
     this.wlogger = config.libraries.wlogger
+    this.heliaNode = config.libraries.heliaNode
 
     // Bind function to this class.
     this.addPinByUser = this.addPinByUser.bind(this)
     this.addPinBySignature = this.addPinBySignature.bind(this)
     this.getPinsByBox = this.getPinsByBox.bind(this)
-    this.heliaNode = config.libraries.heliaNode
   }
 
   // add pin by user
@@ -29,14 +29,15 @@ export default class PinUseCases {
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
 
-      box.pinList.push(file._id.toString())
+      const pin = new this.db.Pin({ boxOwner: boxId, file: fileId })
+      pin.createdAt = new Date().getTime()
+
+      await pin.save()
 
       // Pin file
       this.heliaNode.remotePin(file.cid)
 
-      await box.save()
-
-      return box
+      return pin
     } catch (error) {
       this.wlogger.error(`Error in use-cases/addPinByUser() $ ${error.message}`)
       throw error
@@ -63,14 +64,15 @@ export default class PinUseCases {
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
 
-      box.pinList.push(file._id.toString())
+      const pin = new this.db.Pin({ boxOwner: box._id.toString(), file: fileId })
+      pin.createdAt = new Date().getTime()
+
+      await pin.save()
 
       // Pin file
       this.heliaNode.remotePin(file.cid)
 
-      await box.save()
-
-      return box
+      return pin
     } catch (error) {
       this.wlogger.error(`Error in use-cases/addPinBySignature() $ ${error.message}`)
       throw error

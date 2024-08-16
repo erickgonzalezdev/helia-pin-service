@@ -119,7 +119,7 @@ describe('#pin-use-case', () => {
       }
     })
     it('should add file to box', async () => {
-      sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId', pinList: [], save: () => { } })
+      sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId', save: () => { } })
       sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id' })
 
       const input = {
@@ -129,13 +129,9 @@ describe('#pin-use-case', () => {
       }
       const result = await uut.addPinByUser(input)
       assert.isObject(result)
-      assert.property(result, 'owner')
-      assert.property(result, 'pinList')
-
-      assert.isArray(result.pinList)
-      const fileId = result.pinList[0]
-      assert.isString(fileId)
-      assert.equal(fileId, 'a file id')
+      assert.property(result, 'boxOwner')
+      assert.property(result, 'file')
+      assert.property(result, 'createdAt')
     })
   })
 
@@ -238,13 +234,9 @@ describe('#pin-use-case', () => {
       }
       const result = await uut.addPinBySignature(input)
       assert.isObject(result)
-      assert.property(result, 'owner')
-      assert.property(result, 'pinList')
-
-      assert.isArray(result.pinList)
-      const fileId = result.pinList[0]
-      assert.isString(fileId)
-      assert.equal(fileId, 'fileId')
+      assert.property(result, 'boxOwner')
+      assert.property(result, 'file')
+      assert.property(result, 'createdAt')
     })
   })
   describe('#getPinsByBox', () => {
