@@ -14,7 +14,7 @@ export default class PinUseCases {
   // add pin by user
   async addPinByUser (inObj = {}) {
     try {
-      const { fileId, boxId, user } = inObj
+      const { fileId, boxId, user, name, description } = inObj
       if (!fileId) throw new Error('fileId is required!')
       if (!boxId) throw new Error('boxId is required!')
       if (!user) throw new Error('user is required!')
@@ -29,7 +29,7 @@ export default class PinUseCases {
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
 
-      const pin = new this.db.Pin({ boxOwner: boxId, file: fileId })
+      const pin = new this.db.Pin({ boxOwner: boxId, file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
       await pin.save()
@@ -95,7 +95,7 @@ export default class PinUseCases {
          throw new Error('Unauthorized')
         } */
 
-      const pins = await this.db.Pin.find({ boxOwner: boxId })
+      const pins = await this.db.Pin.find({ boxOwner: boxId }).populate('file', ['-host'])
 
       return pins
     } catch (error) {
