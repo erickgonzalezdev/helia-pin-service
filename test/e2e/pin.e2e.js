@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import axios from 'axios'
 import config from '../../config.js'
-import { cleanDb, cleanNode, startApp, createTestUser, createTestBoxModel } from '../util/test-util.js'
+import { cleanDb, cleanNode, startApp, createTestUser, createTestBoxModel, createTestFileModel } from '../util/test-util.js'
 
 const LOCALHOST = `http://localhost:${config.port}`
 
@@ -17,6 +17,7 @@ describe('e2e-pin', () => {
     await cleanNode()
     testData.user = await createTestUser()
     testData.box = await createTestBoxModel({ label: 'test', description: 'test', user: testData.user })
+    testData.file = await createTestFileModel()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -35,7 +36,7 @@ describe('e2e-pin', () => {
           },
           data: {
             boxId: testData.box._id,
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         await axios(options)
@@ -56,7 +57,7 @@ describe('e2e-pin', () => {
           },
           data: {
             boxId: testData.box._id,
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         await axios(options)
@@ -78,7 +79,7 @@ describe('e2e-pin', () => {
           },
           data: {
             boxId: testData.box._id,
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         await axios(options)
@@ -99,7 +100,7 @@ describe('e2e-pin', () => {
           },
           data: {
             boxId: testData.box._id,
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         await axios(options)
@@ -142,7 +143,7 @@ describe('e2e-pin', () => {
           },
           data: {
             boxId: testData.box._id,
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         const result = await axios(options)
@@ -154,7 +155,7 @@ describe('e2e-pin', () => {
     })
     it('should add pin to box  by key', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+        //sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const boxSignature = testData.box.signatures[0].key
         const options = {
@@ -165,7 +166,7 @@ describe('e2e-pin', () => {
             Authorization: `Bearer ${boxSignature}`
           },
           data: {
-            fileId: 'mockFileId'
+            fileId: testData.file._id
           }
         }
         const result = await axios(options)
@@ -173,6 +174,31 @@ describe('e2e-pin', () => {
         assert.isObject(result.data)
       } catch (error) {
         console.log(error)
+        assert.fail('Unexpected code path.')
+      }
+    })
+    it('should add pin to box with full input', async () => {
+      try {
+        //sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/pin`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          },
+          data: {
+            boxId: testData.box._id,
+            fileId: testData.file._id,
+            name: 'test name',
+            description: 'test description'
+          }
+        }
+        const result = await axios(options)
+        assert(result.status === 200)
+        assert.isObject(result.data)
+      } catch (error) {
         assert.fail('Unexpected code path.')
       }
     })
