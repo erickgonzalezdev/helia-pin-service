@@ -3,12 +3,12 @@ import sinon from 'sinon'
 
 import UseCase from '../../../src/use-cases/pin.js'
 import Libraries from '../../../src/lib/index.js'
-import { cleanDb, startDb, cleanNode  } from '../../util/test-util.js'
+import { cleanDb, startDb, cleanNode } from '../../util/test-util.js'
 
 describe('#pin-use-case', () => {
   let uut
   let sandbox
-  let testData= {}
+
   before(async () => {
     uut = new UseCase({ libraries: new Libraries() })
     await startDb()
@@ -253,7 +253,7 @@ describe('#pin-use-case', () => {
       }
     })
     it('should get all pins by box', async () => {
-      sandbox.stub(uut.db.Box, 'findById').resolves({ _id :'66bef59cc9a225f81e1bedac'})
+      sandbox.stub(uut.db.Box, 'findById').resolves({ _id: '66bef59cc9a225f81e1bedac' })
 
       const res = await uut.getPinsByBox({ boxId: '66bef59cc9a225f81e1bedac' })
       assert.isArray(res)

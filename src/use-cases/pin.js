@@ -47,7 +47,7 @@ export default class PinUseCases {
   // add pin by external
   async addPinBySignature (inObj = {}) {
     try {
-      const { fileId, box, user, boxId } = inObj
+      const { fileId, box, user, boxId, name, description } = inObj
       if (!fileId) throw new Error('fileId is required!')
       if (!box) throw new Error('box is required!')
       if (!user) throw new Error('user is required!')
@@ -64,7 +64,7 @@ export default class PinUseCases {
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
 
-      const pin = new this.db.Pin({ boxOwner: box._id.toString(), file: fileId })
+      const pin = new this.db.Pin({ boxOwner: box._id.toString(), file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
       await pin.save()

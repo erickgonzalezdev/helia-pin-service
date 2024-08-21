@@ -155,7 +155,7 @@ describe('e2e-pin', () => {
     })
     it('should add pin to box  by key', async () => {
       try {
-        //sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+        // sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const boxSignature = testData.box.signatures[0].key
         const options = {
@@ -179,7 +179,7 @@ describe('e2e-pin', () => {
     })
     it('should add pin to box with full input', async () => {
       try {
-        //sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+        // sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
