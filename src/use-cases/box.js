@@ -13,7 +13,7 @@ export default class BoxUseCases {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
-    this.boxSignature = this.boxSignature.bind(this)
+    this.createSignature = this.createSignature.bind(this)
   }
 
   async createBox (inObj = {}) {
@@ -102,7 +102,7 @@ export default class BoxUseCases {
     }
   }
 
-  async boxSignature (inObj = {}) {
+  async createSignature (inObj = {}) {
     try {
       const { boxId, user, label } = inObj
       if (!boxId) throw new Error('boxId is required!')
@@ -122,7 +122,7 @@ export default class BoxUseCases {
 
       return { label, key }
     } catch (error) {
-      this.wlogger.error(`Error in use-cases/boxSignature() $ ${error.message}`)
+      this.wlogger.error(`Error in use-cases/createSignature() $ ${error.message}`)
       throw error
     }
   }

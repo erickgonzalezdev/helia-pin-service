@@ -207,10 +207,10 @@ describe('#box-use-case', () => {
     })
   })
 
-  describe('#boxSignature', () => {
+  describe('#createSignature', () => {
     it('should throw error if no boxId provided', async () => {
       try {
-        await uut.boxSignature()
+        await uut.createSignature()
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -223,7 +223,7 @@ describe('#box-use-case', () => {
         const input = {
           boxId: 'my box id'
         }
-        await uut.boxSignature(input)
+        await uut.createSignature(input)
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -237,7 +237,7 @@ describe('#box-use-case', () => {
           boxId: 'my box id',
           user: { _id: 'my user id', save: () => {} }
         }
-        await uut.boxSignature(input)
+        await uut.createSignature(input)
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -254,7 +254,7 @@ describe('#box-use-case', () => {
           user: { save: () => { }, _id: 'userId' },
           boxId: 'my box id'
         }
-        await uut.boxSignature(input)
+        await uut.createSignature(input)
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -271,7 +271,7 @@ describe('#box-use-case', () => {
           user: { save: () => { }, _id: 'userId' },
           boxId: 'my box id'
         }
-        await uut.boxSignature(input)
+        await uut.createSignature(input)
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -290,7 +290,7 @@ describe('#box-use-case', () => {
         user: { save: () => { }, _id: 'userId' },
         boxId: 'my box id'
       }
-      const result = await uut.boxSignature(input)
+      const result = await uut.createSignature(input)
 
       // Testing function result
       assert.isObject(result)
