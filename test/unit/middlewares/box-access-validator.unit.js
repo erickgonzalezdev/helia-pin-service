@@ -1,8 +1,7 @@
 import { assert } from 'chai'
 import sinon from 'sinon'
 
-import UserModel from '../../../src/lib/db-models/users.js'
-import BoxModel from '../../../src/lib/db-models/box.js'
+import Libraries from '../../../src/lib/index.js'
 
 import MiddlewareUnderTest from '../../../src/middlewares/box-access-validator.js'
 
@@ -18,7 +17,7 @@ describe('#Box-Access-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel, Box: BoxModel } } })
+    uut = new MiddlewareUnderTest({ libraries: new Libraries() })
   })
 
   beforeEach(() => {
@@ -55,6 +54,7 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error received token could not be verify', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.dbModels.BoxSignature, 'findOne').returns({})
         sandbox.stub(uut.jwt, 'verify').throws(new Error('Could not verify JWT'))
 
         ctxMock.request.header.authorization = 'Bearer token'
@@ -69,6 +69,7 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error if received token owner is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.dbModels.BoxSignature, 'findOne').returns({})
         sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
         sandbox.stub(uut.dbModels.Box, 'findById').resolves({})
@@ -84,6 +85,7 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error if received Box is not found', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.dbModels.BoxSignature, 'findOne').returns({})
         sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves({})
         sandbox.stub(uut.dbModels.Box, 'findById').resolves(null)
@@ -100,6 +102,7 @@ describe('#Box-Access-Validators.js', () => {
     it('should throw an error received token type is invalid', async () => {
       try {
         sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.dbModels.BoxSignature, 'findOne').returns({})
         sandbox.stub(uut.jwt, 'verify').returns({ })
         sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
 
@@ -114,6 +117,7 @@ describe('#Box-Access-Validators.js', () => {
 
     it('should return true', async () => {
       sandbox.stub(uut, 'getToken').returns('token')
+      sandbox.stub(uut.dbModels.BoxSignature, 'findOne').returns({})
       sandbox.stub(uut.jwt, 'verify').returns({ type: 'boxAccess' })
       sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
       sandbox.stub(uut.dbModels.Box, 'findById').resolves({ _id: 'muBoxId' })

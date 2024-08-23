@@ -20,7 +20,7 @@ class RouterHanlder {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
-    this.boxSignature = this.boxSignature.bind(this)
+    this.createSignature = this.createSignature.bind(this)
   }
 
   async start (app) {
@@ -31,7 +31,7 @@ class RouterHanlder {
     this.router.get('/:id', this.getBox)
     this.router.put('/:id', this.updateBox)
     this.router.delete('/:id', this.deleteBox)
-    this.router.post('/sign', this.boxSignature)
+    this.router.post('/sign', this.createSignature)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -64,9 +64,9 @@ class RouterHanlder {
     await this.controller.deleteBox(ctx, next)
   }
 
-  async boxSignature (ctx, next) {
+  async createSignature (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
-    await this.controller.boxSignature(ctx, next)
+    await this.controller.createSignature(ctx, next)
   }
 }
 

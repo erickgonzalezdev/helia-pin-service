@@ -173,7 +173,6 @@ describe('e2e-pin', () => {
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path.')
       }
     })

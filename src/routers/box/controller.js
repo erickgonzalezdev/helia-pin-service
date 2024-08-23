@@ -12,7 +12,7 @@ export default class PinBoxController {
     this.getBoxes = this.getBoxes.bind(this)
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
-    this.boxSignature = this.boxSignature.bind(this)
+    this.createSignature = this.createSignature.bind(this)
   }
 
   /**
@@ -134,7 +134,7 @@ export default class PinBoxController {
   /**
 * @api {post} /box/sign Box signature.
 * @apiPermission user
-* @apiName BoxSignature
+* @apiName CreateSignature
 * @apiGroup Box
 *
 * @apiExample Example usage:
@@ -142,11 +142,11 @@ export default class PinBoxController {
 *
 */
 
-  async boxSignature (ctx) {
+  async createSignature (ctx) {
     try {
       const input = ctx.request.body
       input.user = ctx.state.user
-      const result = await this.useCases.Box.boxSignature(input)
+      const result = await this.useCases.Box.createSignature(input)
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

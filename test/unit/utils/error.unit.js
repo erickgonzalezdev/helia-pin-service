@@ -37,7 +37,6 @@ describe('#util-error.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.equal(error.status, 400)
         assert.include(error.message, 'not found!')
       }

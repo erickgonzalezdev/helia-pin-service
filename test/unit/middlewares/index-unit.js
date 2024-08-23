@@ -31,33 +31,29 @@ describe('#Middelwares/index.js', () => {
   after(async () => {
   })
   describe('#getJWTType', () => {
-    it('should return JWT type', async () => {
-      sandbox.stub(uut.jwt, 'verify').returns({ type: 'userAccess' })
-      ctxMock.request.header.authorization = 'Bearer token'
+    it('should return JWT type 1', async () => {
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YzgxZjAyZDBmOTVkZTQzYzA0NGU3OCIsInR5cGUiOiJ1c2VyQWNjZXNzIiwiaWF0IjoxNzI0MzkxMTcxfQ.Ew4nvA4cTXaLaayWT2EzRvaglz1U-t1EhREuDRrXa7c'
+      ctxMock.request.header.authorization = `Bearer ${token}`
 
       const tokenType = await uut.getJWTType(ctxMock)
       assert.isString(tokenType)
     })
-    it('throw an error if JWT cant be decoded', async () => {
-      try {
-        sandbox.stub(uut.jwt, 'verify').throws(new Error('Could not verify JWT'))
-        ctxMock.request.header.authorization = 'Bearer token'
+    it('should return JWT type 2', async () => {
+      const token = 'Ew4nvA4cTXaLaayWT2EzRvaglz1U-t1EhREuDRrXa7c'
+      ctxMock.request.header.authorization = `Bearer ${token}`
 
-        await uut.getJWTType(ctxMock)
-        assert.fail('unexpected code path')
-      } catch (error) {
-        assert.include(error.message, 'Could not verify JWT')
-      }
+      const tokenType = await uut.getJWTType(ctxMock)
+      assert.isString(tokenType)
     })
-    it('throw an error if token type is invalid', async () => {
+
+    it('should handle error', async () => {
       try {
-        sandbox.stub(uut.jwt, 'verify').returns({ type: 'unknow' })
-        ctxMock.request.header.authorization = 'Bearer token'
+        ctxMock.request.header.authorization = 'Bearer '
 
         await uut.getJWTType(ctxMock)
         assert.fail('unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'Could not verify JWT')
+        assert.include(error.message, 'Token could not be retrieved from header')
       }
     })
   })
