@@ -17,40 +17,39 @@ export default class BoxValidator {
 
   async ensureBoxSignature (ctx) {
     try {
-      try {
-        if (!ctx) throw new Error('Koa context (ctx) is required!')
-        const token = this.getToken(ctx)
-
-        if (!token) {
-          throw new Error('Token could not be retrieved from header')
-        }
-
-        let decoded = null
-        try {
-          decoded = this.jwt.verify(token, this.config.passKey)
-        } catch (err) {
-          throw new Error('Could not verify JWT')
-        }
-        if (decoded.type !== 'boxAccess') {
-          throw new Error('Could not verify JWT')
-        }
-        ctx.state.user = await this.dbModels.Users.findById(decoded.userId, '-password')
-        ctx.state.box = await this.dbModels.Box.findById(decoded.boxId)
-
-        if (!ctx.state.user) {
-          throw new Error('Could not find user')
-        }
-
-        if (!ctx.state.box) {
-          throw new Error('Could not find box')
-        }
-
-        return true
-      } catch (error) {
-        if (!ctx) throw error
-        ctx.status = 401
-        ctx.throw(401, error.message)
+      if (!ctx) throw new Error('Koa context (ctx) is required!')
+      const token = this.getToken(ctx)
+      if (!token) {
+        throw new Error('Token could not be retrieved from header')
       }
+
+      const signatureRes = await this.dbModels.BoxSignature.findOne({ signature: token })
+
+      if (!signatureRes) {
+        throw new Error('Could not verify JWT')
+      }
+      let decoded = null
+      try {
+        decoded = this.jwt.verify(signatureRes.jwt, this.config.passKey)
+      } catch (err) {
+        throw new Error('Could not verify JWT')
+      }
+      if (decoded.type !== 'boxAccess') {
+        throw new Error('Could not verify JWT')
+      }
+
+      ctx.state.user = await this.dbModels.Users.findById(decoded.userId, '-password')
+      ctx.state.box = await this.dbModels.Box.findById(decoded.boxId)
+
+      if (!ctx.state.user) {
+        throw new Error('Could not find user')
+      }
+
+      if (!ctx.state.box) {
+        throw new Error('Could not find box')
+      }
+
+      return true
     } catch (error) {
       if (!ctx) throw error
       ctx.status = 401

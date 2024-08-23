@@ -8,6 +8,7 @@ class DbModels {
     this.Users = Users
     this.Files = Files
     this.Box = BoxSchemas.Box
+    this.BoxSignature = BoxSchemas.BoxSignature
     this.Pin = Pin
   }
 }

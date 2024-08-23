@@ -282,7 +282,7 @@ describe('#box-use-case', () => {
 
     it('should generate signature', async () => {
       uut.config.passKey = 'key to sign'
-      const boxMock = { _id: 'my box id', owner: 'userId', signatures: [], save: () => {} }
+      const boxMock = { _id: 'my box id', owner: 'userId', save: () => {} }
       sandbox.stub(uut.db.Box, 'findById').resolves(boxMock)
 
       const input = {
@@ -295,18 +295,12 @@ describe('#box-use-case', () => {
       // Testing function result
       assert.isObject(result)
       assert.property(result, 'label')
-      assert.property(result, 'key')
-      assert.equal(result.label, 'this is my key')
-      assert.isString(result.key)
-      assert.isArray(boxMock.signatures)
+      assert.property(result, 'signature')
+      assert.property(result, '_id')
+      assert.property(result, 'signatureOwner')
 
-      // Testing updated signature list content.
-      const addedSignature = boxMock.signatures[0]
-      assert.isObject(addedSignature) // ensure updated signature list.
-      assert.property(addedSignature, 'label')
-      assert.property(addedSignature, 'key')
-      assert.equal(addedSignature.label, 'this is my key')
-      assert.isString(addedSignature.key)
+      assert.equal(result.label, 'this is my key')
+      assert.equal(result.signatureOwner, 'my box id')
     })
   })
 })

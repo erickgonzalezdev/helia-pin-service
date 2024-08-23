@@ -16,19 +16,16 @@ export default class Middleware {
   getJWTType (ctx) {
     try {
       const token = this.userValidators.getToken(ctx)
+      if (!token) throw new Error('Token could not be retrieved from header')
 
-      let decoded = null
-      try {
-        decoded = this.jwt.verify(token, this.config.passKey)
-      } catch (err) {
-        throw new Error('Could not verify JWT')
+      // TODO : use RegExp
+      const _match = token.split('.')
+      let type = 'boxAccess'
+      if (_match.length > 1) {
+        type = 'userAccess'
       }
-      if (decoded.type !== 'userAccess' && decoded.type !== 'boxAccess') {
-        throw new Error('Could not verify JWT')
-      }
-
-      ctx.state.jwtType = decoded.type
-      return decoded.type
+      ctx.state.jwtType = type
+      return type
     } catch (error) {
       if (!ctx) throw error
       ctx.status = 401

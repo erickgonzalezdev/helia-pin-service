@@ -104,7 +104,7 @@ export default class BoxUseCases {
 
   async createSignature (inObj = {}) {
     try {
-      const { boxId, user, label } = inObj
+      const { boxId, user, label, description } = inObj
       if (!boxId) throw new Error('boxId is required!')
       if (!user) throw new Error('user is required!')
       if (!label || typeof label !== 'string') throw new Error('label is required!')
@@ -116,11 +116,17 @@ export default class BoxUseCases {
         throw new Error('Unauthorized!')
       }
 
-      const key = this.jwt.sign({ userId: user._id.toString(), boxId: box._id.toString(), type: 'boxAccess' }, this.config.passKey)
-      box.signatures.push({ label, key })
-      await box.save()
+      const boxSignature = new this.db.BoxSignature({ label, description, signatureOwner: boxId })
 
-      return { label, key }
+      const jwt = this.jwt.sign({ userId: user._id.toString(), boxId: box._id.toString(), type: 'boxAccess' }, this.config.passKey)
+      const splitedJWT = jwt.split('.')
+      const signature = splitedJWT[2]
+      boxSignature.jwt = jwt
+      boxSignature.signature = signature
+      boxSignature.createdAt = new Date().getTime()
+      await boxSignature.save()
+
+      return { label, description, signature, signatureOwner: boxId, _id: boxSignature._id }
     } catch (error) {
       this.wlogger.error(`Error in use-cases/createSignature() $ ${error.message}`)
       throw error
