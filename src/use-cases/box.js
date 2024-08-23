@@ -14,6 +14,7 @@ export default class BoxUseCases {
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
     this.createSignature = this.createSignature.bind(this)
+    this.getBoxSignatures = this.getBoxSignatures.bind(this)
   }
 
   async createBox (inObj = {}) {
@@ -129,6 +130,30 @@ export default class BoxUseCases {
       return { label, description, signature, signatureOwner: boxId, _id: boxSignature._id }
     } catch (error) {
       this.wlogger.error(`Error in use-cases/createSignature() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getBoxSignatures (inObj = {}) {
+    try {
+      const { user, boxId } = inObj
+
+      if (!boxId) throw new Error('boxId is required!')
+      if (!user) { throw new Error('user is required!') }
+
+      const box = await this.db.Box.findById(boxId)
+
+      if (!box) { throw new Error('box not found!') }
+
+      if (box.owner !== user._id.toString()) {
+        throw new Error('Unauthorized!')
+      }
+
+      const signatures = this.db.BoxSignature.find({ signatureOwner: box._id.toString() }, ['-jwt', '-signatureOwner'])
+
+      return signatures
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/getBoxSignatures() ${error.message}`)
       throw error
     }
   }
