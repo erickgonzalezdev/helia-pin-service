@@ -235,7 +235,7 @@ describe('#box-use-case', () => {
       try {
         const input = {
           boxId: 'my box id',
-          user: { _id: 'my user id', save: () => {} }
+          user: { _id: 'my user id', save: () => { } }
         }
         await uut.createSignature(input)
 
@@ -282,7 +282,7 @@ describe('#box-use-case', () => {
 
     it('should generate signature', async () => {
       uut.config.passKey = 'key to sign'
-      const boxMock = { _id: 'my box id', owner: 'userId', save: () => {} }
+      const boxMock = { _id: 'my box id', owner: 'userId', save: () => { } }
       sandbox.stub(uut.db.Box, 'findById').resolves(boxMock)
 
       const input = {
@@ -301,6 +301,92 @@ describe('#box-use-case', () => {
 
       assert.equal(result.label, 'this is my key')
       assert.equal(result.signatureOwner, 'my box id')
+    })
+  })
+
+  describe('#getBoxSignatures', () => {
+    it('should throw error if no boxId provided', async () => {
+      try {
+        await uut.getBoxSignatures()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'boxId is required!')
+      }
+    })
+    it('should throw error if no user provided', async () => {
+      try {
+        const input = {
+          boxId: 'my box id'
+        }
+        await uut.getBoxSignatures(input)
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'user is required!')
+      }
+    })
+
+    it('should throw error if box is not found.', async () => {
+      try {
+        sandbox.stub(uut.db.Box, 'findById').resolves(null)
+
+        const input = {
+          label: 'this is my key',
+          user: { save: () => { }, _id: 'userId' },
+          boxId: 'my box id'
+        }
+        await uut.getBoxSignatures(input)
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'box not found!')
+      }
+    })
+    it('should throw error if box owner and user does not match.', async () => {
+      try {
+        sandbox.stub(uut.db.Box, 'findById').resolves({ _id: 'my box id', owner: 'unknow user id' })
+
+        const input = {
+          label: 'this is my key',
+          user: { save: () => { }, _id: 'userId' },
+          boxId: 'my box id'
+        }
+        await uut.getBoxSignatures(input)
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Unauthorized')
+      }
+    })
+
+    it('should get signatures', async () => {
+      uut.config.passKey = 'key to sign'
+      const boxMock = { _id: 'my box id', owner: 'userId', save: () => { } }
+      const SignatureMock = [
+        { _id: 'id', jwt: 'JWT', signatureOwner: 'signatureOwner', label: 'sign label', description: 'sign desc.', signature: 'signature' }
+      ]
+      sandbox.stub(uut.db.Box, 'findById').resolves(boxMock)
+      sandbox.stub(uut.db.BoxSignature, 'find').resolves(SignatureMock)
+
+      const input = {
+        label: 'this is my key',
+        user: { save: () => { }, _id: 'userId' },
+        boxId: 'my box id'
+      }
+      const result = await uut.getBoxSignatures(input)
+
+      // Testing function result
+      assert.isArray(result)
+      const firstSign = result[0]
+      assert.property(firstSign, 'label')
+      assert.property(firstSign, 'description')
+      assert.property(firstSign, 'signature')
+      assert.property(firstSign, '_id')
     })
   })
 })

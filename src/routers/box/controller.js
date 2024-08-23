@@ -13,6 +13,7 @@ export default class PinBoxController {
     this.updateBox = this.updateBox.bind(this)
     this.deleteBox = this.deleteBox.bind(this)
     this.createSignature = this.createSignature.bind(this)
+    this.getBoxSignatures = this.getBoxSignatures.bind(this)
   }
 
   /**
@@ -147,6 +148,29 @@ export default class PinBoxController {
       const input = ctx.request.body
       input.user = ctx.state.user
       const result = await this.useCases.Box.createSignature(input)
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+* @api {get} /box/sign/<id> Get box signatures.
+* @apiPermission user
+* @apiName GetBoxSignatures
+* @apiGroup Box
+*
+* @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/sign/<id>
+*
+*/
+
+  async getBoxSignatures (ctx) {
+    try {
+      const input = {}
+      input.user = ctx.state.user
+      input.boxId = ctx.params.id
+      const result = await this.useCases.Box.getBoxSignatures(input)
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
