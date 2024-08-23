@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const Box = new mongoose.Schema({
+const BoxSchema = new mongoose.Schema({
   createdAt: { type: Number, required: true },
   label: { type: String, required: true },
   desription: { type: String },
@@ -10,4 +10,5 @@ const Box = new mongoose.Schema({
   signatures: { type: Array, default: [] }
 })
 
-export default mongoose.model('box', Box)
+const Box = mongoose.model('box', BoxSchema)
+export default { Box }

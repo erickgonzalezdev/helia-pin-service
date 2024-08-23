@@ -18,7 +18,7 @@ describe('#Box-Access-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel, Box: BoxModel } } })
+    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel, Box: BoxModel.Box } } })
   })
 
   beforeEach(() => {
