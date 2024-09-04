@@ -47,7 +47,7 @@ class Server {
 
     this.controller = new Controller(config)
     await this.controller.start(app)
-    app.listen(this.port)
+    app.listen(this.port, '0.0.0.0')
 
     this.controller.libraries.wlogger.info(`Server started on port : ${this.port}`)
     console.log(`Server started on port : ${this.port}`)

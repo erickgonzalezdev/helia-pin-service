@@ -2,6 +2,8 @@ import Users from './users/router.js'
 import Files from './files/router.js'
 import Box from './box/router.js'
 import Pin from './pin/router.js'
+import Nodes from './nodes/router.js'
+
 export default class InitRouter {
   constructor (config = {}) {
     this.config = config
@@ -9,6 +11,7 @@ export default class InitRouter {
     this.files = new Files(this.config)
     this.box = new Box(this.config)
     this.pin = new Pin(this.config)
+    this.nodes = new Nodes(this.config)
 
     // Bind function to this class.
     this.start = this.start.bind(this)
@@ -19,5 +22,6 @@ export default class InitRouter {
     this.files.start(app)
     this.box.start(app)
     this.pin.start(app)
+    this.nodes.start(app)
   }
 }
