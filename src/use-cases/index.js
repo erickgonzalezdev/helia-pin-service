@@ -9,7 +9,7 @@ export default class UseCases {
 
     this.users = new UsersUseCases(config)
     this.files = new FilesUseCases(config)
-    this.Box = new BoxUseCases(config)
+    this.box = new BoxUseCases(config)
     this.pin = new PinUseCases(config)
     this.nodes = new NodesUseCases(config)
   }
