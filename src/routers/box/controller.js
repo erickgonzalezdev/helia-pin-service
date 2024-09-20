@@ -35,7 +35,7 @@ export default class PinBoxController {
     try {
       const inObj = ctx.request.body
       inObj.user = ctx.state.user
-      const box = await this.useCases.Box.createBox(inObj)
+      const box = await this.useCases.box.createBox(inObj)
       ctx.body = {
         box
       }
@@ -57,7 +57,7 @@ export default class PinBoxController {
  */
   async getBox (ctx, next) {
     try {
-      const box = await this.useCases.Box.getBox(ctx.params)
+      const box = await this.useCases.box.getBox(ctx.params)
       ctx.body = { box }
     } catch (error) {
       this.handleError(ctx, error)
@@ -81,7 +81,7 @@ export default class PinBoxController {
 */
   async getBoxes (ctx) {
     try {
-      const boxes = await this.useCases.Box.getBoxes()
+      const boxes = await this.useCases.box.getBoxes()
       ctx.body = boxes
     } catch (error) {
       this.handleError(ctx, error)
@@ -104,7 +104,7 @@ export default class PinBoxController {
     try {
       const existingData = ctx.body.box
       const newData = ctx.request.body
-      const result = await this.useCases.Box.updateBox({ existingData, newData })
+      const result = await this.useCases.box.updateBox({ existingData, newData })
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
@@ -125,7 +125,7 @@ export default class PinBoxController {
   async deleteBox (ctx) {
     try {
       const box = ctx.body.box
-      const result = await this.useCases.Box.deleteBox(box)
+      const result = await this.useCases.box.deleteBox(box)
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
@@ -147,7 +147,7 @@ export default class PinBoxController {
     try {
       const input = ctx.request.body
       input.user = ctx.state.user
-      const result = await this.useCases.Box.createSignature(input)
+      const result = await this.useCases.box.createSignature(input)
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
@@ -170,7 +170,7 @@ export default class PinBoxController {
       const input = {}
       input.user = ctx.state.user
       input.boxId = ctx.params.id
-      const result = await this.useCases.Box.getBoxSignatures(input)
+      const result = await this.useCases.box.getBoxSignatures(input)
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

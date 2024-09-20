@@ -50,9 +50,9 @@ export const createTestBoxModel = async (inObj = {
       user = await createTestUser({ username: 'boxOwner', password: 'testpass' })
     }
     inObj.user = user
-    const box = await useCases.Box.createBox(inObj)
+    const box = await useCases.box.createBox(inObj)
 
-    const signatureRes = await useCases.Box.createSignature({ label: 'testSign', boxId: box._id.toString(), user: inObj.user })
+    const signatureRes = await useCases.box.createSignature({ label: 'testSign', boxId: box._id.toString(), user: inObj.user })
     box.signatures = [{ key: signatureRes.signature }]
 
     return box

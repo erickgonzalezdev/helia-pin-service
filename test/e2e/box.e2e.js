@@ -209,7 +209,7 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box, 'getBoxes').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.box, 'getBoxes').throws(new Error('test error'))
 
         const options = {
           method: 'GET',
@@ -318,7 +318,7 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box, 'getBox').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.box, 'getBox').throws(new Error('test error'))
 
         const options = {
           method: 'GET',
@@ -442,7 +442,7 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box, 'updateBox').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.box, 'updateBox').throws(new Error('test error'))
 
         const options = {
           method: 'PUT',
@@ -593,7 +593,7 @@ describe('e2e-box', () => {
     })
     it('should generate box signature', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
 
         const options = {
           method: 'POST',
@@ -794,7 +794,7 @@ describe('e2e-box', () => {
     })
     it('should handle request error', async () => {
       try {
-        sandbox.stub(app.controller.useCases.Box, 'deleteBox').throws(new Error('test error'))
+        sandbox.stub(app.controller.useCases.box, 'deleteBox').throws(new Error('test error'))
 
         const options = {
           method: 'DELETE',
