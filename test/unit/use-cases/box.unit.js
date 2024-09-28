@@ -155,6 +155,25 @@ describe('#box-use-case', () => {
     })
   })
 
+  describe('#getBoxesByUser', () => {
+    it('should catch and throw an error', async () => {
+      try {
+        // Force an error.
+        sandbox.stub(uut.db.Box, 'find').throws(new Error('test error'))
+
+        await uut.getBoxesByUser({ user: { _id: 'userId' } })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should get all user boxes', async () => {
+      const res = await uut.getBoxesByUser({ user: { _id: 'userId' } })
+      assert.isArray(res)
+    })
+  })
+
   describe('#updateBox', () => {
     it('should throw an error if no input is given', async () => {
       try {

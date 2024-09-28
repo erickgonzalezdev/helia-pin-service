@@ -15,6 +15,7 @@ export default class BoxUseCases {
     this.deleteBox = this.deleteBox.bind(this)
     this.createSignature = this.createSignature.bind(this)
     this.getBoxSignatures = this.getBoxSignatures.bind(this)
+    this.getBoxesByUser = this.getBoxesByUser.bind(this)
   }
 
   async createBox (inObj = {}) {
@@ -65,6 +66,17 @@ export default class BoxUseCases {
       return box
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getBoxes() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getBoxesByUser (inObj = {}) {
+    try {
+      const { user } = inObj
+      const box = await this.db.Box.find({ owner: user._id })
+      return box
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/getBoxByUser() $ ${error.message}`)
       throw error
     }
   }
