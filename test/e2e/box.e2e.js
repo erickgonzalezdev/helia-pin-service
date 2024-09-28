@@ -359,7 +359,114 @@ describe('e2e-box', () => {
       }
     })
   })
+  describe('GET /box/user', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
 
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.box, 'getBoxesByUser').throws(new Error('test error'))
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert(error.response.status === 422)
+        assert.isString(error.response.data)
+      }
+    })
+
+    it('should get all user boxes', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/user`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+        const result = await axios(options)
+        assert(result.status === 200)
+        assert.isArray(result.data)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
   describe('PUT /box/:id', () => {
     it('should reject if the authorization header is missing', async () => {
       try {

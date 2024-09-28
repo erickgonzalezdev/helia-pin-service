@@ -89,6 +89,26 @@ export default class PinBoxController {
   }
 
   /**
+* @api {get} /box/user Get Box by user.
+* @apiPermission user
+* @apiName GetBoxes
+* @apiGroup Box
+* @apiVersion 1.0.0
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/user
+*
+*/
+  async getBoxesByUser (ctx) {
+    try {
+      const boxes = await this.useCases.box.getBoxesByUser(ctx.state)
+      ctx.body = boxes
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
  * @api {put} /box/:id Update a box
  * @apiPermission user
  * @apiName UpdateBox
