@@ -32,10 +32,11 @@ export default class PinUseCases {
       const pin = new this.db.Pin({ pinOwner: boxId, file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
-      await pin.save()
-
       // Pin file
-      this.heliaNode.remotePin(file.cid)
+      this.heliaNode.remotePin(file.cid, this.heliaNode.targetNode)
+
+      pin.targetNode = this.heliaNode.targetNode
+      await pin.save()
 
       return pin
     } catch (error) {
@@ -67,10 +68,11 @@ export default class PinUseCases {
       const pin = new this.db.Pin({ pinOwner: box._id.toString(), file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
-      await pin.save()
-
       // Pin file
-      this.heliaNode.remotePin(file.cid)
+      this.heliaNode.remotePin(file.cid, this.heliaNode.targetNode)
+
+      pin.targetNode = this.heliaNode.targetNode
+      await pin.save()
 
       return pin
     } catch (error) {

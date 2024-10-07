@@ -14,11 +14,13 @@ class HeliaNode {
     this.gateway = null
     this.rpc = null
     this.wlogger = this.config.wlogger
+    this.targetNode = null
 
     // Bind function
     this.start = this.start.bind(this)
     this.onSuccessRemotePin = this.onSuccessRemotePin.bind(this)
     this.remotePin = this.remotePin.bind(this)
+    this.setTargetNode = this.setTargetNode.bind(this)
   }
 
   async start () {
@@ -67,11 +69,12 @@ class HeliaNode {
   }
 
   // pin file remotely
-  async remotePin (cid) {
+  async remotePin (cid, target = this.targetNode) {
     try {
       if (!cid) throw new Error('cid must be a string!')
+
       const rpcObj = {
-        toPeerId: this.config.pinHostPeerId,
+        toPeerId: target,
         fromPeerId: this.node.peerId.toString(),
         cid
       }
@@ -80,7 +83,36 @@ class HeliaNode {
       return true
     } catch (error) {
       this.wlogger.error('Error on remotePin() ', error)
-      // skip error
+      throw error
+    }
+  }
+
+  // Pin strategy , looking for low space usage in a node  and select as node pin target.
+  setTargetNode () {
+    try {
+      if (!this.rpc) {
+        throw new Error('node rpc is not initialized')
+      }
+
+      const nodeList = this.rpc.getSubscriptionList()
+
+      if (!nodeList.length) {
+        throw new Error('node list is empty')
+      }
+
+      let targetNode = nodeList[0]
+
+      for (let i = 1; i < nodeList.length; i++) {
+        const node = nodeList[i]
+        if (node && node.diskSize < targetNode.diskSize) {
+          targetNode = node
+        }
+      }
+      this.wlogger.info(`Selected node ${targetNode.peerId}`)
+      this.targetNode = targetNode.peerId
+      return targetNode.peerId
+    } catch (error) {
+      this.wlogger.error('Error on applyPlinStrategy() ', error)
       throw error
     }
   }
