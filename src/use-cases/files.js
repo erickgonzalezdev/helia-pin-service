@@ -80,7 +80,7 @@ export default class FileUseCases {
       for (let i = 0; i < unpinedCID.length; i++) {
         const fileObj = unpinedCID[i]
         this.wlogger.info('handling unpined cid ', fileObj.cid)
-        this.heliaNode.remotePin(fileObj.cid)
+        this.heliaNode.remotePin(fileObj.cid, fileObj.targetNode)
         await this.sleep(this.handleUnpinedDelay)
       }
       return true

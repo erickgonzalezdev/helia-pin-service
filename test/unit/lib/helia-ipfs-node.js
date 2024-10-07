@@ -92,4 +92,36 @@ describe('#helia-ipfs-node.js', () => {
       assert.isFalse(result)
     })
   })
+
+  describe('#setTargetNode', () => {
+    it('should throw an error if rpc class is not defined', async () => {
+      try {
+        uut.rpc = null
+        await uut.setTargetNode()
+      } catch (error) {
+        assert.include(error.message, 'node rpc is not initialized')
+      }
+    })
+
+    it('should throw an error if subscription list is empty', async () => {
+      try {
+        uut.rpc = { getSubscriptionList: () => { return [] } }
+        await uut.setTargetNode()
+      } catch (error) {
+        assert.include(error.message, 'node list is empty')
+      }
+    })
+    it('should define node with low space usage', async () => {
+      const subscriptionListMock = [
+        { peerId: 'peer1', diskSize: 100 },
+        { peerId: 'peer2', diskSize: 200 },
+        { peerId: 'peer3', diskSize: 50 },
+        { peerId: 'peer4', diskSize: 500 }
+      ]
+      uut.rpc = { getSubscriptionList: () => { return subscriptionListMock } }
+      const result = uut.setTargetNode()
+      assert.isString(result)
+      assert.equal(result, 'peer3', 'Expected peer3 to be selected')
+    })
+  })
 })
