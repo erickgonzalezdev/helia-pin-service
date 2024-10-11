@@ -23,6 +23,9 @@ export default class TimerController {
   }
 
   startTimers () {
+    if (!this.handleUnpinedPeriod) throw new Error('reviewPinsPeriod must be passed in as enviroment var')
+    if (!this.handleTargetNodePeriod) throw new Error('reviewNodesPeriod must be passed in as enviroment var')
+
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleUnpinedPeriod / 60000} minutes`)
     this.handleUnpinedTimer = this.setInterval(this.handleUnpinedFiles, this.handleUnpinedPeriod)
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleTargetNodePeriod / 60000} minutes`)

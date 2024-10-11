@@ -45,7 +45,7 @@ class Server {
     // Used to generate the docs.
     app.use(mount('/', serve(`${process.cwd()}/docs`)))
 
-    this.controller = new Controller(config)
+    this.controller = new Controller(this.config)
     await this.controller.start(app)
     app.listen(this.port, '0.0.0.0')
 

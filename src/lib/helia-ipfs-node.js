@@ -69,10 +69,11 @@ class HeliaNode {
   }
 
   // pin file remotely
-  async remotePin (cid, target = this.targetNode) {
+  remotePin (cid, target) {
     try {
       if (!cid) throw new Error('cid must be a string!')
-
+      if (!target) target = this.targetNode
+      console.log('this.node', this.node)
       const rpcObj = {
         toPeerId: target,
         fromPeerId: this.node.peerId.toString(),
@@ -80,10 +81,11 @@ class HeliaNode {
       }
 
       this.rpc.requestRemotePin(rpcObj)
-      return true
+      return rpcObj
     } catch (error) {
-      this.wlogger.error('Error on remotePin() ', error)
-      throw error
+      console.log(error)
+      this.wlogger.error('Error on remotePin() ', error.message)
+      return false
     }
   }
 

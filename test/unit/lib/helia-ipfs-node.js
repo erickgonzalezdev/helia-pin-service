@@ -124,4 +124,29 @@ describe('#helia-ipfs-node.js', () => {
       assert.equal(result, 'peer3', 'Expected peer3 to be selected')
     })
   })
+
+  describe('#remotePin', () => {
+    it('should return false on error', async () => {
+      const result = await uut.remotePin()
+      assert.isFalse(result)
+    })
+
+    it('should request remote pin to default target node', async () => {
+      uut.targetNode = 'default node peer id'
+      uut.node = new HeliaNodeMock()
+      uut.rpc = { requestRemotePin: () => { } } // mock rpc function
+      const cid = 'cid to pin'
+      const result = uut.remotePin(cid)
+      assert.isObject(result)
+      assert.equal(result.toPeerId, 'default node peer id')
+    })
+    it('should request remote pin to custom target node', async () => {
+      uut.node = new HeliaNodeMock()
+      uut.rpc = { requestRemotePin: () => { } } // mock rpc function
+      const cid = 'cid to pin'
+      const result = uut.remotePin(cid, 'custom node peer id')
+      assert.isObject(result)
+      assert.equal(result.toPeerId, 'custom node peer id')
+    })
+  })
 })
