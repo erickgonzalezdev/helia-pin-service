@@ -1,7 +1,7 @@
 import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/lib.js'
 
 class HeliaNode {
-  constructor(config = {}) {
+  constructor (config = {}) {
     if (!config.dbModels) {
       throw new Error('dbModels must be passed in constructor when instatiate HeliaNode lib.')
     }
@@ -23,7 +23,7 @@ class HeliaNode {
     this.setTargetNode = this.setTargetNode.bind(this)
   }
 
-  async start() {
+  async start () {
     try {
       this.node = new this.HeliaNode(this.config)
       await this.node.start()
@@ -45,7 +45,7 @@ class HeliaNode {
     }
   }
 
-  async onSuccessRemotePin(data = {}) {
+  async onSuccessRemotePin (data = {}) {
     try {
       const { cid, host } = data
       if (!cid || typeof cid !== 'string') throw new Error('cid must be a string!')
@@ -69,7 +69,7 @@ class HeliaNode {
   }
 
   // pin file remotely
-   remotePin(cid, target) {
+  remotePin (cid, target) {
     try {
       if (!cid) throw new Error('cid must be a string!')
       if (!target) target = this.targetNode
@@ -90,7 +90,7 @@ class HeliaNode {
   }
 
   // Pin strategy , looking for low space usage in a node  and select as node pin target.
-  setTargetNode() {
+  setTargetNode () {
     try {
       if (!this.rpc) {
         throw new Error('node rpc is not initialized')

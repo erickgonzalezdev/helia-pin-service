@@ -127,8 +127,8 @@ describe('#helia-ipfs-node.js', () => {
 
   describe('#remotePin', () => {
     it('should return false on error', async () => {
-       const result = await uut.remotePin()
-       assert.isFalse(result)
+      const result = await uut.remotePin()
+      assert.isFalse(result)
     })
 
     it('should request remote pin to default target node', async () => {
@@ -144,7 +144,7 @@ describe('#helia-ipfs-node.js', () => {
       uut.node = new HeliaNodeMock()
       uut.rpc = { requestRemotePin: () => { } } // mock rpc function
       const cid = 'cid to pin'
-      const result = uut.remotePin(cid,'custom node peer id')
+      const result = uut.remotePin(cid, 'custom node peer id')
       assert.isObject(result)
       assert.equal(result.toPeerId, 'custom node peer id')
     })
