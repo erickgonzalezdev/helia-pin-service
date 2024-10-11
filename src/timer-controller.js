@@ -1,5 +1,5 @@
 export default class TimerController {
-  constructor (config = {}) {
+  constructor(config = {}) {
     this.config = config
     // Dependency Injection.
     this.useCases = config.useCases
@@ -22,7 +22,10 @@ export default class TimerController {
     // this.stopTimers = this.stopTimers.bind(this)
   }
 
-  startTimers () {
+  startTimers() {
+    if (!this.handleUnpinedPeriod) throw new Error('reviewPinsPeriod must be passed in as enviroment var')
+    if (!this.handleTargetNodePeriod) throw new Error('reviewNodesPeriod must be passed in as enviroment var')
+
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleUnpinedPeriod / 60000} minutes`)
     this.handleUnpinedTimer = this.setInterval(this.handleUnpinedFiles, this.handleUnpinedPeriod)
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleTargetNodePeriod / 60000} minutes`)
@@ -37,7 +40,7 @@ export default class TimerController {
   }
  */
   // Review al unpinned files , and re attemp pin it
-  async handleUnpinedFiles () {
+  async handleUnpinedFiles() {
     try {
       // Stop interval
       this.clearInterval(this.handleUnpinedTimer)
@@ -58,7 +61,7 @@ export default class TimerController {
     }
   }
 
-  async handleTargetNode () {
+  async handleTargetNode() {
     try {
       // Stop interval
       this.clearInterval(this.handleTargetNodeTimer)

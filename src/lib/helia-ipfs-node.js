@@ -1,7 +1,7 @@
 import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/lib.js'
 
 class HeliaNode {
-  constructor (config = {}) {
+  constructor(config = {}) {
     if (!config.dbModels) {
       throw new Error('dbModels must be passed in constructor when instatiate HeliaNode lib.')
     }
@@ -23,7 +23,7 @@ class HeliaNode {
     this.setTargetNode = this.setTargetNode.bind(this)
   }
 
-  async start () {
+  async start() {
     try {
       this.node = new this.HeliaNode(this.config)
       await this.node.start()
@@ -45,7 +45,7 @@ class HeliaNode {
     }
   }
 
-  async onSuccessRemotePin (data = {}) {
+  async onSuccessRemotePin(data = {}) {
     try {
       const { cid, host } = data
       if (!cid || typeof cid !== 'string') throw new Error('cid must be a string!')
@@ -69,10 +69,11 @@ class HeliaNode {
   }
 
   // pin file remotely
-  async remotePin (cid, target = this.targetNode) {
+   remotePin(cid, target) {
     try {
       if (!cid) throw new Error('cid must be a string!')
-
+      if (!target) target = this.targetNode
+      console.log('this.node', this.node)
       const rpcObj = {
         toPeerId: target,
         fromPeerId: this.node.peerId.toString(),
@@ -80,15 +81,16 @@ class HeliaNode {
       }
 
       this.rpc.requestRemotePin(rpcObj)
-      return true
+      return rpcObj
     } catch (error) {
-      this.wlogger.error('Error on remotePin() ', error)
-      throw error
+      console.log(error)
+      this.wlogger.error('Error on remotePin() ', error.message)
+      return false
     }
   }
 
   // Pin strategy , looking for low space usage in a node  and select as node pin target.
-  setTargetNode () {
+  setTargetNode() {
     try {
       if (!this.rpc) {
         throw new Error('node rpc is not initialized')

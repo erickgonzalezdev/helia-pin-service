@@ -68,6 +68,9 @@ export const startApp = async () => {
   if (APP) return APP
   APP = new SERVER()
   APP.config.storePath = './helia-data-test' // helia data path
+  APP.config.reviewPinsPeriod = 10000
+  APP.config.reviewNodesPeriod = 10000
+
   await APP.start()
 
   return APP
