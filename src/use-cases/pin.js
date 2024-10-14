@@ -9,6 +9,7 @@ export default class PinUseCases {
     this.addPinByUser = this.addPinByUser.bind(this)
     this.addPinBySignature = this.addPinBySignature.bind(this)
     this.getPinsByBox = this.getPinsByBox.bind(this)
+    this.deletePin = this.deletePin.bind(this)
   }
 
   // add pin by user
@@ -102,6 +103,30 @@ export default class PinUseCases {
       return pins
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getFiles() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  // add pin by user
+  async deletePin (inObj = {}) {
+    try {
+      /*
+
+        TODO:  validate box writer-permissions.
+        } */
+      const { pinId, user } = inObj
+      const pinObj = await this.db.Pin.findById(pinId)
+      const boxOwner = await this.db.Box.findById(pinObj.pinOwner)
+
+      // Ensure pin owner
+      if (boxOwner.owner !== user._id.toString()) {
+        throw new Error('Unauthorized')
+      }
+      await this.db.Pin.deleteOne({ _id: pinId })
+
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/deletePin() $ ${error.message}`)
       throw error
     }
   }

@@ -17,6 +17,7 @@ class RouterHanlder {
     this.start = this.start.bind(this)
     this.getPinsByBox = this.getPinsByBox.bind(this)
     this.addPin = this.addPin.bind(this)
+    this.deletePin = this.deletePin.bind(this)
   }
 
   async start (app) {
@@ -24,6 +25,7 @@ class RouterHanlder {
 
     this.router.post('/', this.addPin)
     this.router.get('/box/:id', this.getPinsByBox)
+    this.router.delete('/:id', this.deletePin)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -50,6 +52,12 @@ class RouterHanlder {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
     await this.controller.getPinsByBox(ctx, next)
+  }
+
+  async deletePin (ctx, next) {
+    console.log('deleting pin')
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.deletePin(ctx, next)
   }
 }
 

@@ -16,6 +16,7 @@ describe('e2e-pin', () => {
     await cleanDb()
     await cleanNode()
     testData.user = await createTestUser()
+    testData.user2 = await createTestUser({ username: 'testuser2', password: 'pass' })
     testData.box = await createTestBoxModel({ label: 'test', description: 'test', user: testData.user })
     testData.file = await createTestFileModel()
   })
@@ -195,6 +196,8 @@ describe('e2e-pin', () => {
           }
         }
         const result = await axios(options)
+        testData.pin = result.data
+        console.log('testData.pin', testData.pin)
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
@@ -329,6 +332,115 @@ describe('e2e-pin', () => {
         assert(result.status === 200)
         assert.isArray(result.data)
       } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
+  describe('DELETE /pin/:id', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is not pin owner', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user2.token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 422)
+      }
+    })
+
+    it('should dele pin', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/pin/${testData.pin._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+
+        const result = await axios(options)
+
+        assert(result.status === 200)
+        assert.isBoolean(result.data)
+      } catch (error) {
+        console.log(error)
         assert.fail('Unexpected code path.')
       }
     })

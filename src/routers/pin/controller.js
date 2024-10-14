@@ -9,6 +9,7 @@ export default class PinController {
     // Bind function to this class.
     this.addPin = this.addPin.bind(this)
     this.getPinsByBox = this.getPinsByBox.bind(this)
+    this.deletePin = this.deletePin.bind(this)
   }
 
   /**
@@ -58,6 +59,28 @@ export default class PinController {
       const boxId = ctx.request.params.id
 
       const result = await this.useCases.pin.getPinsByBox({ boxId })
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+* @api {delete} /pin/:id Delete Pin.
+* @apiPermission User
+* @apiName DeletePin
+* @apiGroup Pin
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/pin/<id>
+*
+*/
+  async deletePin (ctx) {
+    try {
+      const pinId = ctx.request.params.id
+      const user = ctx.state.user
+
+      const result = await this.useCases.pin.deletePin({ pinId, user })
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

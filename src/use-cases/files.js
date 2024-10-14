@@ -79,6 +79,12 @@ export default class FileUseCases {
 
       for (let i = 0; i < unpinedCID.length; i++) {
         const fileObj = unpinedCID[i]
+        // if a file has not associated Pin Obj, then skip it.
+        const hasPin = await this.db.Pin.find({ file: fileObj._id })
+        if (!hasPin.length) {
+          console.log(`this file : ${fileObj.cid}  does not contain a pin object. Skip remote pin`)
+          continue
+        }
         this.wlogger.info('handling unpined cid ', fileObj.cid)
         this.heliaNode.remotePin(fileObj.cid, fileObj.targetNode)
         await this.sleep(this.handleUnpinedDelay)
