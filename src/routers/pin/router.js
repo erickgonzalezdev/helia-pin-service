@@ -55,7 +55,6 @@ class RouterHanlder {
   }
 
   async deletePin (ctx, next) {
-    console.log('deleting pin')
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.deletePin(ctx, next)
   }

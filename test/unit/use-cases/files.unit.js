@@ -14,6 +14,7 @@ describe('#file-use-case', () => {
     uut = new UseCase({ libraries: new Libraries() })
     // Mock node
     uut.heliaNode.node = new HeliaNodeMock()
+    uut.heliaNode.targetNode = 'target node'
     uut.heliaNode.rpc = new PinRPCMock()
     uut.handleUnpinedDelay = 1
     await startDb()
@@ -125,14 +126,16 @@ describe('#file-use-case', () => {
   })
 
   describe('#handleUnpinedFiles', () => {
-    it('should send pin request for unpinned files', async () => {
+    it('should send pin request for unpinned files ', async () => {
       sandbox.stub(uut.db.Files, 'find').resolves([
-        { cid: 'cid', pinned: false, _id: 'file id' }
+        { cid: 'cid', pinned: false, _id: 'file id', save: () => {} },
+        { cid: 'cid', pinned: false, _id: 'file id', targetNode: 'some node id', save: () => {} }
       ])
 
       const res = await uut.handleUnpinedFiles()
       assert.isTrue(res)
     })
+
     it('should handle error', async () => {
       try {
         sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
@@ -145,12 +148,46 @@ describe('#file-use-case', () => {
     })
     it('should skip if error does not have a associated pin', async () => {
       sandbox.stub(uut.db.Files, 'find').resolves([
-        { cid: 'cid', pinned: false, _id: 'file id' },
-        { cid: 'cid2', pinned: false, _id: 'file id2' }
+        { cid: 'cid', pinned: false, _id: 'file id', save: () => {} },
+        { cid: 'cid2', pinned: false, _id: 'file id2', save: () => {} }
       ])
       sandbox.stub(uut.db.Pin, 'find').onCall(0).resolves([]).onCall(1).resolves([{}])
       const spy = sandbox.stub(uut.heliaNode, 'remotePin').resolves(true)
       const res = await uut.handleUnpinedFiles()
+      assert.isTrue(res)
+      // assert.isTrue(spy.notCalled)
+      assert.isTrue(spy.calledOnce)
+    })
+  })
+  describe('#unPinFiles', () => {
+    it('should send unpin request for pinned files to needed it ', async () => {
+      sandbox.stub(uut.db.Files, 'find').resolves([
+        { cid: 'cid', pinned: false, _id: 'file id', save: () => {} },
+        { cid: 'cid', pinned: false, _id: 'file id', save: () => {} }
+      ])
+
+      const res = await uut.unPinFiles()
+      assert.isTrue(res)
+    })
+
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
+        await uut.unPinFiles()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should skip if error if file object has an associated pin', async () => {
+      sandbox.stub(uut.db.Files, 'find').resolves([
+        { cid: 'cid', pinned: false, _id: 'file id', targetNode: 'some node id', save: () => {} },
+        { cid: 'cid2', pinned: false, _id: 'file id2', targetNode: 'some node id', save: () => {} }
+      ])
+      sandbox.stub(uut.db.Pin, 'find').onCall(0).resolves([]).onCall(1).resolves([{}])
+      const spy = sandbox.stub(uut.heliaNode, 'remoteUnpin').resolves(true)
+      const res = await uut.unPinFiles()
       assert.isTrue(res)
       // assert.isTrue(spy.notCalled)
       assert.isTrue(spy.calledOnce)

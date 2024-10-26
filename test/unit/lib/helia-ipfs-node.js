@@ -20,6 +20,7 @@ describe('#helia-ipfs-node.js', () => {
     uut = new LibUnderTest(config)
     uut.HeliaNode = HeliaNodeMock
     uut.HeliaServer = HeliaServerMock
+    uut.node = new HeliaNodeMock()
     sandbox = sinon.createSandbox()
   })
 
@@ -57,14 +58,16 @@ describe('#helia-ipfs-node.js', () => {
   })
 
   describe('#onSuccessRemotePin', () => {
-    it('should update pin model', async () => {
+    it('should update file model', async () => {
       const inObj = {
         cid: testData.file.cid,
         host: 'peerId'
       }
+
       const result = await uut.onSuccessRemotePin(inObj)
       assert.equal(result._id.toString(), testData.file._id.toString())
       assert.isTrue(result.pinned)
+      assert.isNumber(result.pinnedAt)
       assert.isString(result.host[0])
       assert.equal(result.host[0], inObj.host)
     })
@@ -89,6 +92,42 @@ describe('#helia-ipfs-node.js', () => {
         cid: 'unknow cid'
       }
       const result = await uut.onSuccessRemotePin(inObj)
+      assert.isFalse(result)
+    })
+  })
+
+  describe('#onSuccessRemoteUnpin', () => {
+    it('should update file model', async () => {
+      const inObj = {
+        cid: testData.file.cid,
+        host: 'peerId'
+      }
+
+      const result = await uut.onSuccessRemoteUnpin(inObj)
+      assert.equal(result._id.toString(), testData.file._id.toString())
+      assert.isFalse(result.pinned)
+    })
+
+    it('should return false on error', async () => {
+      const inObj = {
+        cid: 'unknow cid',
+        host: 'peerId'
+      }
+      const result = await uut.onSuccessRemoteUnpin(inObj)
+      assert.isFalse(result)
+    })
+    it('should return false if cid is not provided', async () => {
+      const inObj = {
+        host: 'peerId'
+      }
+      const result = await uut.onSuccessRemoteUnpin(inObj)
+      assert.isFalse(result)
+    })
+    it('should return false if host is not provided', async () => {
+      const inObj = {
+        cid: 'unknow cid'
+      }
+      const result = await uut.onSuccessRemoteUnpin(inObj)
       assert.isFalse(result)
     })
   })
@@ -131,22 +170,62 @@ describe('#helia-ipfs-node.js', () => {
       assert.isFalse(result)
     })
 
-    it('should request remote pin to default target node', async () => {
-      uut.targetNode = 'default node peer id'
-      uut.node = new HeliaNodeMock()
+    it('should return false if cid is not provided', async () => {
+      uut.rpc = { requestRemotePin: () => { } } // mock rpc function
+      const result = uut.remotePin()
+      assert.isFalse(result)
+    })
+    it('should return false if target node is not provided', async () => {
       uut.rpc = { requestRemotePin: () => { } } // mock rpc function
       const cid = 'cid to pin'
       const result = uut.remotePin(cid)
-      assert.isObject(result)
-      assert.equal(result.toPeerId, 'default node peer id')
+      assert.isFalse(result)
     })
-    it('should request remote pin to custom target node', async () => {
-      uut.node = new HeliaNodeMock()
+    it('should request remote pin to target node', async () => {
       uut.rpc = { requestRemotePin: () => { } } // mock rpc function
       const cid = 'cid to pin'
       const result = uut.remotePin(cid, 'custom node peer id')
       assert.isObject(result)
       assert.equal(result.toPeerId, 'custom node peer id')
+    })
+  })
+  describe('#remoteUnpin', () => {
+    it('should return false on error', async () => {
+      const result = await uut.remoteUnpin()
+      assert.isFalse(result)
+    })
+
+    it('should return false if cid is not provided', async () => {
+      uut.rpc = { requestRemoteUnpin: () => { } } // mock rpc function
+      const result = uut.remoteUnpin()
+      assert.isFalse(result)
+    })
+    it('should return false if target node is not provided', async () => {
+      uut.rpc = { requestRemoteUnpin: () => { } } // mock rpc function
+      const cid = 'cid to pin'
+      const result = uut.remoteUnpin(cid)
+      assert.isFalse(result)
+    })
+    it('should request remote pin to target node', async () => {
+      uut.rpc = { requestRemoteUnpin: () => { } } // mock rpc function
+      const cid = 'cid to pin'
+      const result = uut.remoteUnpin(cid, 'custom node peer id')
+      assert.isObject(result)
+      assert.equal(result.toPeerId, 'custom node peer id')
+    })
+  })
+
+  describe('#tryLocallyUnpin', () => {
+    it('should return false on error', async () => {
+      sandbox.stub(uut.node, 'unPinCid').throws(new Error())
+      const result = await uut.tryLocallyUnpin('bafybeiczsscdsbs7ffqz55asqdf3smv6klcw3gofszvwlyarci47bgf354')
+      assert.isFalse(result)
+    })
+
+    it('should return true on success', async () => {
+      sandbox.stub(uut.node, 'unPinCid').resolves(true)
+      const result = await uut.tryLocallyUnpin('bafybeiczsscdsbs7ffqz55asqdf3smv6klcw3gofszvwlyarci47bgf354')
+      assert.isTrue(result)
     })
   })
 })

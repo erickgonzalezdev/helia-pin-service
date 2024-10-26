@@ -33,14 +33,17 @@ class HeliaNodeMock {
     this.peerId = 'testPeerId'
     this.config = config
     this.helia = {
-      libp2p: new Libp2pMock()
+      libp2p: new Libp2pMock(),
+      gc: () => {}
     }
   }
 
   async start () {}
 
   async pinCid () { return 'cid' }
+  async unPinCid () { return 'cid' }
   async uploadFile () { return 'cid' }
+  async getDiskSize () { return 0 }
 }
 
 class PinRPCMock {
@@ -51,6 +54,7 @@ class PinRPCMock {
   async start () {}
 
   async requestRemotePin () { return 'cid' }
+  async requestRemoteUnpin () { return 'cid' }
 }
 
 class HeliaServerMock {

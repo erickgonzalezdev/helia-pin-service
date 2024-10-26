@@ -36,8 +36,12 @@ export default class PinUseCases {
       // Pin file
       this.heliaNode.remotePin(file.cid, this.heliaNode.targetNode)
 
-      pin.targetNode = this.heliaNode.targetNode
+      file.targetNode = this.heliaNode.targetNode
       await pin.save()
+
+      file.pinCount = file.pinCount + 1
+
+      await file.save()
 
       return pin
     } catch (error) {
@@ -72,8 +76,12 @@ export default class PinUseCases {
       // Pin file
       this.heliaNode.remotePin(file.cid, this.heliaNode.targetNode)
 
-      pin.targetNode = this.heliaNode.targetNode
+      file.targetNode = this.heliaNode.targetNode
       await pin.save()
+
+      file.pinCount = file.pinCount + 1
+
+      await file.save()
 
       return pin
     } catch (error) {
@@ -118,11 +126,17 @@ export default class PinUseCases {
       const pinObj = await this.db.Pin.findById(pinId)
       const boxOwner = await this.db.Box.findById(pinObj.pinOwner)
 
+      const file = await this.db.Files.findById(pinObj.file)
+
       // Ensure pin owner
       if (boxOwner.owner !== user._id.toString()) {
         throw new Error('Unauthorized')
       }
       await this.db.Pin.deleteOne({ _id: pinId })
+
+      file.pinCount = file.pinCount - 1
+
+      await file.save()
 
       return true
     } catch (error) {

@@ -14,11 +14,15 @@ export default class TimerController {
     this.wlogger = this.useCases.files.wlogger
     // State
     this.handleUnpinedPeriod = 60000 * this.config.reviewPinsPeriod
+    this.unpinFilesPeriod = 60000 * this.config.reviewPinsPeriod * 1.5
     this.handleTargetNodePeriod = 60000 * this.config.reviewNodesPeriod
+    this.gcPeriod = 60000 * this.config.gcPeriod
 
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.handleTargetNode = this.handleTargetNode.bind(this)
     this.startTimers = this.startTimers.bind(this)
+    this.unPinFiles = this.unPinFiles.bind(this)
+    this.garbageCollection = this.garbageCollection.bind(this)
     // this.stopTimers = this.stopTimers.bind(this)
   }
 
@@ -28,8 +32,15 @@ export default class TimerController {
 
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleUnpinedPeriod / 60000} minutes`)
     this.handleUnpinedTimer = this.setInterval(this.handleUnpinedFiles, this.handleUnpinedPeriod)
-    this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleTargetNodePeriod / 60000} minutes`)
+
+    this.wlogger.info(`Starting handleTargetNode interval of ${this.handleTargetNodePeriod / 60000} minutes`)
     this.handleTargetNodeTimer = this.setInterval(this.handleTargetNode, this.handleTargetNodePeriod)
+
+    this.wlogger.info(`Starting unPinFiles interval  for ${this.unpinFilesPeriod / 60000} minutes`)
+    this.unPinFilesTimer = this.setInterval(this.unPinFiles, this.unpinFilesPeriod)
+
+    this.wlogger.info(`Starting garbageCollection interval  for ${this.gcPeriod / 60000} minutes`)
+    this.gcTimer = this.setInterval(this.garbageCollection, this.gcPeriod)
     return true
   }
 
@@ -66,11 +77,11 @@ export default class TimerController {
       // Stop interval
       this.clearInterval(this.handleTargetNodeTimer)
 
-      this.wlogger.info('Stopped handleTargetNodeTimer interval , waiting for handler to be done!.')
+      this.wlogger.info('Stopped handleTargetNode interval , waiting for handler to be done!.')
       this.useCases.pin.heliaNode.setTargetNode()
 
       // After finish process re-start the interval
-      this.wlogger.info(`Starting handleTargetNodeTimer interval  for ${this.handleTargetNodePeriod / 60000} minutes`)
+      this.wlogger.info(`Starting handleTargetNode interval  for ${this.handleTargetNodePeriod / 60000} minutes`)
       this.handleTargetNodeTimer = this.setInterval(this.handleTargetNode, this.handleTargetNodePeriod)
 
       return true
@@ -78,6 +89,55 @@ export default class TimerController {
       // On error re-start the interval
       this.wlogger.info(`Starting handleTargetNode interval after error for ${this.handleTargetNodePeriod / 60000} minutes`, error.message)
       this.handleTargetNodeTimer = this.setInterval(this.handleTargetNode, this.handleTargetNodePeriod)
+      return false
+    }
+  }
+
+  // Review all files without pin collections, in order to unpin it remotely
+  async unPinFiles () {
+    try {
+      // Stop interval
+      this.clearInterval(this.unPinFilesTimer)
+
+      this.wlogger.info('Stopped unPinFiles interval , waiting for handler to be done!.')
+      await this.useCases.files.unPinFiles()
+
+      // After finish process re-start the interval
+      this.wlogger.info(`Starting unPinFiles interval  for ${this.unpinFilesPeriod / 60000} minutes`)
+      this.unPinFilesTimer = this.setInterval(this.unPinFiles, this.unpinFilesPeriod)
+
+      return true
+    } catch (error) {
+      // On error re-start the interval
+      this.wlogger.info(`Starting unPinFiles interval after error for ${this.unpinFilesPeriod / 60000} minutes`, error.message)
+      this.unPinFilesTimer = this.setInterval(this.unPinFiles, this.unpinFilesPeriod)
+      return false
+    }
+  }
+
+  // Run garbage collections.
+  async garbageCollection () {
+    try {
+      // Stop interval
+      this.clearInterval(this.gcTimer)
+
+      this.wlogger.info('Stopped garbageCollection interval , waiting for handler to be done!.')
+      const beforeDisk = await this.useCases.libraries.heliaNode.node.getDiskSize()
+      this.wlogger.info(`Disk before run GC ${beforeDisk} MB`)
+      await this.useCases.libraries.heliaNode.node.helia.gc()
+      const afterDisk = await this.useCases.libraries.heliaNode.node.getDiskSize()
+      this.wlogger.info(`Disk after run GC ${afterDisk} MB`)
+      // After finish process re-start the interval
+
+      this.wlogger.info(`Starting garbageCollection interval  for ${this.gcPeriod / 60000} minutes`)
+      this.gcTimer = this.setInterval(this.garbageCollection, this.gcPeriod)
+
+      return true
+    } catch (error) {
+      // On error re-start the interval
+
+      this.wlogger.info(`Starting garbageCollection interval  for ${this.gcPeriod / 60000} minutes`)
+      this.gcTimer = this.setInterval(this.garbageCollection, this.gcPeriod)
       return false
     }
   }
