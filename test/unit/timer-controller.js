@@ -4,6 +4,7 @@ import sinon from 'sinon'
 import TimerController from '../../src/timer-controller.js'
 import Libraries from '../../src/lib/index.js'
 import UseCases from '../../src/use-cases/index.js'
+import { HeliaNodeMock, PinRPCMock } from './mocks/helia-node-mock.js'
 import { cleanDb, startDb } from '../util/test-util.js'
 
 describe('#TimerController', () => {
@@ -11,9 +12,11 @@ describe('#TimerController', () => {
   let sandbox
 
   before(async () => {
-    const useCases = new UseCases({ libraries: new Libraries() })
-    // mock function
-    useCases.files.handleUnpinedFiles = async () => { return true }
+    const libraries = new Libraries()
+    libraries.heliaNode.node = new HeliaNodeMock()
+    libraries.heliaNode.rpc = new PinRPCMock()
+
+    const useCases = new UseCases({ libraries })
 
     uut = new TimerController({ useCases })
 
@@ -53,6 +56,10 @@ describe('#TimerController', () => {
       clearInterval(uut.handleUnpinedTimer)
       assert.exists(uut.handleTargetNodeTimer)
       clearInterval(uut.handleTargetNodeTimer)
+      assert.exists(uut.unPinFilesTimer)
+      clearInterval(uut.unPinFilesTimer)
+      assert.exists(uut.gcTimer)
+      clearInterval(uut.gcTimer)
     })
     it('should throw error if unpined period is not defined', async () => {
       try {
@@ -117,7 +124,6 @@ describe('#TimerController', () => {
         assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
         assert.isTrue(setISpy.calledOnce) // should start interval after success
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path')
       }
     })
@@ -129,6 +135,67 @@ describe('#TimerController', () => {
         sandbox.stub(uut.useCases.pin.heliaNode, 'setTargetNode').throws(new Error('test error'))
 
         const res = await uut.handleTargetNode()
+        assert.isFalse(res)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval on error
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
+
+  describe('#unPinFiles', () => {
+    it('should handle timer', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+
+        const result = await uut.unPinFiles()
+        assert.isTrue(result)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval after success
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should return false on error', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+        // Force an error.
+        sandbox.stub(uut.useCases.files, 'unPinFiles').throws(new Error('test error'))
+
+        const res = await uut.unPinFiles()
+        assert.isFalse(res)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval on error
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
+  describe('#garbageCollection', () => {
+    it('should handle timer', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+
+        const result = await uut.garbageCollection()
+        assert.isTrue(result)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval after success
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should return false on error', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+        // Force an error.
+        sandbox.stub(uut.useCases.libraries.heliaNode.node.helia, 'gc').throws(new Error('test error'))
+
+        const res = await uut.garbageCollection()
         assert.isFalse(res)
         assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
         assert.isTrue(setISpy.calledOnce) // should start interval on error

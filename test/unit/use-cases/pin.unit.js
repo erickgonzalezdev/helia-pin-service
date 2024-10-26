@@ -120,7 +120,7 @@ describe('#pin-use-case', () => {
     })
     it('should add file to box', async () => {
       sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId', save: () => { } })
-      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id' })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id', save: () => {} })
 
       const input = {
         fileId: 'fileId',
@@ -224,7 +224,7 @@ describe('#pin-use-case', () => {
       }
     })
     it('should add pin to box', async () => {
-      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'fileId' })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'fileId', save: () => {} })
 
       const input = {
         fileId: 'fileId',

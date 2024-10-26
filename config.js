@@ -10,8 +10,8 @@ const config = {
   rpcTopic: process.env.TOPIC || 'pin-rpc-topic',
   pinHostPeerId: process.env.PIN_HOST || '12D3KooWE2d8BnfLqVRJ3HZusgTUVHFq5EJezp49firDSbUe7MoR',
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
-  reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10 // Minutes
-
+  reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
+  gcPeriod: process.env.GC_PERIOD || 60 // Minutes
 }
 
 export default config

@@ -133,7 +133,7 @@ describe('e2e-pin', () => {
     })
     it('should add pin to box  by owner', async () => {
       try {
-        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
+        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin', save: () => {} })
 
         const options = {
           method: 'POST',
@@ -197,7 +197,6 @@ describe('e2e-pin', () => {
         }
         const result = await axios(options)
         testData.pin = result.data
-        console.log('testData.pin', testData.pin)
         assert(result.status === 200)
         assert.isObject(result.data)
       } catch (error) {
@@ -440,7 +439,6 @@ describe('e2e-pin', () => {
         assert(result.status === 200)
         assert.isBoolean(result.data)
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path.')
       }
     })

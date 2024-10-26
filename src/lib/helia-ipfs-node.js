@@ -1,4 +1,5 @@
 import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/lib.js'
+import { CID } from 'multiformats/cid'
 
 class HeliaNode {
   constructor (config = {}) {
@@ -15,12 +16,17 @@ class HeliaNode {
     this.rpc = null
     this.wlogger = this.config.wlogger
     this.targetNode = null
+    this.CID = CID
 
     // Bind function
     this.start = this.start.bind(this)
     this.onSuccessRemotePin = this.onSuccessRemotePin.bind(this)
+    this.onSuccessRemoteUnpin = this.onSuccessRemoteUnpin.bind(this)
     this.remotePin = this.remotePin.bind(this)
+    this.remoteUnpin = this.remoteUnpin.bind(this)
     this.setTargetNode = this.setTargetNode.bind(this)
+    this.tryLocallyPin = this.tryLocallyPin.bind(this)
+    this.tryLocallyUnpin = this.tryLocallyUnpin.bind(this)
   }
 
   async start () {
@@ -36,7 +42,8 @@ class HeliaNode {
       this.rpc = new this.PinRPC({
         node: this.node,
         topic: this.config.rpcTopic,
-        onSuccessRemotePin: this.onSuccessRemotePin
+        onSuccessRemotePin: this.onSuccessRemotePin,
+        onSuccessRemoteUnpin: this.onSuccessRemoteUnpin
       })
       await this.rpc.start()
     } catch (error) {
@@ -57,12 +64,38 @@ class HeliaNode {
       if (!file) throw new Error('file not found!')
 
       file.pinned = true
+      file.pinnedAt = new Date().getTime()
       file.host.push(host)
       await file.save()
-      console.log(`${cid} file updated after pin.!`)
+
+      this.wlogger.info(`${cid} file updated after pin.!`)
+      // Unpin locally due to it is currently pinned-remotely from an external node.
+      this.tryLocallyUnpin(cid)
       return file
     } catch (error) {
       this.wlogger.error('Error on onSuccessRemotePin() ', error)
+      // skip error
+      return false
+    }
+  }
+
+  async onSuccessRemoteUnpin (data = {}) {
+    try {
+      const { cid, host } = data
+      if (!cid || typeof cid !== 'string') throw new Error('cid must be a string!')
+      if (!host || typeof host !== 'string') throw new Error('host must be a string!')
+
+      this.wlogger.info('success remote un-pin ', data)
+
+      const file = await this.dbModels.Files.findOne({ cid })
+      if (!file) throw new Error('file not found!')
+
+      file.pinned = false
+      await file.save()
+
+      return file
+    } catch (error) {
+      this.wlogger.error('Error on onSuccessRemoteUnpin() ', error)
       // skip error
       return false
     }
@@ -72,8 +105,7 @@ class HeliaNode {
   remotePin (cid, target) {
     try {
       if (!cid) throw new Error('cid must be a string!')
-      if (!target) target = this.targetNode
-      console.log('this.node', this.node)
+      if (!target) throw new Error('target must be a string!')
       const rpcObj = {
         toPeerId: target,
         fromPeerId: this.node.peerId.toString(),
@@ -83,8 +115,26 @@ class HeliaNode {
       this.rpc.requestRemotePin(rpcObj)
       return rpcObj
     } catch (error) {
-      console.log(error)
       this.wlogger.error('Error on remotePin() ', error.message)
+      return false
+    }
+  }
+
+  // unpin file remotely
+  remoteUnpin (cid, target) {
+    try {
+      if (!cid) throw new Error('cid must be a string!')
+      if (!target) throw new Error('target must be a string!')
+      const rpcObj = {
+        toPeerId: target,
+        fromPeerId: this.node.peerId.toString(),
+        cid
+      }
+
+      this.rpc.requestRemoteUnpin(rpcObj)
+      return rpcObj
+    } catch (error) {
+      this.wlogger.error('Error on remoteUnpin() ', error.message)
       return false
     }
   }
@@ -116,6 +166,28 @@ class HeliaNode {
     } catch (error) {
       this.wlogger.error('Error on applyPlinStrategy() ', error)
       throw error
+    }
+  }
+
+  async tryLocallyUnpin (cid) {
+    try {
+      await this.node.unPinCid(this.CID.parse(cid))
+
+      return true
+    } catch (error) {
+      // skip error
+      return false
+    }
+  }
+
+  async tryLocallyPin (cid) {
+    try {
+      await this.node.pinCid(this.CID.parse(cid))
+
+      return true
+    } catch (error) {
+      // skip error
+      return false
     }
   }
 }
