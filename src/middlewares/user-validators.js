@@ -12,6 +12,7 @@ export default class UserValidator {
     this.jwt = jwt
 
     this.ensureUser = this.ensureUser.bind(this)
+    this.ensureAccount = this.ensureAccount.bind(this)
     this.getToken = this.getToken.bind(this)
   }
 
@@ -63,5 +64,33 @@ export default class UserValidator {
       return token
     }
     return null
+  }
+
+  // Ensure associated account to the user is currently active.
+  async ensureAccount (ctx, next) {
+    try {
+      if (!ctx) throw new Error('Koa context (ctx) is required!')
+
+      if (!ctx.state.user) {
+        throw new Error('Could not find user')
+      }
+
+      if (!ctx.state.user.account) {
+        throw new Error('Could not find user account type')
+      }
+
+      const acc = await this.dbModels.Account.findById(ctx.state.user.account)
+      ctx.state.account = acc
+      const now = new Date().getTime()
+      const expiredAt = new Date(acc.expiredAt).getTime()
+      if (now > expiredAt) {
+        throw new Error('Account expired!.')
+      }
+      return true
+    } catch (error) {
+      if (!ctx) throw error
+      ctx.status = 401
+      ctx.throw(401, error.message)
+    }
   }
 }

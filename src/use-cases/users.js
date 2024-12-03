@@ -23,18 +23,27 @@ export default class UsersUseCases {
       }
 
       const user = new this.db.Users(inObj)
+      /*       const account =  new this.db.Account()
+      account.owner =  user._id.toString()
+      user.account = account._id.toString() */
+
+      user.createdAt = new Date().getTime()
+      /*    account.createdAt = new Date().getTime()
+ */
       await user.save()
+      // await account.save()
 
       // generate jwt
       const token = user.generateToken()
 
       const userData = user.toJSON()
-
+      console.log(userData)
       userData.token = token
       // password should be omited on response
       delete userData.password
       return userData
     } catch (error) {
+      console.log(error)
       this.wlogger.error(`Error in use-cases/createUser() $ ${error.message}`)
       throw error
     }
@@ -72,7 +81,7 @@ export default class UsersUseCases {
       if (!id || typeof id !== 'string') {
         throw new Error('id is required')
       }
-      const user = await this.db.Users.findById(id, ['-password'])
+      const user = await this.db.Users.findById(id, ['-password']).populate('account')
       return user
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getUser() $ ${error.message}`)
@@ -82,7 +91,7 @@ export default class UsersUseCases {
 
   async getUsers () {
     try {
-      const users = await this.db.Users.find({}, ['-password'])
+      const users = await this.db.Users.find({}, ['-password']).populate('account')
       return users
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getUsers() $ ${error.message}`)

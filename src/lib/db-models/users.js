@@ -4,14 +4,36 @@ import jwt from 'jsonwebtoken'
 
 import config from '../../../config.js'
 
-const User = new mongoose.Schema({
+const AccountSchema = new mongoose.Schema({
+  createdAt: { type: Number, required: true },
+  type: { type: Number, default: 1 }, // Account Storage type by default
+  maxBytes: { type: Number, default: 10 ** 6 * 50000 }, // Max 500 MB in total by default
+  maxFileBytes: { type: Number, default: 10 ** 6 * 50 }, // Max 50 MB per file by default.
+  maxBoxes: { type: Number, default: 5 }, // Max 5 Boxes by default
+  maxPins: { type: Number, default: 100 }, // Max 100 pins by default
+  description: { type: String },
+  owner: { type: String, ref: 'user' },
+  currentBytes: { type: Number, default: 0 },
+  currentPins: { type: Number, default: 0 },
+  expiredAt: { type: Number, default: null },
+  archived: { type: Boolean, default: false }
+})
+
+const AccountData = mongoose.model('account', AccountSchema)
+
+const UserShema = new mongoose.Schema({
+  createdAt: { type: Number, required: true },
   username: { type: String, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  email: { type: String /* required: true */ },
+  account: { type: String, ref: 'account' },
+  telegramVerification: { type: Boolean, default: false },
+  emailVerification: { type: Boolean, default: false }
 
 })
 
 // Before saving, convert the password to a hash.
-User.pre('save', async function preSave (next) {
+UserShema.pre('save', async function preSave (next) {
   const user = this
 
   if (!user.isModified('password')) {
@@ -27,7 +49,7 @@ User.pre('save', async function preSave (next) {
 })
 
 // Validate the password by comparing to the saved hash.
-User.methods.validatePassword = async function validatePassword (password) {
+UserShema.methods.validatePassword = async function validatePassword (password) {
   const user = this
 
   const isMatch = await bcrypt.compare(password, user.password)
@@ -36,11 +58,12 @@ User.methods.validatePassword = async function validatePassword (password) {
 }
 
 // Generate a JWT token.
-User.methods.generateToken = function generateToken () {
+UserShema.methods.generateToken = function generateToken () {
   const user = this
   const token = jwt.sign({ id: user.id, type: 'userAccess' }, config.passKey)
 
   return token
 }
 
-export default mongoose.model('user', User)
+const User = mongoose.model('user', UserShema)
+export default { User, AccountData }

@@ -1,7 +1,8 @@
 // import passport from 'koa-passport';
-import User from '../lib/db-models/users.js'
+import UserModel from '../lib/db-models/users.js'
 import Strategy from 'passport-local'
 
+const User = UserModel.User
 export async function verify (username, password, done) {
   try {
     const user = await User.findOne({ username })

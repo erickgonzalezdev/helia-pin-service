@@ -133,7 +133,7 @@ describe('e2e-pin', () => {
     })
     it('should add pin to box  by owner', async () => {
       try {
-        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin', save: () => {} })
+        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin', size: 0, save: () => {} })
 
         const options = {
           method: 'POST',

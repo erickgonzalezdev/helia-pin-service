@@ -19,11 +19,19 @@ export default class FileUseCases {
 
   async uploadFile (inObj = {}) {
     try {
-      const { file } = inObj
+      const { file, user } = inObj
       if (!file) {
         throw new Error('file is required!')
       }
+      const account = await this.db.Account.findById(user.account)
 
+      if (!account) {
+        throw new Error('account is required!')
+      }
+
+      if (account.currentBytes + file.size > account.maxBytes) {
+        throw new Error('The account does not have enough space.')
+      }
       // Upload file to the ipfs node
       const cidObject = await this.heliaNode.node.uploadFile(file.filepath)
       const cid = cidObject.toString()

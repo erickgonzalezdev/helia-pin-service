@@ -20,6 +20,11 @@ export default class PinUseCases {
       if (!boxId) throw new Error('boxId is required!')
       if (!user) throw new Error('user is required!')
 
+      const account = await this.db.Account.findById(user.account)
+      if (!account) {
+        throw new Error('account is required!')
+      }
+
       const box = await this.db.Box.findById(boxId)
       if (!box) throw new Error('Box not found!')
 
@@ -29,6 +34,10 @@ export default class PinUseCases {
 
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
+
+      if (account.currentBytes + file.size > account.maxBytes) {
+        throw new Error('The account does not have enough space.')
+      }
 
       const pin = new this.db.Pin({ pinOwner: boxId, file: fileId, name, description })
       pin.createdAt = new Date().getTime()
@@ -42,6 +51,11 @@ export default class PinUseCases {
       file.pinCount = file.pinCount + 1
 
       await file.save()
+
+      // Update account
+
+      account.currentBytes += file.size
+      await account.save()
 
       return pin
     } catch (error) {
@@ -58,6 +72,11 @@ export default class PinUseCases {
       if (!box) throw new Error('box is required!')
       if (!user) throw new Error('user is required!')
 
+      const account = await this.db.Account.findById(user.account)
+      if (!account) {
+        throw new Error('account is required!')
+      }
+
       if (box.owner.toString() !== user._id.toString()) {
         throw new Error('Unauthorized!')
       }
@@ -69,6 +88,10 @@ export default class PinUseCases {
 
       const file = await this.db.Files.findById(fileId)
       if (!file) throw new Error('File not found!')
+
+      if (account.currentBytes + file.size > account.maxBytes) {
+        throw new Error('The account does not have enough space.')
+      }
 
       const pin = new this.db.Pin({ pinOwner: box._id.toString(), file: fileId, name, description })
       pin.createdAt = new Date().getTime()
@@ -82,6 +105,11 @@ export default class PinUseCases {
       file.pinCount = file.pinCount + 1
 
       await file.save()
+
+      // Update account
+
+      account.currentBytes += file.size
+      await account.save()
 
       return pin
     } catch (error) {
@@ -132,11 +160,21 @@ export default class PinUseCases {
       if (boxOwner.owner !== user._id.toString()) {
         throw new Error('Unauthorized')
       }
+
+      const account = await this.db.Account.findById(user.account)
+
+      if (!account) { throw new Error('Account Data not found!') }
+
       await this.db.Pin.deleteOne({ _id: pinId })
 
       file.pinCount = file.pinCount - 1
 
       await file.save()
+
+      // Update account
+
+      account.currentBytes -= file.size
+      await account.save()
 
       return true
     } catch (error) {

@@ -24,7 +24,7 @@ class RouterHanlder {
   async start (app) {
     if (!app) { throw new Error('App is required!') }
 
-    this.router.post('/', koaBody({ multipart: true }), this.uploadFile)
+    this.router.post('/', koaBody({ multipart: true, formidable: { maxFileSize: 10 ** 6 * 1000 * 2 } }), this.uploadFile)
     this.router.get('/', this.getFiles)
     this.router.get('/:id', this.getFile)
 
@@ -40,6 +40,7 @@ class RouterHanlder {
     if (type === 'boxAccess') {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
+    await this.middleware.userValidators.ensureAccount(ctx, next)
     await this.controller.uploadFile(ctx, next)
   }
 

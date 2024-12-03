@@ -16,7 +16,7 @@ describe('#User-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel } } })
+    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel.User, Account: UserModel.AccountData } } })
   })
 
   beforeEach(() => {
@@ -136,6 +136,67 @@ describe('#User-Validators.js', () => {
       const token = await uut.getToken(ctxMock)
 
       assert.isString(token)
+    })
+  })
+
+  describe('#ensureAccount', () => {
+    it('should throw an error if ctx is not provided', async () => {
+      try {
+        await uut.ensureAccount()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Koa context (ctx) is required!')
+      }
+    })
+    it('should throw an error if user context is not found', async () => {
+      try {
+        ctxMock.state = {}
+        await uut.ensureAccount(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not find user')
+      }
+    })
+    it('should throw an error if account is not found', async () => {
+      try {
+        ctxMock.state = { user: {} }
+        await uut.ensureAccount(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        console.log(error)
+        assert.include(error.message, 'Could not find user account type')
+      }
+    })
+
+    it('should throw an error if account is expired', async () => {
+      try {
+        ctxMock.state = { user: { account: 'account db id' } }
+
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - 1)
+
+        sandbox.stub(uut.dbModels.Account, 'findById').resolves({ expiredAt: now.getTime() })
+
+        await uut.ensureAccount(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Account expired!.')
+      }
+    })
+
+    it('should return true after success', async () => {
+      ctxMock.state = { user: { account: 'account db id' } }
+
+      const now = new Date()
+      now.setMinutes(now.getMinutes() + 1)
+
+      sandbox.stub(uut.dbModels.Account, 'findById').resolves({ expiredAt: now.getTime() })
+
+      const result = await uut.ensureAccount(ctxMock)
+      assert.isTrue(result)
     })
   })
 })

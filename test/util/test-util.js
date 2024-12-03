@@ -10,9 +10,13 @@ config.libraries = libraries
 const useCases = new UseCases(config)
 let APP
 
-export const createTestUser = async (inObj = { username: 'test', password: '1234' }) => {
+export const createTestUser = async (inObj = { username: 'test', password: '1234' }, withAccount = true) => {
   try {
     const result = await useCases.users.createUser(inObj)
+    if (withAccount) {
+      const account = await useCases.accounts.createAccount({ userId: result._id, type: 1, expirationData: { months: 1 } })
+      result.account = account._id.toString()
+    }
     return result
   } catch (error) {
     console.log(' Error in test/util.js/createTestUser()', error)
