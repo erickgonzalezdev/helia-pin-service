@@ -39,7 +39,7 @@ class RouterHanlder {
     if (type === 'boxAccess') {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
-
+    await this.middleware.userValidators.ensureAccount(ctx, next)
     await this.controller.addPin(ctx, next)
   }
 
@@ -51,6 +51,7 @@ class RouterHanlder {
     if (type === 'boxAccess') {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
+    await this.middleware.userValidators.ensureAccount(ctx, next)
     await this.controller.getPinsByBox(ctx, next)
   }
 

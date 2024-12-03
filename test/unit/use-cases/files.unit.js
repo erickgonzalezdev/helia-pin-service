@@ -3,7 +3,7 @@ import sinon from 'sinon'
 
 import UseCase from '../../../src/use-cases/files.js'
 import Libraries from '../../../src/lib/index.js'
-import { cleanDb, startDb } from '../../util/test-util.js'
+import { cleanDb, startDb, createTestUser } from '../../util/test-util.js'
 import { HeliaNodeMock, FileMock, PinRPCMock } from '../mocks/helia-node-mock.js'
 
 describe('#file-use-case', () => {
@@ -11,14 +11,17 @@ describe('#file-use-case', () => {
   let sandbox
   const testData = {}
   before(async () => {
+    await startDb()
+    await cleanDb()
+
     uut = new UseCase({ libraries: new Libraries() })
     // Mock node
     uut.heliaNode.node = new HeliaNodeMock()
     uut.heliaNode.targetNode = 'target node'
     uut.heliaNode.rpc = new PinRPCMock()
     uut.handleUnpinedDelay = 1
-    await startDb()
-    await cleanDb()
+
+    testData.user = await createTestUser()
   })
 
   beforeEach(() => {
@@ -42,11 +45,20 @@ describe('#file-use-case', () => {
         assert.include(error.message, 'file is required')
       }
     })
+    it('should throw an error if no user is given', async () => {
+      try {
+        await uut.uploadFile({ file: FileMock })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Cannot read')
+      }
+    })
 
     it('should handle node error', async () => {
       try {
         sandbox.stub(uut.heliaNode.node, 'uploadFile').throws(new Error('test error'))
-        await uut.uploadFile({ file: FileMock })
+        await uut.uploadFile({ file: FileMock, user: testData.user })
 
         assert.fail('Unexpected code path')
       } catch (error) {
@@ -57,17 +69,40 @@ describe('#file-use-case', () => {
     it('should handle upload file error', async () => {
       try {
         sandbox.stub(uut.heliaNode.node, 'uploadFile').throws(new Error('test error'))
-        await uut.uploadFile({ file: FileMock })
+        await uut.uploadFile({ file: FileMock, user: testData.user })
 
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'test error')
       }
     })
+    it('should throw error if account is not found!.', async () => {
+      try {
+        sandbox.stub(uut.db.Account, 'findById').resolves(null)
+        await uut.uploadFile({ file: FileMock, user: testData.user, size: 10 })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'account is required!')
+      }
+    })
+    it('should throw error for insufficient account space.', async () => {
+      try {
+        sandbox.stub(uut.db.Account, 'findById').resolves({ maxBytes: 9, currentBytes: 0 })
+
+        const _fileMock = Object.assign({}, FileMock)
+        _fileMock.size = 10
+        await uut.uploadFile({ file: _fileMock, user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'The account does not have enough space.')
+      }
+    })
 
     it('should upload file', async () => {
       sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('pinnedcid')
-      const result = await uut.uploadFile({ file: FileMock })
+      const result = await uut.uploadFile({ file: FileMock, user: testData.user })
 
       assert.isObject(result)
       assert.property(result, 'cid')

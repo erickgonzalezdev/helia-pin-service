@@ -3,17 +3,20 @@ import sinon from 'sinon'
 
 import UseCase from '../../../src/use-cases/pin.js'
 import Libraries from '../../../src/lib/index.js'
-import { cleanDb, startDb, cleanNode } from '../../util/test-util.js'
+import { cleanDb, startDb, cleanNode, createTestUser } from '../../util/test-util.js'
 
 describe('#pin-use-case', () => {
   let uut
   let sandbox
+  const testData = {}
 
   before(async () => {
     uut = new UseCase({ libraries: new Libraries() })
     await startDb()
     await cleanDb()
     await cleanNode()
+
+    testData.user = await createTestUser()
   })
 
   beforeEach(() => {
@@ -65,6 +68,21 @@ describe('#pin-use-case', () => {
         assert.include(err.message, 'user is required')
       }
     })
+    it('should throw error if account is not found!.', async () => {
+      try {
+        const input = {
+          fileId: 'fileId',
+          boxId: 'boxId',
+          user: testData.user
+        }
+        sandbox.stub(uut.db.Account, 'findById').resolves(null)
+        await uut.addPinByUser(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'account is required!')
+      }
+    })
 
     it('should throw error if box is not found.', async () => {
       try {
@@ -73,7 +91,7 @@ describe('#pin-use-case', () => {
         const input = {
           fileId: 'fileId',
           boxId: 'boxId',
-          user: { save: () => { }, _id: 'userId' }
+          user: testData.user
         }
         await uut.addPinByUser(input)
 
@@ -90,7 +108,7 @@ describe('#pin-use-case', () => {
         const input = {
           fileId: 'fileId',
           boxId: 'boxId',
-          user: { save: () => { }, _id: 'userId' }
+          user: testData.user
         }
         await uut.addPinByUser(input)
 
@@ -100,15 +118,15 @@ describe('#pin-use-case', () => {
         assert.include(err.message, 'Unauthorized')
       }
     })
-    it('should throw error if pin is not found.', async () => {
+    it('should throw error if file is not found.', async () => {
       try {
-        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId' })
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: testData.user._id })
         sandbox.stub(uut.db.Files, 'findById').resolves(null)
 
         const input = {
           fileId: 'fileId',
           boxId: 'boxId',
-          user: { save: () => { }, _id: 'myUserId' }
+          user: testData.user
         }
         await uut.addPinByUser(input)
 
@@ -118,14 +136,32 @@ describe('#pin-use-case', () => {
         assert.include(err.message, 'File not found!')
       }
     })
+    it('should throw error for insufficient account space.', async () => {
+      try {
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: testData.user._id, save: () => { } })
+        sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id', size: 10, save: () => { } })
+        sandbox.stub(uut.db.Account, 'findById').resolves({ maxBytes: 9, currentBytes: 0 })
+
+        const input = {
+          fileId: 'fileId',
+          boxId: 'boxId',
+          user: testData.user
+        }
+        await uut.addPinByUser(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'The account does not have enough space.')
+      }
+    })
     it('should add file to box', async () => {
-      sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myUserId', save: () => { } })
-      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id', save: () => {} })
+      sandbox.stub(uut.db.Box, 'findById').resolves({ owner: testData.user._id, save: () => { } })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id', size: 0, save: () => { } })
 
       const input = {
         fileId: 'fileId',
         boxId: 'boxId',
-        user: { save: () => { }, _id: 'myUserId' }
+        user: testData.user
       }
       const result = await uut.addPinByUser(input)
       assert.isObject(result)
@@ -163,7 +199,7 @@ describe('#pin-use-case', () => {
       try {
         const input = {
           fileId: 'fileId',
-          box: { _id: 'my box id', save: () => {} }
+          box: { _id: 'my box id', save: () => { } }
         }
         await uut.addPinBySignature(input)
 
@@ -173,12 +209,27 @@ describe('#pin-use-case', () => {
         assert.include(err.message, 'user is required')
       }
     })
+    it('should throw error if account is not found!.', async () => {
+      try {
+        const input = {
+          fileId: 'fileId',
+          user: testData.user,
+          box: { _id: 'my box id', save: () => { } }
+        }
+        sandbox.stub(uut.db.Account, 'findById').resolves(null)
+        await uut.addPinBySignature(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'account is required!')
+      }
+    })
     it('should throw error if box owner and user does not match.', async () => {
       try {
         const input = {
           fileId: 'fileId',
-          user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id', owner: 'an user id', save: () => {} }
+          user: testData.user,
+          box: { _id: 'my box id', owner: 'an user id', save: () => { } }
         }
         await uut.addPinBySignature(input)
 
@@ -192,8 +243,8 @@ describe('#pin-use-case', () => {
       try {
         const input = {
           fileId: 'fileId',
-          user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id', owner: 'userId', save: () => {} },
+          user: testData.user,
+          box: { _id: 'my box id', owner: testData.user._id, save: () => { } },
           boxId: 'random box id'
         }
         await uut.addPinBySignature(input)
@@ -205,14 +256,14 @@ describe('#pin-use-case', () => {
       }
     })
 
-    it('should throw error if pin is not found.', async () => {
+    it('should throw error if file is not found.', async () => {
       try {
         sandbox.stub(uut.db.Files, 'findById').resolves(null)
 
         const input = {
           fileId: 'fileId',
-          user: { save: () => { }, _id: 'userId' },
-          box: { _id: 'my box id', owner: 'userId', save: () => {} },
+          user: testData.user,
+          box: { _id: 'my box id', owner: testData.user._id, save: () => { } },
           boxId: 'my box id'
         }
         await uut.addPinBySignature(input)
@@ -223,13 +274,32 @@ describe('#pin-use-case', () => {
         assert.include(err.message, 'File not found!')
       }
     })
+    it('should throw error for insufficient account space.', async () => {
+      try {
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: testData.user._id, save: () => { } })
+        sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'a file id', size: 10, save: () => { } })
+        sandbox.stub(uut.db.Account, 'findById').resolves({ maxBytes: 9, currentBytes: 0 })
+
+        const input = {
+          fileId: 'fileId',
+          user: testData.user,
+          box: { _id: 'my box id', pinList: [], owner: testData.user._id.toString(), save: () => { } },
+          boxId: 'my box id'
+        }
+        await uut.addPinBySignature(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'The account does not have enough space.')
+      }
+    })
     it('should add pin to box', async () => {
-      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'fileId', save: () => {} })
+      sandbox.stub(uut.db.Files, 'findById').resolves({ _id: 'fileId', size: 0, save: () => { } })
 
       const input = {
         fileId: 'fileId',
-        user: { save: () => { }, _id: 'userId' },
-        box: { _id: 'my box id', pinList: [], owner: 'userId', save: () => {} },
+        user: testData.user,
+        box: { _id: 'my box id', pinList: [], owner: testData.user._id.toString(), save: () => { } },
         boxId: 'my box id'
       }
       const result = await uut.addPinBySignature(input)

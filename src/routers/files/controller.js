@@ -30,8 +30,8 @@ export default class FilesController {
   async uploadFile (ctx) {
     try {
       const file = ctx.request.files.file || ctx.request.files.upload
-
-      const result = await this.useCases.files.uploadFile({ file })
+      const user = ctx.state.user
+      const result = await this.useCases.files.uploadFile({ file, user })
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

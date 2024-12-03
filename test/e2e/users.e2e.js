@@ -139,6 +139,7 @@ describe('e2e-users', () => {
         assert(result.data.user.username === 'testname')
         assert(result.data.user.password === undefined)
       } catch (error) {
+        console.log('error.response.data', error.response.data)
         assert.fail('Unexpected code path.')
       }
     })

@@ -16,7 +16,7 @@ describe('#Middelwares/index.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { jwt: { verify: () => {} }, dbModels: { Users: UserModel } } })
+    uut = new MiddlewareUnderTest({ libraries: { jwt: { verify: () => {} }, dbModels: { Users: UserModel.User } } })
   })
 
   beforeEach(() => {

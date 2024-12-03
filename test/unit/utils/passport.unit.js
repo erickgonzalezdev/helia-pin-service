@@ -2,10 +2,11 @@ import { assert } from 'chai'
 import sinon from 'sinon'
 import passport from 'koa-passport'
 
-import User from '../../../src/lib/db-models/users.js'
+import UserModel from '../../../src/lib/db-models/users.js'
 
 import { verify, passportStrategy } from '../../../src/utils/passport.js'
 
+const User = UserModel.User
 describe('#passport-util', () => {
   let sandbox
   let id
