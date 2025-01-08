@@ -98,6 +98,53 @@ describe('#account-use-case', () => {
       }
       const result = await uut.createAccount(input)
       assert.isObject(result)
+      testData.account = result
+    })
+  })
+
+  describe('#refreshAccount', () => {
+    it('should throw an error if no input is given', async () => {
+      try {
+        await uut.refreshAccount()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'id is required')
+      }
+    })
+    it('should throw an error if no id is given', async () => {
+      try {
+        const input = { }
+        await uut.refreshAccount(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'id is required')
+      }
+    })
+
+    it('should refresh account', async () => {
+      const input = {
+        id: testData.account._id.toString()
+      }
+      const result = await uut.refreshAccount(input)
+      assert.isObject(result)
+      assert.isFalse(result.expired)
+    })
+
+    it('should detect expired account', async () => {
+      const input = {
+        id: testData.account._id.toString()
+      }
+
+      const mockAcc = testData.account
+      const mockDate = new Date()
+      mockDate.setDate(mockDate.getDate() - 10)
+      mockAcc.expiredAt = mockDate.getTime()
+      sandbox.stub(uut.db.Account, 'findById').resolves(mockAcc)
+      const result = await uut.refreshAccount(input)
+      assert.isObject(result)
+      assert.isTrue(result.expired)
     })
   })
 })

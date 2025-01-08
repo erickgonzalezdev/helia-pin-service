@@ -165,7 +165,7 @@ describe('#pin-use-case', () => {
       }
       const result = await uut.addPinByUser(input)
       assert.isObject(result)
-      assert.property(result, 'pinOwner')
+      assert.property(result, 'boxOwner')
       assert.property(result, 'file')
       assert.property(result, 'createdAt')
     })
@@ -304,7 +304,7 @@ describe('#pin-use-case', () => {
       }
       const result = await uut.addPinBySignature(input)
       assert.isObject(result)
-      assert.property(result, 'pinOwner')
+      assert.property(result, 'boxOwner')
       assert.property(result, 'file')
       assert.property(result, 'createdAt')
     })

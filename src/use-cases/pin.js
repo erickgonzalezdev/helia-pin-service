@@ -39,7 +39,7 @@ export default class PinUseCases {
         throw new Error('The account does not have enough space.')
       }
 
-      const pin = new this.db.Pin({ pinOwner: boxId, file: fileId, name, description })
+      const pin = new this.db.Pin({ userOwner: box.owner.toString(), boxOwner: boxId, file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
       // Pin file
@@ -93,7 +93,7 @@ export default class PinUseCases {
         throw new Error('The account does not have enough space.')
       }
 
-      const pin = new this.db.Pin({ pinOwner: box._id.toString(), file: fileId, name, description })
+      const pin = new this.db.Pin({ userOwner: box.owner.toString(), boxOwner: box._id.toString(), file: fileId, name, description })
       pin.createdAt = new Date().getTime()
 
       // Pin file
@@ -134,7 +134,7 @@ export default class PinUseCases {
          throw new Error('Unauthorized')
         } */
 
-      const pins = await this.db.Pin.find({ pinOwner: boxId }).populate('file', ['-host'])
+      const pins = await this.db.Pin.find({ boxOwner: boxId }).populate('file', ['-host'])
 
       return pins
     } catch (error) {
@@ -152,7 +152,7 @@ export default class PinUseCases {
         } */
       const { pinId, user } = inObj
       const pinObj = await this.db.Pin.findById(pinId)
-      const boxOwner = await this.db.Box.findById(pinObj.pinOwner)
+      const boxOwner = await this.db.Box.findById(pinObj.boxOwner)
 
       const file = await this.db.Files.findById(pinObj.file)
 

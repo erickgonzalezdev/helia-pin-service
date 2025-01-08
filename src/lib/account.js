@@ -1,29 +1,32 @@
 const account1 = {
   type: 1,
+  typeLabel: 'Trial',
   maxBytes: 10 ** 6 * 500, // Max 500 MB in total by default
   maxFileBytes: 10 ** 6 * 50, // Max 50 MB per file by default.
   maxBoxes: 5, // Max 5 Boxes by default
-  maxPins: 100, // Max 100 pins by default
+  maxPins: 20, // Max 20 pins by default
   currentBytes: 0,
   currentPins: 0
 }
 
 const account2 = {
   type: 2,
+  typeLabel: 'Friendly',
   maxBytes: 10 ** 6 * 10000, // Max 10.000 MB in total by default
   maxFileBytes: 10 ** 6 * 2000, // Max 2000 MB per file by default.
-  maxBoxes: null, // Max 5 Boxes by default
-  maxPins: null, // Max 100 pins by default
+  maxBoxes: 100, // Max Boxes
+  maxPins: 1000, // Max pins
   currentBytes: 0,
   currentPins: 0
 }
 
 const account3 = {
   type: 3,
+  typeLabel: 'Premium',
   maxBytes: 10 ** 6 * 50000, // Max 50.000 MB in total by default
   maxFileBytes: 10 ** 6 * 2000, // Max 2000 MB per file by default.
-  maxBoxes: null, // Max 5 Boxes by default
-  maxPins: null, // Max 100 pins by default
+  maxBoxes: 100, // Max Boxes
+  maxPins: 1000, // Max pins
   currentBytes: 0,
   currentPins: 0
 }

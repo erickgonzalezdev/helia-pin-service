@@ -16,12 +16,14 @@ class RouterHanlder {
     // Bind function to this class.
     this.start = this.start.bind(this)
     this.createAccount = this.createAccount.bind(this)
+    this.refreshAccount = this.refreshAccount.bind(this)
   }
 
   async start (app) {
     if (!app) { throw new Error('App is required!') }
 
     this.router.post('/', this.createAccount)
+    this.router.get('/data/:id', this.refreshAccount)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -32,5 +34,11 @@ class RouterHanlder {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.createAccount(ctx, next)
   }
+
+  async refreshAccount (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.refreshAccount(ctx, next)
+  }
 }
+
 export default RouterHanlder

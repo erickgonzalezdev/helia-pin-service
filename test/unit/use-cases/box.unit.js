@@ -49,19 +49,6 @@ describe('#box-use-case', () => {
       }
     })
 
-    it('should throw an error if description is not provided', async () => {
-      try {
-        const inObj = {
-          label: 'box1'
-        }
-
-        await uut.createBox(inObj)
-
-        assert.fail('Unexpected code path')
-      } catch (error) {
-        assert.include(error.message, 'description is required')
-      }
-    })
     it('should throw an error if user owner is not provided', async () => {
       try {
         const inObj = {

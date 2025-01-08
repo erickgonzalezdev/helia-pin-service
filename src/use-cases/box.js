@@ -20,14 +20,11 @@ export default class BoxUseCases {
 
   async createBox (inObj = {}) {
     try {
-      const { label, description, user } = inObj
+      const { label, user } = inObj
       if (!label || typeof label !== 'string') {
         throw new Error('label is required!')
       }
 
-      if (!description || typeof description !== 'string') {
-        throw new Error('description is required!')
-      }
       if (!user) {
         throw new Error('user is required!')
       }

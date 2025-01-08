@@ -14,6 +14,8 @@ export default class UserValidator {
     this.ensureUser = this.ensureUser.bind(this)
     this.ensureAccount = this.ensureAccount.bind(this)
     this.getToken = this.getToken.bind(this)
+    this.validatePinsLimit = this.validatePinsLimit.bind(this)
+    this.validateBoxesLimit = this.validateBoxesLimit.bind(this)
   }
 
   async ensureUser (ctx, next) {
@@ -85,6 +87,63 @@ export default class UserValidator {
       const expiredAt = new Date(acc.expiredAt).getTime()
       if (now > expiredAt) {
         throw new Error('Account expired!.')
+      }
+      return true
+    } catch (error) {
+      if (!ctx) throw error
+      ctx.status = 401
+      ctx.throw(401, error.message)
+    }
+  }
+
+  async validatePinsLimit (ctx, next) {
+    try {
+      if (!ctx) throw new Error('Koa context (ctx) is required!')
+
+      if (!ctx.state.user) {
+        throw new Error('Could not find user')
+      }
+
+      if (!ctx.state.user.account) {
+        throw new Error('Could not find user account type')
+      }
+
+      const acc = await this.dbModels.Account.findById(ctx.state.user.account)
+      ctx.state.account = acc
+
+      const pins = await this.dbModels.Pin.find({ userOwner: ctx.state.user._id })
+
+      if (acc.maxPins <= pins.length) {
+        throw new Error('Account reached max number of Pins!.')
+      }
+      return true
+    } catch (error) {
+      if (!ctx) throw error
+      ctx.status = 401
+      ctx.throw(401, error.message)
+    }
+  }
+
+  async validateBoxesLimit (ctx, next) {
+    try {
+      if (!ctx) throw new Error('Koa context (ctx) is required!')
+
+      if (!ctx.state.user) {
+        throw new Error('Could not find user')
+      }
+
+      if (!ctx.state.user.account) {
+        throw new Error('Could not find user account type')
+      }
+
+      const acc = await this.dbModels.Account.findById(ctx.state.user.account)
+      ctx.state.account = acc
+
+      const boxes = await this.dbModels.Box.find({ owner: ctx.state.user._id })
+      console.log(acc.maxBoxes)
+      console.log(boxes.length)
+      if (acc.maxBoxes <= boxes.length) {
+        throw new Error('Account reached max number of Boxes!.')
       }
       return true
     } catch (error) {

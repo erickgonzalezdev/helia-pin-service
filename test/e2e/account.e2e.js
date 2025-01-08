@@ -9,9 +9,10 @@ const LOCALHOST = `http://localhost:${config.port}`
 describe('e2e-account', () => {
   let sandbox
   const testData = {}
+  let app
   before(async () => {
     config.passKey = 'testKey'
-    await startApp(config)
+    app = await startApp(config)
     await cleanDb()
     await cleanNode()
     testData.user = await createTestUser()
@@ -125,6 +126,119 @@ describe('e2e-account', () => {
             userId: testData.user._id.toString(),
             type: 1,
             expirationData: { days: 1 }
+          }
+        }
+        const result = await axios(options)
+
+        const account = result.data.account
+        testData.account = account
+
+        assert(result.status === 200)
+        assert.isObject(account)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
+  describe('Get /account/data/:id', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.accounts, 'refreshAccount').throws(new Error('test error'))
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+
+        }
+        await axios(options)
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert(error.response.status === 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should get account data', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
           }
         }
         const result = await axios(options)

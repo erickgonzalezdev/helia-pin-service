@@ -4,7 +4,8 @@ const Pin = new mongoose.Schema({
   createdAt: { type: Number, required: true },
   name: { type: String },
   description: { type: String },
-  pinOwner: { type: String, ref: 'box', required: true },
+  boxOwner: { type: String, ref: 'box', required: true },
+  userOwner: { type: String, ref: 'user', required: true },
   file: { type: String, ref: 'files', required: true },
   metadata: { type: Object, default: {} }
 

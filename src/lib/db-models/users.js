@@ -7,6 +7,7 @@ import config from '../../../config.js'
 const AccountSchema = new mongoose.Schema({
   createdAt: { type: Number, required: true },
   type: { type: Number, default: 1 }, // Account Storage type by default
+  typeLabel: { type: String }, // Account Storage type label
   maxBytes: { type: Number, default: 10 ** 6 * 50000 }, // Max 500 MB in total by default
   maxFileBytes: { type: Number, default: 10 ** 6 * 50 }, // Max 50 MB per file by default.
   maxBoxes: { type: Number, default: 5 }, // Max 5 Boxes by default
@@ -15,8 +16,10 @@ const AccountSchema = new mongoose.Schema({
   owner: { type: String, ref: 'user' },
   currentBytes: { type: Number, default: 0 },
   currentPins: { type: Number, default: 0 },
+  currentBox: { type: Number, default: 0 },
   expiredAt: { type: Number, default: null },
-  archived: { type: Boolean, default: false }
+  archived: { type: Boolean, default: false },
+  expired: { type: Boolean, default: false }
 })
 
 const AccountData = mongoose.model('account', AccountSchema)
