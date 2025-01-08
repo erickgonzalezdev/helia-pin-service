@@ -43,6 +43,9 @@ class RouterHanlder {
 
   async createBox (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.middleware.userValidators.ensureAccount(ctx, next)
+    await this.middleware.userValidators.validateBoxesLimit(ctx, next)
+
     await this.controller.createBox(ctx, next)
   }
 

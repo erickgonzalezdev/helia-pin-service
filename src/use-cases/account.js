@@ -7,6 +7,7 @@ export default class AccountUseCases {
 
     // Bind function to this class.
     this.createAccount = this.createAccount.bind(this)
+    this.refreshAccount = this.refreshAccount.bind(this)
   }
 
   // Create  a user account,
@@ -49,6 +50,37 @@ export default class AccountUseCases {
     } catch (error) {
       console.log(error)
       this.wlogger.error(`Error in use-cases/createAccount() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async refreshAccount (inObj = {}) {
+    try {
+      const { id } = inObj
+
+      if (!id || typeof id !== 'string') {
+        throw new Error('id is required')
+      }
+      const account = await this.db.Account.findById(id)
+
+      const pins = await this.db.Pin.find({ userOwner: account.owner })
+      const box = await this.db.Box.find({ owner: account.owner })
+
+      account.currentPins = pins.length
+      account.currentBox = box.length
+
+      const now = new Date().getTime()
+      const expiredAt = new Date(account.expiredAt).getTime()
+
+      if (now > expiredAt) {
+        account.expired = true
+      }
+
+      await account.save()
+
+      return account
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/refreshAccount() $ ${error.message}`)
       throw error
     }
   }

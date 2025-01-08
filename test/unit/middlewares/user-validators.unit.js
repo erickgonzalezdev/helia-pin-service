@@ -1,7 +1,8 @@
 import { assert } from 'chai'
 import sinon from 'sinon'
 
-import UserModel from '../../../src/lib/db-models/users.js'
+import DbModels from '../../../src/lib/db-models/index.js'
+
 import MiddlewareUnderTest from '../../../src/middlewares/user-validators.js'
 
 const KoaContextMock = {
@@ -16,7 +17,11 @@ describe('#User-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: { dbModels: { Users: UserModel.User, Account: UserModel.AccountData } } })
+    uut = new MiddlewareUnderTest({
+      libraries: {
+        dbModels: new DbModels()
+      }
+    })
   })
 
   beforeEach(() => {
@@ -196,6 +201,132 @@ describe('#User-Validators.js', () => {
       sandbox.stub(uut.dbModels.Account, 'findById').resolves({ expiredAt: now.getTime() })
 
       const result = await uut.ensureAccount(ctxMock)
+      assert.isTrue(result)
+    })
+  })
+
+  describe('#validatePinsLimit', () => {
+    it('should throw an error if ctx is not provided', async () => {
+      try {
+        await uut.validatePinsLimit()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Koa context (ctx) is required!')
+      }
+    })
+    it('should throw an error if user context is not found', async () => {
+      try {
+        ctxMock.state = {}
+        await uut.validatePinsLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not find user')
+      }
+    })
+    it('should throw an error if account is not found', async () => {
+      try {
+        ctxMock.state = { user: {} }
+        await uut.validatePinsLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        console.log(error)
+        assert.include(error.message, 'Could not find user account type')
+      }
+    })
+
+    it('should throw an error if account reached number of pins', async () => {
+      try {
+        ctxMock.state = { user: { account: 'account db id' } }
+
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - 1)
+
+        sandbox.stub(uut.dbModels.Account, 'findById').resolves({ maxPins: 10 })
+        sandbox.stub(uut.dbModels.Pin, 'find').resolves(new Array(10))
+
+        await uut.validatePinsLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Account reached max number of Pins!')
+      }
+    })
+
+    it('should return true after success', async () => {
+      ctxMock.state = { user: { account: 'account db id' } }
+
+      const now = new Date()
+      now.setMinutes(now.getMinutes() + 1)
+
+      sandbox.stub(uut.dbModels.Account, 'findById').resolves({ maxPins: 10 })
+      sandbox.stub(uut.dbModels.Pin, 'find').resolves(new Array(9))
+
+      const result = await uut.validatePinsLimit(ctxMock)
+      assert.isTrue(result)
+    })
+  })
+
+  describe('#validateBoxesLimit', () => {
+    it('should throw an error if ctx is not provided', async () => {
+      try {
+        await uut.validateBoxesLimit()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Koa context (ctx) is required!')
+      }
+    })
+    it('should throw an error if user context is not found', async () => {
+      try {
+        ctxMock.state = {}
+        await uut.validateBoxesLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not find user')
+      }
+    })
+    it('should throw an error if account is not found', async () => {
+      try {
+        ctxMock.state = { user: {} }
+        await uut.validateBoxesLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        console.log(error)
+        assert.include(error.message, 'Could not find user account type')
+      }
+    })
+
+    it('should throw an error if account reached number of boxes', async () => {
+      try {
+        ctxMock.state = { user: { account: 'account db id' } }
+
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - 1)
+
+        sandbox.stub(uut.dbModels.Account, 'findById').resolves({ maxBoxes: 10 })
+        sandbox.stub(uut.dbModels.Box, 'find').resolves(new Array(10))
+
+        await uut.validateBoxesLimit(ctxMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Account reached max number of Boxes!')
+      }
+    })
+
+    it('should return true after success', async () => {
+      ctxMock.state = { user: { account: 'account db id' } }
+
+      const now = new Date()
+      now.setMinutes(now.getMinutes() + 1)
+
+      sandbox.stub(uut.dbModels.Account, 'findById').resolves({ maxBoxes: 10 })
+      sandbox.stub(uut.dbModels.Box, 'find').resolves(new Array(9))
+
+      const result = await uut.validateBoxesLimit(ctxMock)
       assert.isTrue(result)
     })
   })

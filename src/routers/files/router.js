@@ -41,6 +41,7 @@ class RouterHanlder {
       await this.middleware.boxValidator.ensureBoxSignature(ctx, next)
     }
     await this.middleware.userValidators.ensureAccount(ctx, next)
+    await this.middleware.userValidators.validatePinsLimit(ctx, next)
     await this.controller.uploadFile(ctx, next)
   }
 
