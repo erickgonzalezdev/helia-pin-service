@@ -4,6 +4,7 @@ import Logger from './winston-logger.js'
 import HeliaNode from './helia-ipfs-node.js'
 import jwt from 'jsonwebtoken'
 import AccountLib from './account.js'
+import PaymentGateway from './payment.js'
 
 class Lib {
   constructor (config = {}) {
@@ -22,6 +23,7 @@ class Lib {
 
     this.heliaNode = new HeliaNode(this.config)
     this.accountLib = new AccountLib(this.config)
+    this.payment = new PaymentGateway(this.config)
 
     this.jwt = jwt
   }
@@ -29,6 +31,7 @@ class Lib {
   // Start libraries functionalities
   async start () {
     await this.heliaNode.start()
+    await this.payment.auth()
   }
 }
 

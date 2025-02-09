@@ -6,7 +6,9 @@ const account1 = {
   maxBoxes: 5, // Max 5 Boxes by default
   maxPins: 20, // Max 20 pins by default
   currentBytes: 0,
-  currentPins: 0
+  currentPins: 0,
+  priceUSD: 1, // 1$
+  expirationData: { months: 1 }
 }
 
 const account2 = {
@@ -17,7 +19,9 @@ const account2 = {
   maxBoxes: 100, // Max Boxes
   maxPins: 1000, // Max pins
   currentBytes: 0,
-  currentPins: 0
+  currentPins: 0,
+  priceUSD: 2, // 2$
+  expirationData: { months: 1 }
 }
 
 const account3 = {
@@ -28,13 +32,14 @@ const account3 = {
   maxBoxes: 100, // Max Boxes
   maxPins: 1000, // Max pins
   currentBytes: 0,
-  currentPins: 0
+  currentPins: 0,
+  priceUSD: 3, // 3$
+  expirationData: { months: 1 }
 }
 
 const accounts = [account1, account2, account3]
 class AccountLib {
   constructor (config = {}) {
-    console.log('config', config.wlogger)
     if (!config.dbModels) {
       throw new Error('dbModels must be passed in constructor when instatiate AccountLib lib.')
     }

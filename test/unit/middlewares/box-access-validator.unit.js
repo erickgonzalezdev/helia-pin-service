@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import Libraries from '../../../src/lib/index.js'
 
 import MiddlewareUnderTest from '../../../src/middlewares/box-access-validator.js'
-
+import config from '../../../config.js'
 const KoaContextMock = {
   state: {},
   throw: (status, err) => { throw new Error(err) },
@@ -17,7 +17,7 @@ describe('#Box-Access-Validators.js', () => {
   let sandbox
 
   before(async () => {
-    uut = new MiddlewareUnderTest({ libraries: new Libraries() })
+    uut = new MiddlewareUnderTest({ libraries: new Libraries(config) })
   })
 
   beforeEach(() => {

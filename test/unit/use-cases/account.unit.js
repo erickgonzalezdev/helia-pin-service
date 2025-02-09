@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import UseCase from '../../../src/use-cases/account.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb, createTestUser } from '../../util/test-util.js'
-
+import config from '../../../config.js'
 describe('#account-use-case', () => {
   let uut
   let sandbox
@@ -13,7 +13,7 @@ describe('#account-use-case', () => {
     await startDb()
     await cleanDb()
 
-    uut = new UseCase({ libraries: new Libraries() })
+    uut = new UseCase({ libraries: new Libraries(config) })
 
     testData.user = await createTestUser()
   })
@@ -61,19 +61,7 @@ describe('#account-use-case', () => {
         assert.include(error.message, 'type must be a number')
       }
     })
-    it('should throw an error if no expirationData property is given', async () => {
-      try {
-        const input = {
-          userId: testData.user._id.toString(),
-          type: 1
-        }
-        await uut.createAccount(input)
 
-        assert.fail('Unexpected code path')
-      } catch (error) {
-        assert.include(error.message, 'expirationData is required')
-      }
-    })
     it('should throw an error if user is not found!', async () => {
       try {
         sandbox.stub(uut.db.Users, 'findById').resolves(null)

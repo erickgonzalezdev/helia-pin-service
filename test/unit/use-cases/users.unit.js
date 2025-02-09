@@ -4,14 +4,14 @@ import sinon from 'sinon'
 import UseCase from '../../../src/use-cases/users.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb } from '../../util/test-util.js'
-
+import config from '../../../config.js'
 describe('#users-use-case', () => {
   let uut
   let sandbox
   const testData = {}
 
   before(async () => {
-    uut = new UseCase({ libraries: new Libraries() })
+    uut = new UseCase({ libraries: new Libraries(config) })
     await startDb()
     await cleanDb()
   })

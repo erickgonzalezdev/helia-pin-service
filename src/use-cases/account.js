@@ -13,11 +13,10 @@ export default class AccountUseCases {
   // Create  a user account,
   async createAccount (inObj = {}) {
     try {
-      const { userId, type, expirationData } = inObj
+      const { userId, type } = inObj
 
       if (!userId) throw new Error('userId must be a string')
       if (!type) throw new Error('type must be a number')
-      if (!expirationData) throw new Error('expirationData is required')
 
       // Find user data
       const user = await this.db.Users.findById(userId)
@@ -27,15 +26,12 @@ export default class AccountUseCases {
       // Looking for existing account
 
       /*
-      TODO : Add account transition logic.
-      const existingAccount = await this.db.Account.findById(user.account)
+      TODO : Merge existing account time left to the new account timer
+      in order to be able to upgrade account and expand the account expiration data.
 
-      // If the user has an existing higher type account then throw an error.
-      if (existingAccount && existingAccount.type > type) {
-        throw new Error('The user already has a higher level account')
-      } */
+       */
       const accData = await this.accountLib.getTypeData(type)
-      accData.expiredAt = await this.accountLib.calculateAccExpiration(expirationData)
+      accData.expiredAt = await this.accountLib.calculateAccExpiration(accData.expirationData)
 
       const account = new this.db.Account(accData)
       account.owner = user._id.toString()

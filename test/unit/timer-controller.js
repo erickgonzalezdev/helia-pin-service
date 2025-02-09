@@ -6,13 +6,13 @@ import Libraries from '../../src/lib/index.js'
 import UseCases from '../../src/use-cases/index.js'
 import { HeliaNodeMock, PinRPCMock } from './mocks/helia-node-mock.js'
 import { cleanDb, startDb } from '../util/test-util.js'
-
+import config from '../../config.js'
 describe('#TimerController', () => {
   let uut
   let sandbox
 
   before(async () => {
-    const libraries = new Libraries()
+    const libraries = new Libraries(config)
     libraries.heliaNode.node = new HeliaNodeMock()
     libraries.heliaNode.rpc = new PinRPCMock()
 
