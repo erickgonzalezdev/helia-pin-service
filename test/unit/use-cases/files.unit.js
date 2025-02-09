@@ -5,7 +5,7 @@ import UseCase from '../../../src/use-cases/files.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb, createTestUser } from '../../util/test-util.js'
 import { HeliaNodeMock, FileMock, PinRPCMock } from '../mocks/helia-node-mock.js'
-
+import config from '../../../config.js'
 describe('#file-use-case', () => {
   let uut
   let sandbox
@@ -14,7 +14,7 @@ describe('#file-use-case', () => {
     await startDb()
     await cleanDb()
 
-    uut = new UseCase({ libraries: new Libraries() })
+    uut = new UseCase({ libraries: new Libraries(config) })
     // Mock node
     uut.heliaNode.node = new HeliaNodeMock()
     uut.heliaNode.targetNode = 'target node'

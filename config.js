@@ -11,7 +11,11 @@ const config = {
   pinHostPeerId: process.env.PIN_HOST || '12D3KooWE2d8BnfLqVRJ3HZusgTUVHFq5EJezp49firDSbUe7MoR',
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
-  gcPeriod: process.env.GC_PERIOD || 60 // Minutes
+  gcPeriod: process.env.GC_PERIOD || 60, // Minutes
+  paymentUrl: process.env.PAYMENT_URL || env === 'test' ? 'testPaymentUrl' : '',
+  paymentUser: process.env.PAYMENT_USER || 'testuser',
+  paymentPass: process.env.PAYMENT_PASS || 'testPassword'
+
 }
 
 export default config

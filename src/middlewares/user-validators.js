@@ -140,8 +140,7 @@ export default class UserValidator {
       ctx.state.account = acc
 
       const boxes = await this.dbModels.Box.find({ owner: ctx.state.user._id })
-      console.log(acc.maxBoxes)
-      console.log(boxes.length)
+
       if (acc.maxBoxes <= boxes.length) {
         throw new Error('Account reached max number of Boxes!.')
       }

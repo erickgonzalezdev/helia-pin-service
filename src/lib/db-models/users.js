@@ -31,8 +31,8 @@ const UserShema = new mongoose.Schema({
   email: { type: String /* required: true */ },
   account: { type: String, ref: 'account' },
   telegramVerification: { type: Boolean, default: false },
-  emailVerification: { type: Boolean, default: false }
-
+  emailVerification: { type: Boolean, default: false },
+  paymentWalletId: { type: String, default: '' }
 })
 
 // Before saving, convert the password to a hash.

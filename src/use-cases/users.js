@@ -37,7 +37,6 @@ export default class UsersUseCases {
       const token = user.generateToken()
 
       const userData = user.toJSON()
-      console.log(userData)
       userData.token = token
       // password should be omited on response
       delete userData.password

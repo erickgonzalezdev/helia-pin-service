@@ -5,7 +5,7 @@ import Libraries from '../../src/lib/index.js'
 import UseCases from '../../src/use-cases/index.js'
 import SERVER from '../../server.js'
 
-const libraries = new Libraries()
+const libraries = new Libraries(config)
 config.libraries = libraries
 const useCases = new UseCases(config)
 let APP
