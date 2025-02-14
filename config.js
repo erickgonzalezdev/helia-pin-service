@@ -18,5 +18,4 @@ const config = {
   paymentPass: process.env.PAYMENT_PASS || 'testPassword'
 
 }
-console.log('config', config)
 export default config
