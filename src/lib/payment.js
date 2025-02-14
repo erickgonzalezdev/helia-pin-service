@@ -33,12 +33,13 @@ class PaymentGateway {
           password: this.config.paymentPass
         }
       }
+
       const result = await this.axios.request(options)
       this.wlogger.info('Payment Gateway auth successfully!')
       this.jwt = result.data.token
-      console.log('payment jwt', this.jwt)
       return result.data
     } catch (error) {
+      console.log('error', error)
       this.wlogger.error(`Error in payment/auth() $ ${error.message}`)
       return false
     }

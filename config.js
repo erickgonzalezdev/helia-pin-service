@@ -1,4 +1,5 @@
 const env = process.env.ENVIROMENT || 'development'
+const paymentUrl = env === 'test' ? 'testPaymentUrl' : ''
 
 const config = {
   database: `helia-pin-db-${env.toLocaleLowerCase()}`,
@@ -12,10 +13,9 @@ const config = {
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
-  paymentUrl: process.env.PAYMENT_URL || env === 'test' ? 'testPaymentUrl' : '',
+  paymentUrl: process.env.PAYMENT_URL || paymentUrl,
   paymentUser: process.env.PAYMENT_USER || 'testuser',
   paymentPass: process.env.PAYMENT_PASS || 'testPassword'
 
 }
-
 export default config
