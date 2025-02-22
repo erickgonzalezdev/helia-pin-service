@@ -13,9 +13,9 @@ export default class UsersUseCases {
 
   async createUser (inObj = {}) {
     try {
-      const { username, password } = inObj
-      if (!username || typeof username !== 'string') {
-        throw new Error('username is required!')
+      const { email, password } = inObj
+      if (!email || typeof email !== 'string') {
+        throw new Error('email is required!')
       }
 
       if (!password || typeof password !== 'string') {

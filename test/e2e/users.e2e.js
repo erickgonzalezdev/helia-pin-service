@@ -47,7 +47,7 @@ describe('e2e-users', () => {
           method: 'post',
           url: `${LOCALHOST}/users`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'test'
           }
         }
@@ -56,7 +56,7 @@ describe('e2e-users', () => {
         testData.user = result.data.user
 
         assert(result.status === 200)
-        assert(result.data.user.username === 'testname')
+        assert(result.data.user.email === 'email@email.com')
         assert(result.data.user.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -70,7 +70,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname'
+            email: 'email@email.com'
           }
         }
         const result = await axios(options)
@@ -89,7 +89,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'unknow',
+            email: 'emailunknow@email.com',
             password: 'unknow'
           }
         }
@@ -109,7 +109,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'unknow'
           }
         }
@@ -129,14 +129,14 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'test'
           }
         }
         const result = await axios(options)
         testData.token = result.data.token
         assert(result.status === 200)
-        assert(result.data.user.username === 'testname')
+        assert(result.data.user.email === 'email@email.com')
         assert(result.data.user.password === undefined)
       } catch (error) {
         console.log('error.response.data', error.response.data)
@@ -251,7 +251,7 @@ describe('e2e-users', () => {
         assert.isArray(result.data)
         const user = result.data[0]
 
-        assert(user.username === 'testname')
+        assert(user.email === 'email@email.com')
         assert(user.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -365,7 +365,7 @@ describe('e2e-users', () => {
 
         assert(result.status === 200)
         assert.isObject(result.data)
-        assert(result.data.username === 'testname')
+        assert(result.data.email === 'email@email.com')
         assert(result.data.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')

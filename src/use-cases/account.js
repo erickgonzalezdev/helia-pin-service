@@ -2,7 +2,6 @@ export default class AccountUseCases {
   constructor (config = {}) {
     this.db = config.libraries.dbModels
     this.wlogger = config.libraries.wlogger
-    this.passport = config.libraries.passport
     this.accountLib = config.libraries.accountLib
 
     // Bind function to this class.

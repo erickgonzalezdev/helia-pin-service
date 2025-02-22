@@ -10,7 +10,7 @@ config.libraries = libraries
 const useCases = new UseCases(config)
 let APP
 
-export const createTestUser = async (inObj = { username: 'test', password: '1234' }, withAccount = true) => {
+export const createTestUser = async (inObj = { email: 'email@email.com', password: '1234' }, withAccount = true) => {
   try {
     const result = await useCases.users.createUser(inObj)
     if (withAccount) {
@@ -67,7 +67,7 @@ export const createTestBoxModel = async (inObj = {
   try {
     let user = inObj.user
     if (!user) {
-      user = await createTestUser({ username: 'boxOwner', password: 'testpass' })
+      user = await createTestUser({ email: 'emailowner@email.com', password: 'testpass' })
     }
     inObj.user = user
     const box = await useCases.box.createBox(inObj)

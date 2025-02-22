@@ -3,9 +3,9 @@ import UserModel from '../lib/db-models/users.js'
 import Strategy from 'passport-local'
 
 const User = UserModel.User
-export async function verify (username, password, done) {
+export async function verify (email, password, done) {
   try {
-    const user = await User.findOne({ username })
+    const user = await User.findOne({ email })
     if (!user) {
       return done(null, false)
     }
@@ -38,7 +38,7 @@ export function passportStrategy (passport) {
     }
   })
 
-  passport.use('local', new Strategy({ usernameField: 'username', passwordField: 'password' }, verify)
+  passport.use('local', new Strategy({ usernameField: 'email', passwordField: 'password' }, verify)
   )
 
   return true

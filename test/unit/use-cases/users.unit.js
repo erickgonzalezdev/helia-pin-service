@@ -34,24 +34,24 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'username is required!')
+        assert.include(error.message, 'email is required!')
       }
     })
 
-    it('should throw an error if username is not provided', async () => {
+    it('should throw an error if email is not provided', async () => {
       try {
         await uut.createUser({})
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'username is required!')
+        assert.include(error.message, 'email is required!')
       }
     })
 
     it('should throw an error if password is not provided', async () => {
       try {
         const usrObj = {
-          username: 'username'
+          email: 'email@email.com'
         }
 
         await uut.createUser(usrObj)
@@ -59,6 +59,20 @@ describe('#users-use-case', () => {
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'password is required')
+      }
+    })
+    it('should throw an error if email has wrong format', async () => {
+      try {
+        const usrObj = {
+          email: 'myemail',
+          password: 'testpass'
+        }
+
+        await uut.createUser(usrObj)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'is not a valid Email format!')
       }
     })
 
@@ -69,7 +83,7 @@ describe('#users-use-case', () => {
 
         const usrObj = {
           password: 'anypass',
-          username: 'test'
+          email: 'email@email.com'
         }
 
         await uut.createUser(usrObj)
@@ -83,7 +97,7 @@ describe('#users-use-case', () => {
     it('should create an user', async () => {
       const usrObj = {
         password: 'anypass',
-        username: 'test'
+        email: 'email@email.com'
       }
       const user = await uut.createUser(usrObj)
 

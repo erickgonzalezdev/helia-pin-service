@@ -22,14 +22,14 @@ export default class UsersController {
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{  "username": "newUser", "password": "mypass"  }' localhost:5001/users
+ * curl -H "Content-Type: application/json" -X POST -d '{  "email": "newuser@email.com", "password": "mypass"  }' localhost:5001/users
  *
- * @apiParam {String} username User Username.
+ * @apiParam {String} email User Email.
  * @apiParam {String} password User Password.
  *
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   users.email     User Email
  *
  */
   async createUser (ctx) {
@@ -51,16 +51,16 @@ export default class UsersController {
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "username": "username", "password": "mypass" }' localhost:5001/users/auth
+ * curl -H "Content-Type: application/json" -X POST -d '{ "email": "newuser@email.com", "password": "mypass" }' localhost:5001/users/auth
  *
  *
- * @apiParam {String} username  User username.
- * @apiParam {String} password  User password.
+ * @apiParam {String} email  User Email.
+ * @apiParam {String} password  User Password.
  *
  * @apiSuccess {String}   token          Encoded JWT
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.username  User username
+ * @apiSuccess {String}   user.email     User email
  *
  */
 
@@ -90,7 +90,7 @@ export default class UsersController {
  *
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   user.email     User email
  */
   async getUser (ctx, next) {
     try {
@@ -119,7 +119,7 @@ export default class UsersController {
 * @apiSuccess {Array} users              Users Array
 * @apiSuccess {Object}   user            User object
 * @apiSuccess {ObjectId} users._id       User id
-* @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   user.email     User email
 */
   async getUsers (ctx) {
     try {
@@ -144,7 +144,7 @@ export default class UsersController {
  * @apiParam {String} username     Username.
  *
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  Updated username
+ * @apiSuccess {String}   user.email      User email
  */
 
   async updateUser (ctx) {
