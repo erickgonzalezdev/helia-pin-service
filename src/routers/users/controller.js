@@ -12,6 +12,8 @@ export default class UsersController {
     this.getUser = this.getUser.bind(this)
     this.getUsers = this.getUsers.bind(this)
     this.updateUser = this.updateUser.bind(this)
+    this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
+    this.verifyEmailCode = this.verifyEmailCode.bind(this)
   }
 
   /**
@@ -155,6 +157,50 @@ export default class UsersController {
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
+    }
+  }
+
+  /**
+ * @api {POST} /users/email/verify Verify Email Code.
+ * @apiPermission user
+ * @apiName VerifyEmailCode
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/email/verify
+ */
+  async verifyEmailCode (ctx) {
+    try {
+      const code = ctx.request.body.code
+      const user = ctx.state.user
+      const result = await this.useCases.users.verifyEmailCode({ code, user })
+
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+ * @api {get} /users/email/code Get Email Code.
+ * @apiPermission user
+ * @apiName GetEmailCode
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/users/email/code
+ *
+ */
+  async sendEmailVerificationCode (ctx) {
+    try {
+      const user = ctx.state.user
+      const result = await this.useCases.users.sendEmailVerificationCode({ user })
+
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
     }
   }
 }

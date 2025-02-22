@@ -41,8 +41,10 @@ const UserShema = new mongoose.Schema({
   username: { type: String },
   password: { type: String, required: true },
   account: { type: String, ref: 'account' },
-  telegramVerification: { type: Boolean, default: false },
-  emailVerification: { type: Boolean, default: false },
+  telegramVerified: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationCode: { type: Object },
+  emailSentAt: { type: String },
   paymentWalletId: { type: String, default: '' }
 })
 

@@ -13,9 +13,15 @@ const config = {
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
+
+  // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
   paymentUser: process.env.PAYMENT_USER || 'testuser',
-  paymentPass: process.env.PAYMENT_PASS || 'testPassword'
+  paymentPass: process.env.PAYMENT_PASS || 'testPassword',
 
+  // Email service data
+  emailServer: process.env.EMAIL_SERVER || 'server',
+  emailUser: process.env.EMAIL_USER || '',
+  emailPassword: process.env.EMAIL_PASSWORD || ''
 }
 export default config

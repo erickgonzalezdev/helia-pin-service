@@ -5,6 +5,7 @@ import HeliaNode from './helia-ipfs-node.js'
 import jwt from 'jsonwebtoken'
 import AccountLib from './account.js'
 import PaymentGateway from './payment.js'
+import NodemailerLib from './nodemailer.js'
 
 class Lib {
   constructor (config = {}) {
@@ -24,6 +25,7 @@ class Lib {
     this.heliaNode = new HeliaNode(this.config)
     this.accountLib = new AccountLib(this.config)
     this.payment = new PaymentGateway(this.config)
+    this.emailService = new NodemailerLib(this.config)
 
     this.jwt = jwt
   }
@@ -32,6 +34,7 @@ class Lib {
   async start () {
     await this.heliaNode.start()
     await this.payment.auth()
+    await this.emailService.start()
   }
 }
 

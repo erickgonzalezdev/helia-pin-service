@@ -1,14 +1,18 @@
 export default class UsersUseCases {
   constructor (config = {}) {
     this.db = config.libraries.dbModels
+    this.libraries = config.libraries
     this.wlogger = config.libraries.wlogger
     this.passport = config.libraries.passport
+    this.emailRequestWitingTime = 60 // 60 seconds
 
     // Bind function to this class.
     this.createUser = this.createUser.bind(this)
     this.getUser = this.getUser.bind(this)
     this.getUsers = this.getUsers.bind(this)
     this.updateUser = this.updateUser.bind(this)
+    this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
+    this.verifyEmailCode = this.verifyEmailCode.bind(this)
   }
 
   async createUser (inObj = {}) {
@@ -40,6 +44,19 @@ export default class UsersUseCases {
       userData.token = token
       // password should be omited on response
       delete userData.password
+
+      const emailObj = {
+        to: [user.email],
+        subject: 'Account Successfully Registered!',
+        html: 'Your account has been successfully registered'
+      }
+
+      try {
+        await this.libraries.emailService.sendEmail(emailObj)
+      } catch (error) {
+        // Skip error
+      }
+
       return userData
     } catch (error) {
       console.log(error)
@@ -117,6 +134,77 @@ export default class UsersUseCases {
     } catch (error) {
       this.wlogger.error(`Error in use-cases/updateUser() $ ${error.message}`)
       throw error
+    }
+  }
+
+  async sendEmailVerificationCode (inObj = {}) {
+    try {
+      const { user } = inObj
+
+      if (!user) throw new Error('user is required')
+      // returns false if a code was sent less than 1 minute ago.
+      if (user.emailSentAt) {
+        console.log(`User Verification code ${user.emailVerificationCode}`)
+        const emailSentAt = new Date(user.emailSentAt)
+        const now = new Date()
+        const dateDiff = now.getTime() - emailSentAt.getTime()
+        const sDiff = Math.floor(dateDiff / 1000) // seconds difference
+
+        // prevent code was sent less than 60 seconds ago.
+        if (sDiff <= this.emailRequestWitingTime) {
+          return {
+            result: false,
+            emailSentAt: user.emailSentAt,
+            waitingTime: this.emailRequestWitingTime, // time on seconds
+            message: 'Rate Limit'
+          }
+        }
+      }
+
+      const code = Math.floor(100000 + Math.random() * 900000)
+      user.emailVerificationCode = code
+      user.emailSentAt = new Date().toISOString()
+      console.log(`New Verification code ${user.emailVerificationCode}`)
+
+      const emailObj = {
+        to: [user.email],
+        subject: 'Code Verification.',
+        html: `
+             <div style="width:500px ; padding: 1em ; border-radius: 10px; border: 2px solid #6C6D6F ; background : #A35EE2 ; color:white ; text-align: center; margin: 0 auto"><p style="margin-bottom:2em; font-size : 15px">Code Verification</p><h3 style="font-size: 25px"><strong>${code}</strong><h3></div>
+             `
+      }
+      await this.libraries.emailService.sendEmail(emailObj)
+
+      await user.save()
+
+      return {
+        result: true,
+        emailSentAt: user.emailSentAt,
+        waitingTime: this.emailRequestWitingTime, // time on seconds
+        message: 'Code Sent Successfully.'
+      }
+    } catch (err) {
+      this.wlogger.error(`Error in use-cases/sendEmailVerificationCode() $ ${err.message}`)
+      throw err
+    }
+  }
+
+  // Verify email code verification
+  async verifyEmailCode (inObj = {}) {
+    try {
+      const { code, user } = inObj
+      if (!user) throw new Error('user is required')
+
+      const currentCode = user.emailVerificationCode
+      if (code === currentCode) {
+        user.emailVerificationCode = null
+        user.emailVerified = true
+        await user.save()
+      }
+      return user
+    } catch (err) {
+      this.wlogger.error(`Error in use-cases/verifyEmailCode() $ ${err.message}`)
+      throw err
     }
   }
 }
