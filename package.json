@@ -40,6 +40,7 @@
     "koa-session": "6.4.0",
     "koa-static": "5.0.0",
     "mongoose": "8.4.3",
+    "nodemailer": "^6.10.0",
     "passport-local": "1.0.0",
     "winston": "3.13.0",
     "winston-daily-rotate-file": "5.0.0"

@@ -16,7 +16,7 @@ describe('e2e-pin', () => {
     await cleanDb()
     await cleanNode()
     testData.user = await createTestUser()
-    testData.user2 = await createTestUser({ username: 'testuser2', password: 'pass' })
+    testData.user2 = await createTestUser({ email: 'pin@enail.com', password: 'pass' })
     testData.box = await createTestBoxModel({ label: 'test', description: 'test', user: testData.user })
     testData.file = await createTestFileModel()
   })

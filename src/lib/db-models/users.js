@@ -26,12 +26,25 @@ const AccountData = mongoose.model('account', AccountSchema)
 
 const UserShema = new mongoose.Schema({
   createdAt: { type: Number, required: true },
-  username: { type: String, unique: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: function (email) {
+        // eslint-disable-next-line no-useless-escape
+        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+      },
+      message: props => `${props.value} is not a valid Email format!`
+    }
+  },
+  username: { type: String },
   password: { type: String, required: true },
-  email: { type: String /* required: true */ },
   account: { type: String, ref: 'account' },
-  telegramVerification: { type: Boolean, default: false },
-  emailVerification: { type: Boolean, default: false },
+  telegramVerified: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationCode: { type: Object },
+  emailSentAt: { type: String },
   paymentWalletId: { type: String, default: '' }
 })
 

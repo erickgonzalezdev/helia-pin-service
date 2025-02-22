@@ -34,24 +34,24 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'username is required!')
+        assert.include(error.message, 'email is required!')
       }
     })
 
-    it('should throw an error if username is not provided', async () => {
+    it('should throw an error if email is not provided', async () => {
       try {
         await uut.createUser({})
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'username is required!')
+        assert.include(error.message, 'email is required!')
       }
     })
 
     it('should throw an error if password is not provided', async () => {
       try {
         const usrObj = {
-          username: 'username'
+          email: 'email@email.com'
         }
 
         await uut.createUser(usrObj)
@@ -59,6 +59,20 @@ describe('#users-use-case', () => {
         assert.fail('Unexpected code path')
       } catch (error) {
         assert.include(error.message, 'password is required')
+      }
+    })
+    it('should throw an error if email has wrong format', async () => {
+      try {
+        const usrObj = {
+          email: 'myemail',
+          password: 'testpass'
+        }
+
+        await uut.createUser(usrObj)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'is not a valid Email format!')
       }
     })
 
@@ -69,7 +83,7 @@ describe('#users-use-case', () => {
 
         const usrObj = {
           password: 'anypass',
-          username: 'test'
+          email: 'email@email.com'
         }
 
         await uut.createUser(usrObj)
@@ -83,7 +97,7 @@ describe('#users-use-case', () => {
     it('should create an user', async () => {
       const usrObj = {
         password: 'anypass',
-        username: 'test'
+        email: 'email@email.com'
       }
       const user = await uut.createUser(usrObj)
 
@@ -185,6 +199,105 @@ describe('#users-use-case', () => {
       assert.isObject(result)
       assert.property(result, 'username')
       assert.equal(result.username, newData.username)
+    })
+  })
+  describe('#verifyEmailCode', () => {
+    it('should throw error if no user property if not provided', async () => {
+      try {
+        await uut.verifyEmailCode()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'user is required')
+      }
+    })
+    it('should not update emailVerified property on undefined code ', async () => {
+      try {
+        const userMock = { save: () => { }, emailVerified: false, emailVerificationCode: 1234 }
+        const result = await uut.verifyEmailCode({ user: userMock })
+
+        assert.isFalse(result.emailVerified)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+    it('should not update emailVerified property on invalid code', async () => {
+      try {
+        const userMock = { save: () => { }, emailVerified: false, emailVerificationCode: 1234 }
+        const code = 1235
+        const result = await uut.verifyEmailCode({ user: userMock, code })
+
+        assert.isFalse(result.emailVerified)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+    it('should update emailVerified property on valid code', async () => {
+      try {
+        const userMock = { save: () => { }, emailVerified: false, emailVerificationCode: 1234 }
+        const code = 1234
+        const result = await uut.verifyEmailCode({ user: userMock, code })
+
+        assert.isTrue(result.emailVerified)
+        assert.isNull(result.emailVerificationCode)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('#sendEmailVerificationCode', () => {
+    it('should throw error if no user property if not provided', async () => {
+      try {
+        await uut.sendEmailVerificationCode()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'user is required')
+      }
+    })
+    it('should not send code if it exist', async () => {
+      try {
+        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const userMock = { save: () => { }, emailSentAt: new Date() }
+        const result = await uut.sendEmailVerificationCode({ user: userMock })
+
+        assert.isObject(result)
+        assert.property(result, 'result')
+        assert.property(result, 'emailSentAt')
+        assert.property(result, 'waitingTime')
+        assert.property(result, 'message')
+        assert.isFalse(result.result)
+        assert.isString(result.message)
+        assert.equal(result.message, 'Rate Limit')
+      } catch (err) {
+        console.log(err)
+
+        assert.fail('Unexpected code path.')
+      }
+    })
+    it('should send a new code', async () => {
+      try {
+        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const userMock = { save: () => { }, emailSentAt: null }
+        const result = await uut.sendEmailVerificationCode({ user: userMock })
+
+        assert.isObject(result)
+        assert.property(result, 'result')
+        assert.property(result, 'emailSentAt')
+        assert.property(result, 'waitingTime')
+        assert.property(result, 'message')
+        assert.isString(result.message)
+        assert.equal(result.message, 'Code Sent Successfully.')
+
+        assert.isTrue(result.result)
+      } catch (err) {
+        console.log(err)
+
+        assert.fail('Unexpected code path.')
+      }
     })
   })
 })

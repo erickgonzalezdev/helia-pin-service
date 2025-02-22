@@ -4,7 +4,6 @@ export default class FileUseCases {
     this.db = config.libraries.dbModels
     this.heliaNode = config.libraries.heliaNode
     this.wlogger = config.libraries.wlogger
-    this.passport = config.libraries.passport
 
     this.handleUnpinedDelay = 1000 // 1seg
 

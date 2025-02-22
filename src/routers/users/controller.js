@@ -12,6 +12,8 @@ export default class UsersController {
     this.getUser = this.getUser.bind(this)
     this.getUsers = this.getUsers.bind(this)
     this.updateUser = this.updateUser.bind(this)
+    this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
+    this.verifyEmailCode = this.verifyEmailCode.bind(this)
   }
 
   /**
@@ -22,14 +24,14 @@ export default class UsersController {
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{  "username": "newUser", "password": "mypass"  }' localhost:5001/users
+ * curl -H "Content-Type: application/json" -X POST -d '{  "email": "newuser@email.com", "password": "mypass"  }' localhost:5001/users
  *
- * @apiParam {String} username User Username.
+ * @apiParam {String} email User Email.
  * @apiParam {String} password User Password.
  *
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   users.email     User Email
  *
  */
   async createUser (ctx) {
@@ -51,16 +53,16 @@ export default class UsersController {
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{ "username": "username", "password": "mypass" }' localhost:5001/users/auth
+ * curl -H "Content-Type: application/json" -X POST -d '{ "email": "newuser@email.com", "password": "mypass" }' localhost:5001/users/auth
  *
  *
- * @apiParam {String} username  User username.
- * @apiParam {String} password  User password.
+ * @apiParam {String} email  User Email.
+ * @apiParam {String} password  User Password.
  *
  * @apiSuccess {String}   token          Encoded JWT
  * @apiSuccess {Object}   user           User object
  * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.username  User username
+ * @apiSuccess {String}   user.email     User email
  *
  */
 
@@ -90,7 +92,7 @@ export default class UsersController {
  *
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   user.email     User email
  */
   async getUser (ctx, next) {
     try {
@@ -119,7 +121,7 @@ export default class UsersController {
 * @apiSuccess {Array} users              Users Array
 * @apiSuccess {Object}   user            User object
 * @apiSuccess {ObjectId} users._id       User id
-* @apiSuccess {String}   users.username  User username
+ * @apiSuccess {String}   user.email     User email
 */
   async getUsers (ctx) {
     try {
@@ -144,7 +146,7 @@ export default class UsersController {
  * @apiParam {String} username     Username.
  *
  * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.username  Updated username
+ * @apiSuccess {String}   user.email      User email
  */
 
   async updateUser (ctx) {
@@ -155,6 +157,50 @@ export default class UsersController {
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)
+    }
+  }
+
+  /**
+ * @api {POST} /users/email/verify Verify Email Code.
+ * @apiPermission user
+ * @apiName VerifyEmailCode
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/email/verify
+ */
+  async verifyEmailCode (ctx) {
+    try {
+      const code = ctx.request.body.code
+      const user = ctx.state.user
+      const result = await this.useCases.users.verifyEmailCode({ code, user })
+
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+ * @api {get} /users/email/code Get Email Code.
+ * @apiPermission user
+ * @apiName GetEmailCode
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/users/email/code
+ *
+ */
+  async sendEmailVerificationCode (ctx) {
+    try {
+      const user = ctx.state.user
+      const result = await this.useCases.users.sendEmailVerificationCode({ user })
+
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
     }
   }
 }

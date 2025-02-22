@@ -43,11 +43,13 @@ describe('e2e-users', () => {
     })
     it('should create user', async () => {
       try {
+        sandbox.stub(app.controller.useCases.users, 'sendEmailVerificationCode').resolves(true)
+
         const options = {
           method: 'post',
           url: `${LOCALHOST}/users`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'test'
           }
         }
@@ -56,7 +58,7 @@ describe('e2e-users', () => {
         testData.user = result.data.user
 
         assert(result.status === 200)
-        assert(result.data.user.username === 'testname')
+        assert(result.data.user.email === 'email@email.com')
         assert(result.data.user.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -70,7 +72,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname'
+            email: 'email@email.com'
           }
         }
         const result = await axios(options)
@@ -89,7 +91,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'unknow',
+            email: 'emailunknow@email.com',
             password: 'unknow'
           }
         }
@@ -109,7 +111,7 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'unknow'
           }
         }
@@ -129,14 +131,14 @@ describe('e2e-users', () => {
           method: 'POST',
           url: `${LOCALHOST}/users/auth`,
           data: {
-            username: 'testname',
+            email: 'email@email.com',
             password: 'test'
           }
         }
         const result = await axios(options)
         testData.token = result.data.token
         assert(result.status === 200)
-        assert(result.data.user.username === 'testname')
+        assert(result.data.user.email === 'email@email.com')
         assert(result.data.user.password === undefined)
       } catch (error) {
         console.log('error.response.data', error.response.data)
@@ -251,7 +253,7 @@ describe('e2e-users', () => {
         assert.isArray(result.data)
         const user = result.data[0]
 
-        assert(user.username === 'testname')
+        assert(user.email === 'email@email.com')
         assert(user.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -365,7 +367,7 @@ describe('e2e-users', () => {
 
         assert(result.status === 200)
         assert.isObject(result.data)
-        assert(result.data.username === 'testname')
+        assert(result.data.email === 'email@email.com')
         assert(result.data.password === undefined)
       } catch (error) {
         assert.fail('Unexpected code path.')
@@ -495,6 +497,255 @@ describe('e2e-users', () => {
         assert.property(result.data, 'username')
         assert(result.data.password === undefined)
         assert.equal(result.data.username, options.data.username)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
+  describe('GET /users/email/code', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'sendEmailVerificationCode').throws(new Error('test error'))
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+          }
+        }
+        const result = await axios(options)
+
+        testData.user = result.data.user
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert(error.response.status === 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should not fetch users if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header has invalid scheme', async () => {
+      const { token } = testData
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknown ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should send email code verification', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'sendEmailVerificationCode').resolves(true)
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/email/code`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+          }
+        }
+
+        const result = await axios(options)
+
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('PUT /users/email/verify', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'verifyEmailCode').throws(new Error('test error'))
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should not fetch users if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json'
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header has invalid scheme', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknown ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer invalidtoken'
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should verify code', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'verifyEmailCode').resolves(true)
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        const result = await axios(options)
+
+        assert(result.status === 200)
       } catch (error) {
         assert.fail('Unexpected code path.')
       }
