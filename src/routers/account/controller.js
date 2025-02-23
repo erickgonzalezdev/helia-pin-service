@@ -7,26 +7,25 @@ export default class AccountController {
     this.handleError = config.errorHandler.handleCtxError
 
     // Bind function to this class.
-    this.createAccount = this.createAccount.bind(this)
     this.refreshAccount = this.refreshAccount.bind(this)
+    this.getFreeAccount = this.getFreeAccount.bind(this)
   }
 
   /**
- * @api {post} /accounts Create a new account
+ * @api {get} /accounts/free Get free account
  * @apiPermission user
  * @apiName CreateAccount
  * @apiGroup Accounts
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X POST -d '{  "userId": "user mongodb id", "type": 1 ,"expirationData" : { "months" : 3 }  }' localhost:5001/account
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/free
  *
  *
  */
-  async createAccount (ctx) {
+  async getFreeAccount (ctx) {
     try {
-      const inObj = ctx.request.body
-      const account = await this.useCases.accounts.createAccount(inObj)
+      const account = await this.useCases.accounts.getFreeAccount(ctx.state.user)
       ctx.body = {
         account
       }
@@ -43,7 +42,7 @@ export default class AccountController {
 * @apiVersion 1.0.0
 *
 * @apiExample Example usage:
-* curl -H "Content-Type: application/json" -X GET  localhost:5001/account/<id>
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/<id>
 *
 *
 */

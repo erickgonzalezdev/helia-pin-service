@@ -196,11 +196,12 @@ export default class UsersUseCases {
       if (!user) throw new Error('user is required')
 
       const currentCode = user.emailVerificationCode
-      if (code === currentCode) {
-        user.emailVerificationCode = null
-        user.emailVerified = true
-        await user.save()
-      }
+
+      if (code !== currentCode) throw new Error('Invalid Code.')
+
+      user.emailVerificationCode = null
+      user.emailVerified = true
+      await user.save()
       return user
     } catch (err) {
       this.wlogger.error(`Error in use-cases/verifyEmailCode() $ ${err.message}`)
