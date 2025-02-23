@@ -215,22 +215,22 @@ describe('#users-use-case', () => {
     it('should not update emailVerified property on undefined code ', async () => {
       try {
         const userMock = { save: () => { }, emailVerified: false, emailVerificationCode: 1234 }
-        const result = await uut.verifyEmailCode({ user: userMock })
+        await uut.verifyEmailCode({ user: userMock })
 
-        assert.isFalse(result.emailVerified)
-      } catch (err) {
         assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Invalid Code')
       }
     })
     it('should not update emailVerified property on invalid code', async () => {
       try {
         const userMock = { save: () => { }, emailVerified: false, emailVerificationCode: 1234 }
         const code = 1235
-        const result = await uut.verifyEmailCode({ user: userMock, code })
+        await uut.verifyEmailCode({ user: userMock, code })
 
-        assert.isFalse(result.emailVerified)
-      } catch (err) {
         assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Invalid Code')
       }
     })
     it('should update emailVerified property on valid code', async () => {

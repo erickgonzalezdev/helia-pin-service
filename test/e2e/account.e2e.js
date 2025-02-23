@@ -24,12 +24,12 @@ describe('e2e-account', () => {
     sandbox.restore()
   })
 
-  describe('POST /account', () => {
+  describe('GET /account/free', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
         const options = {
-          method: 'POST',
-          url: `${LOCALHOST}/account`,
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json'
           }
@@ -44,8 +44,8 @@ describe('e2e-account', () => {
     it('should rejectif the authorization header is missing the scheme', async () => {
       try {
         const options = {
-          method: 'POST',
-          url: `${LOCALHOST}/account`,
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json',
             Authorization: '1'
@@ -62,8 +62,8 @@ describe('e2e-account', () => {
       const { token } = testData.user
       try {
         const options = {
-          method: 'POST',
-          url: `${LOCALHOST}/account`,
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json',
             Authorization: `Unknow ${token}`
@@ -79,8 +79,8 @@ describe('e2e-account', () => {
     it('should reject if token is invalid', async () => {
       try {
         const options = {
-          method: 'POST',
-          url: `${LOCALHOST}/account`,
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json',
             Authorization: 'Bearer 1'
@@ -97,12 +97,12 @@ describe('e2e-account', () => {
     it('should handle request error', async () => {
       try {
         const options = {
-          method: 'post',
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
-          },
-          url: `${LOCALHOST}/account`
+          }
 
         }
         await axios(options)
@@ -113,25 +113,20 @@ describe('e2e-account', () => {
         assert.isString(error.response.data)
       }
     })
-    it('should create account', async () => {
+    it('should get free account', async () => {
       try {
+        sandbox.stub(app.controller.useCases.accounts, 'getFreeAccount').resolves({})
         const options = {
-          method: 'post',
-          url: `${LOCALHOST}/account`,
+          method: 'GET',
+          url: `${LOCALHOST}/account/free`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
-          },
-          data: {
-            userId: testData.user._id.toString(),
-            type: 1,
-            expirationData: { days: 1 }
           }
         }
         const result = await axios(options)
 
         const account = result.data.account
-        testData.account = account
 
         assert(result.status === 200)
         assert.isObject(account)
@@ -146,7 +141,7 @@ describe('e2e-account', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json'
           }
@@ -158,11 +153,11 @@ describe('e2e-account', () => {
         assert.equal(err.response.status, 401)
       }
     })
-    it('should rejectif the authorization header is missing the scheme', async () => {
+    it('should reject if the authorization header is missing the scheme', async () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json',
             Authorization: '1'
@@ -180,7 +175,7 @@ describe('e2e-account', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Unknow ${token}`
@@ -197,7 +192,7 @@ describe('e2e-account', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json',
             Authorization: 'Bearer 1'
@@ -216,7 +211,7 @@ describe('e2e-account', () => {
         sandbox.stub(app.controller.useCases.accounts, 'refreshAccount').throws(new Error('test error'))
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`
@@ -235,7 +230,7 @@ describe('e2e-account', () => {
       try {
         const options = {
           method: 'GET',
-          url: `${LOCALHOST}/account/data/${testData.account._id}`,
+          url: `${LOCALHOST}/account/data/${testData.user.account}`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.user.token}`

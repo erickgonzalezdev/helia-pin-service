@@ -5,6 +5,7 @@ import UseCase from '../../../src/use-cases/account.js'
 import Libraries from '../../../src/lib/index.js'
 import { cleanDb, startDb, createTestUser } from '../../util/test-util.js'
 import config from '../../../config.js'
+
 describe('#account-use-case', () => {
   let uut
   let sandbox
@@ -133,6 +134,56 @@ describe('#account-use-case', () => {
       const result = await uut.refreshAccount(input)
       assert.isObject(result)
       assert.isTrue(result.expired)
+    })
+  })
+  describe('#getFreeAccount', () => {
+    it('should throw an error if user is not verified!', async () => {
+      try {
+        const userMock = { _id: 'userID', emailVerified: false, telegramVerified: false, save: () => {} }
+
+        await uut.getFreeAccount(userMock)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Account Verification is required!.')
+      }
+    })
+
+    it('should get free account', async () => {
+      try {
+        const userMock = { _id: 'userID', emailVerified: true, telegramVerified: true, save: () => {} }
+
+        const result = await uut.getFreeAccount(userMock)
+        assert.isObject(result)
+        assert.property(result, 'expiredAt')
+      } catch (error) {
+        console.log(error)
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should get free account if email is verified but telegram is not verified', async () => {
+      try {
+        const userMock = { _id: 'userID', emailVerified: true, telegramVerified: false, save: () => {} }
+
+        const result = await uut.getFreeAccount(userMock)
+        assert.isObject(result)
+        assert.property(result, 'expiredAt')
+      } catch (error) {
+        console.log(error)
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should get free account if telegram is verified but email is not verified', async () => {
+      try {
+        const userMock = { _id: 'userID', emailVerified: false, telegramVerified: true, save: () => {} }
+
+        const result = await uut.getFreeAccount(userMock)
+        assert.isObject(result)
+        assert.property(result, 'expiredAt')
+      } catch (error) {
+        console.log(error)
+        assert.fail('Unexpected code path')
+      }
     })
   })
 })

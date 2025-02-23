@@ -15,24 +15,23 @@ class RouterHanlder {
 
     // Bind function to this class.
     this.start = this.start.bind(this)
-    this.createAccount = this.createAccount.bind(this)
     this.refreshAccount = this.refreshAccount.bind(this)
+    this.getFreeAccount = this.getFreeAccount.bind(this)
   }
 
   async start (app) {
     if (!app) { throw new Error('App is required!') }
 
-    this.router.post('/', this.createAccount)
+    this.router.get('/free', this.getFreeAccount)
     this.router.get('/data/:id', this.refreshAccount)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
   }
 
-  async createAccount (ctx, next) {
-    // TODO : add admin validators.
+  async getFreeAccount (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
-    await this.controller.createAccount(ctx, next)
+    await this.controller.getFreeAccount(ctx, next)
   }
 
   async refreshAccount (ctx, next) {

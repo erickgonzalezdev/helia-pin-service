@@ -7,6 +7,7 @@ export default class AccountUseCases {
     // Bind function to this class.
     this.createAccount = this.createAccount.bind(this)
     this.refreshAccount = this.refreshAccount.bind(this)
+    this.getFreeAccount = this.getFreeAccount.bind(this)
   }
 
   // Create  a user account,
@@ -76,6 +77,32 @@ export default class AccountUseCases {
       return account
     } catch (error) {
       this.wlogger.error(`Error in use-cases/refreshAccount() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getFreeAccount (user = {}) {
+    try {
+      if (!user.emailVerified && !user.telegramVerified) throw new Error('Account Verification is required!.')
+
+      if (user.account) throw new Error('User already have an account')
+
+      const accData = await this.accountLib.getTypeData(1)
+      accData.expiredAt = await this.accountLib.calculateAccExpiration(accData.expirationData)
+
+      const account = new this.db.Account(accData)
+      account.owner = user._id.toString()
+      account.createdAt = new Date().getTime()
+
+      // Assign new account to user.
+      user.account = account._id.toString()
+      await account.save()
+      await user.save()
+
+      return account
+    } catch (error) {
+      console.log(error)
+      this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
       throw error
     }
   }
