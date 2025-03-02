@@ -17,12 +17,14 @@ export default class TimerController {
     this.unpinFilesPeriod = 60000 * this.config.reviewPinsPeriod * 1.5
     this.handleTargetNodePeriod = 60000 * this.config.reviewNodesPeriod
     this.gcPeriod = 60000 * this.config.gcPeriod
+    this.cleanAccPeriod = 60000 * 2
 
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.handleTargetNode = this.handleTargetNode.bind(this)
     this.startTimers = this.startTimers.bind(this)
     this.unPinFiles = this.unPinFiles.bind(this)
     this.garbageCollection = this.garbageCollection.bind(this)
+    this.cleanExpiredAcc = this.cleanExpiredAcc.bind(this)
     // this.stopTimers = this.stopTimers.bind(this)
   }
 
@@ -41,6 +43,11 @@ export default class TimerController {
 
     this.wlogger.info(`Starting garbageCollection interval  for ${this.gcPeriod / 60000} minutes`)
     this.gcTimer = this.setInterval(this.garbageCollection, this.gcPeriod)
+
+    this.wlogger.info(`Starting cleanExpiredAcc interval  for ${this.cleanAccPeriod / 60000} minutes`)
+    this.accCleanerTimer = this.setInterval(this.cleanExpiredAcc, this.cleanAccPeriod)
+
+    this.cleanExpiredAcc()
     return true
   }
 
@@ -72,6 +79,7 @@ export default class TimerController {
     }
   }
 
+  // Define  remote node to pin file.
   async handleTargetNode () {
     try {
       // Stop interval
@@ -138,6 +146,24 @@ export default class TimerController {
 
       this.wlogger.info(`Starting garbageCollection interval  for ${this.gcPeriod / 60000} minutes`)
       this.gcTimer = this.setInterval(this.garbageCollection, this.gcPeriod)
+      return false
+    }
+  }
+
+  // Interval for review all actives accounts and delete all pins and boxes if the accounts is already expired.
+  async cleanExpiredAcc () {
+    try {
+      // Stop interval
+      this.clearInterval(this.accCleanerTimer)
+
+      await this.useCases.accounts.cleanExpiredAcc()
+
+      this.wlogger.info(`Starting cleanExpiredAcc interval  for ${this.cleanAccPeriod / 60000} minutes`)
+      this.accCleanerTimer = this.setInterval(this.cleanExpiredAcc, this.cleanAccPeriod)
+      return true
+    } catch (error) {
+      this.wlogger.info(`Starting cleanExpiredAcc interval  for ${this.cleanAccPeriod / 60000} minutes`)
+      this.accCleanerTimer = this.setInterval(this.cleanExpiredAcc, this.cleanAccPeriod)
       return false
     }
   }
