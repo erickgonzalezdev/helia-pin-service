@@ -204,4 +204,38 @@ describe('#TimerController', () => {
       }
     })
   })
+
+  describe('#cleanExpiredAcc', () => {
+    it('should handle timer', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+
+        // Stub use case
+        sandbox.stub(uut.useCases.accounts, 'cleanExpiredAcc').resolves(true)
+
+        const result = await uut.cleanExpiredAcc()
+        assert.isTrue(result)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval after success
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should return false on error', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+        // Force an error.
+        sandbox.stub(uut.useCases.accounts, 'cleanExpiredAcc').throws(new Error('test error'))
+
+        const res = await uut.cleanExpiredAcc()
+        assert.isFalse(res)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval on error
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
 })

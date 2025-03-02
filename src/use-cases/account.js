@@ -8,6 +8,7 @@ export default class AccountUseCases {
     this.createAccount = this.createAccount.bind(this)
     this.refreshAccount = this.refreshAccount.bind(this)
     this.getFreeAccount = this.getFreeAccount.bind(this)
+    this.cleanExpiredAcc = this.cleanExpiredAcc.bind(this)
   }
 
   // Create  a user account,
@@ -103,6 +104,35 @@ export default class AccountUseCases {
     } catch (error) {
       console.log(error)
       this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  // Clean all expired accounts
+  // Delete al pins and boxes from an expired account.
+  async cleanExpiredAcc () {
+    try {
+      // Current Timestamp
+      const now = new Date().getTime()
+      // Get all users with current actived account.
+      const users = await this.db.Users.find({ }).populate('account')
+
+      // Map each account
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i]
+        const acc = user.account
+        // Continue if the users does not have an associated account.
+        if (!acc) { continue }
+        // Dele al pins and boxes from expired account.
+        if (now > acc.expiredAt) {
+          await this.db.Pin.deleteMany({ userOwner: acc.owner })
+          await this.db.Box.deleteMany({ owner: acc.owner })
+          await this.refreshAccount({ id: acc._id.toString() })
+        }
+      }
+      return users
+    } catch (error) {
+      console.log(error)
       throw error
     }
   }
