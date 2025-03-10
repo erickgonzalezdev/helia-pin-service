@@ -9,6 +9,7 @@ export default class AccountUseCases {
     this.refreshAccount = this.refreshAccount.bind(this)
     this.getFreeAccount = this.getFreeAccount.bind(this)
     this.cleanExpiredAcc = this.cleanExpiredAcc.bind(this)
+    this.getAccountsData = this.getAccountsData.bind(this)
   }
 
   // Create  a user account,
@@ -132,7 +133,16 @@ export default class AccountUseCases {
       }
       return users
     } catch (error) {
-      console.log(error)
+      this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getAccountsData () {
+    try {
+      return this.accountLib.getAccountsData()
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
       throw error
     }
   }
