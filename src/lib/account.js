@@ -7,7 +7,7 @@ const account1 = {
   maxPins: 20, // Max 20 pins by default
   currentBytes: 0,
   currentPins: 0,
-  priceUSD: 1, // 1$
+  priceUSD: 0, // 1$
   expirationData: { months: 1 }
 }
 
@@ -20,7 +20,7 @@ const account2 = {
   maxPins: 1000, // Max pins
   currentBytes: 0,
   currentPins: 0,
-  priceUSD: 2, // 2$
+  priceUSD: 2.49, // 2$
   expirationData: { months: 1 }
 }
 
@@ -33,7 +33,7 @@ const account3 = {
   maxPins: 1000, // Max pins
   currentBytes: 0,
   currentPins: 0,
-  priceUSD: 3, // 3$
+  priceUSD: 9.99, // 3$
   expirationData: { months: 1 }
 }
 
@@ -46,9 +46,11 @@ class AccountLib {
     this.config = config
     this.dbModels = this.config.dbModels
     this.wlogger = this.config.wlogger
+    this.pricings = accounts
 
     this.getTypeData = this.getTypeData.bind(this)
     this.calculateAccExpiration = this.calculateAccExpiration.bind(this)
+    this.getAccountsData = this.getAccountsData.bind(this)
   }
 
   async getTypeData (accType) {
@@ -95,6 +97,10 @@ class AccountLib {
       this.wlogger.error(`Error in account/getTypeData() $ ${error.message}`)
       throw error
     }
+  }
+
+  async getAccountsData () {
+    return this.pricings
   }
 }
 

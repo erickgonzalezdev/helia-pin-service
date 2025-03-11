@@ -136,6 +136,47 @@ describe('e2e-account', () => {
     })
   })
 
+  describe('Get /account/pricing', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.accounts.accountLib, 'getAccountsData').throws(new Error('test error'))
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/pricing`,
+          headers: {
+            Accept: 'application/json'
+          }
+
+        }
+        await axios(options)
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert(error.response.status === 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should get account data', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/account/pricing`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        const result = await axios(options)
+
+        const data = result.data
+
+        assert(result.status === 200)
+        assert.isArray(data)
+      } catch (error) {
+        console.log('error', error)
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
   describe('Get /account/data/:id', () => {
     it('should reject if the authorization header is missing', async () => {
       try {

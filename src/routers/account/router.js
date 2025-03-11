@@ -24,6 +24,7 @@ class RouterHanlder {
 
     this.router.get('/free', this.getFreeAccount)
     this.router.get('/data/:id', this.refreshAccount)
+    this.router.get('/pricing', this.controller.getAccountsData)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())

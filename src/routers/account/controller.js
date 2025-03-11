@@ -9,6 +9,7 @@ export default class AccountController {
     // Bind function to this class.
     this.refreshAccount = this.refreshAccount.bind(this)
     this.getFreeAccount = this.getFreeAccount.bind(this)
+    this.getAccountsData = this.getAccountsData.bind(this)
   }
 
   /**
@@ -52,6 +53,27 @@ export default class AccountController {
       ctx.body = {
         account
       }
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+* @api {post} /accounts/pricing Get Accounts pricing data.
+* @apiPermission user
+* @apiName GetAccountsData
+* @apiGroup Accounts
+* @apiVersion 1.0.0
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json"  -X GET  localhost:5001/account/pricing
+*
+*
+*/
+  async getAccountsData (ctx) {
+    try {
+      const data = await this.useCases.accounts.getAccountsData()
+      ctx.body = data
     } catch (error) {
       this.handleError(ctx, error)
     }
