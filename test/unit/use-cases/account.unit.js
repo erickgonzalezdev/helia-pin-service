@@ -116,9 +116,15 @@ describe('#account-use-case', () => {
       const input = {
         id: testData.account._id.toString()
       }
+      sandbox.stub(uut.db.Pin, 'find').returns({ populate: () => { return [{ file: { size: 1000 } }, { file: null }] } })
+      sandbox.stub(uut.db.Box, 'find').resolves([{}])
+
       const result = await uut.refreshAccount(input)
       assert.isObject(result)
       assert.isFalse(result.expired)
+      assert.equal(result.currentBytes, 1000)
+      assert.equal(result.currentBox, 1)
+      assert.equal(result.currentPins, 2)
     })
 
     it('should detect expired account', async () => {

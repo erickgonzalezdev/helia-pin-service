@@ -61,11 +61,18 @@ export default class AccountUseCases {
       }
       const account = await this.db.Account.findById(id)
 
-      const pins = await this.db.Pin.find({ userOwner: account.owner })
+      const pins = await this.db.Pin.find({ userOwner: account.owner }).populate('file', ['-host'])
       const box = await this.db.Box.find({ owner: account.owner })
+
+      // Get total bytes from pins
+      const cBytes = pins.reduce((acc, val) => {
+        if (!val.file) return acc + 0
+        return acc + val.file.size
+      }, 0)
 
       account.currentPins = pins.length
       account.currentBox = box.length
+      account.currentBytes = cBytes
 
       const now = new Date().getTime()
       const expiredAt = new Date(account.expiredAt).getTime()
