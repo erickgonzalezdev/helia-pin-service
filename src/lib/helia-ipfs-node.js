@@ -1,4 +1,4 @@
-import { HeliaNode as Node, Server, PinRPC } from 'helia-ipfs-node/src/lib.js'
+import { HeliaNode as Node, Server, PinRPC, GB } from 'helia-ipfs-node/src/lib.js'
 import { CID } from 'multiformats/cid'
 
 class HeliaNode {
@@ -11,9 +11,11 @@ class HeliaNode {
     this.HeliaNode = Node
     this.HeliaServer = Server
     this.PinRPC = PinRPC
+    this.GB = GB
     this.node = null
     this.gateway = null
     this.rpc = null
+    this.gb = null
     this.wlogger = this.config.wlogger
     this.targetNode = null
     this.CID = CID
@@ -46,6 +48,9 @@ class HeliaNode {
         onSuccessRemoteUnpin: this.onSuccessRemoteUnpin
       })
       await this.rpc.start()
+
+      this.gb = new this.GB({ node: this.node, period: this.config.gcPeriod })
+      await this.gb.start()
     } catch (error) {
       this.wlogger.error(`Error in helia-node-ipfs/start() $ ${error.message}`)
       throw error
