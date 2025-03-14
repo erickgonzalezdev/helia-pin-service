@@ -23,6 +23,9 @@ class RouterHanlder {
     this.createSignature = this.createSignature.bind(this)
     this.getBoxSignatures = this.getBoxSignatures.bind(this)
     this.getBoxesByUser = this.getBoxesByUser.bind(this)
+    this.deleteSignature = this.deleteSignature.bind(this)
+    this.importSignature = this.importSignature.bind(this)
+    this.getImportedBoxByUser = this.getImportedBoxByUser.bind(this)
   }
 
   async start (app) {
@@ -30,12 +33,15 @@ class RouterHanlder {
 
     this.router.post('/', this.createBox)
     this.router.get('/', this.getBoxes)
+    this.router.post('/import', this.importSignature)
+    this.router.get('/import', this.getImportedBoxByUser)
     this.router.get('/user', this.getBoxesByUser)
     this.router.get('/:id', this.getBox)
     this.router.put('/:id', this.updateBox)
     this.router.delete('/:id', this.deleteBox)
     this.router.post('/sign', this.createSignature)
     this.router.get('/sign/:id', this.getBoxSignatures)
+    this.router.delete('/sign/:id', this.deleteSignature)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -84,6 +90,21 @@ class RouterHanlder {
   async getBoxesByUser (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getBoxesByUser(ctx, next)
+  }
+
+  async deleteSignature (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.deleteSignature(ctx, next)
+  }
+
+  async importSignature (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.importSignature(ctx, next)
+  }
+
+  async getImportedBoxByUser (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.getImportedBoxByUser(ctx, next)
   }
 }
 

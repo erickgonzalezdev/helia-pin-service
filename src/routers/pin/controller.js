@@ -57,8 +57,8 @@ export default class PinController {
   async getPinsByBox (ctx) {
     try {
       const boxId = ctx.request.params.id
-
-      const result = await this.useCases.pin.getPinsByBox({ boxId })
+      const user = ctx.state.user
+      const result = await this.useCases.pin.getPinsByBox({ boxId, user })
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

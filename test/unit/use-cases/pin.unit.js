@@ -322,6 +322,18 @@ describe('#pin-use-case', () => {
         assert.include(error.message, 'Box not found!')
       }
     })
+    it('should handle Unauthorized', async () => {
+      try {
+        // Force an error.
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'unauthorized acc' })
+
+        await uut.getPinsByBox({ boxId: 'id', user: { _id: 'myacc' } })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Unauthorized')
+      }
+    })
     it('should get all pins by box', async () => {
       sandbox.stub(uut.db.Box, 'findById').resolves({ _id: '66bef59cc9a225f81e1bedac' })
 

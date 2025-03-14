@@ -395,4 +395,121 @@ describe('#box-use-case', () => {
       assert.property(firstSign, '_id')
     })
   })
+  describe('#deleteSignature', () => {
+    it('should throw error if no signatureId provided', async () => {
+      try {
+        await uut.deleteSignature()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'signatureId is required')
+      }
+    })
+    it('should handle unauthorized', async () => {
+      try {
+        sandbox.stub(uut.db.BoxSignature, 'findById').returns({ populate: () => { return { signatureOwner: {} } } })
+        sandbox.stub(uut.db.Users, 'findById').resolves({ _id: 'userOwner' })
+
+        await uut.deleteSignature({ signatureId: 'id', user: { _id: 'unauthorized user' } })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Unauthorized')
+      }
+    })
+
+    it('should delete the signature from the database', async () => {
+      sandbox.stub(uut.db.BoxSignature, 'findById').returns({ populate: () => { return { signatureOwner: {}, deleteOne: () => {} } } })
+      sandbox.stub(uut.db.Users, 'findById').resolves({ _id: 'userOwner' })
+
+      await uut.deleteSignature({ signatureId: 'id', user: { _id: 'userOwner' } })
+    })
+  })
+  describe('#importSignature', () => {
+    it('should throw error if no signature provided', async () => {
+      try {
+        await uut.importSignature()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'signature is required')
+      }
+    })
+    it('should throw error if provided signature is not found!', async () => {
+      try {
+        sandbox.stub(uut.db.BoxSignature, 'findOne').resolves(null)
+        sandbox.stub(uut.db.ImportedSignature, 'findOne').resolves({ _id: 'existing key' })
+
+        await uut.importSignature({ signature: { _id: 'mySign' }, user: { _id: 'myacc' } })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Signature not found!')
+      }
+    })
+    it('should throw error if key already exist on user data', async () => {
+      try {
+        sandbox.stub(uut.db.BoxSignature, 'findOne').resolves({ _id: 'signature to add' })
+        sandbox.stub(uut.db.ImportedSignature, 'findOne').resolves({ _id: 'existing key' })
+
+        await uut.importSignature({ signature: { _id: 'mySign' }, user: { _id: 'myacc' } })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'This key has already been imported.')
+      }
+    })
+    it('should throw error if import own signature', async () => {
+      try {
+        sandbox.stub(uut.db.BoxSignature, 'findOne').resolves({ _id: 'signature to add' })
+        sandbox.stub(uut.db.ImportedSignature, 'findOne').resolves(null)
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'myacc' })
+
+        await uut.importSignature({ signature: { _id: 'mySign' }, user: { _id: 'myacc' } })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'Own signatures cannot be imported')
+      }
+    })
+    it('should import signature', async () => {
+      try {
+        sandbox.stub(uut.db.BoxSignature, 'findOne').resolves({ _id: 'signature to add' })
+        sandbox.stub(uut.db.ImportedSignature, 'findOne').resolves(null)
+        sandbox.stub(uut.db.Box, 'findById').resolves({ owner: 'acc2' })
+
+        const res = await uut.importSignature({ signature: { _id: 'mySign' }, user: { _id: 'myacc' } })
+
+        assert.isObject(res)
+      } catch (err) {
+        assert.fail('Unexpected code path.', err.message)
+      }
+    })
+  })
+  describe('#getImportedBoxByUser', () => {
+    it('should catch and throw an error', async () => {
+      try {
+        // Force an error.
+        sandbox.stub(uut.db.ImportedSignature, 'find').throws(new Error('test error'))
+
+        await uut.getImportedBoxByUser({ user: { _id: 'myacc' } })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should get all boxes', async () => {
+      sandbox.stub(uut.db.ImportedSignature, 'find').returns({ populate: () => { return [] } })
+
+      const res = await uut.getImportedBoxByUser({ user: { _id: 'myacc' } })
+      assert.isArray(res)
+    })
+  })
 })
