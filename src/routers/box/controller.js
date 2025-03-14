@@ -14,6 +14,9 @@ export default class PinBoxController {
     this.deleteBox = this.deleteBox.bind(this)
     this.createSignature = this.createSignature.bind(this)
     this.getBoxSignatures = this.getBoxSignatures.bind(this)
+    this.deleteSignature = this.deleteSignature.bind(this)
+    this.importSignature = this.importSignature.bind(this)
+    this.getImportedBoxByUser = this.getImportedBoxByUser.bind(this)
   }
 
   /**
@@ -138,7 +141,7 @@ export default class PinBoxController {
    * @apiGroup Box
    *
    * @apiExample Example usage:
-   * curl -H "Content-Type: application/json" -X DELETE localhost:5001/box/<id>
+   * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/box/<id>
    *
    */
 
@@ -192,6 +195,69 @@ export default class PinBoxController {
       input.boxId = ctx.params.id
       const result = await this.useCases.box.getBoxSignatures(input)
       ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+   * @api {delete} /box/sign/:id Delete a signature
+   * @apiPermission user
+   * @apiName DeleteSignature
+   * @apiGroup Box
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/box/sign/<id>
+   *
+   */
+
+  async deleteSignature (ctx) {
+    try {
+      const signatureId = ctx.params.id
+      const input = { user: ctx.state.user, signatureId }
+      const result = await this.useCases.box.deleteSignature(input)
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+  /**
+ * @api {post} /box/import Import a Box
+ * @apiPermission user
+ * @apiName ImportSignature
+ * @apiGroup Box
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "signature": "box signature" }'localhost:5001/box/import
+ *
+ */
+
+  async importSignature (ctx) {
+    try {
+      const { signature } = ctx.request.body
+      const input = { user: ctx.state.user, signature }
+      const result = await this.useCases.box.importSignature(input)
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+* @api {get}  /box/import Get Imported Boxes.
+* @apiPermission user
+* @apiName getImportedBoxByUser
+* @apiGroup Box
+* @apiVersion 1.0.0
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/import
+*
+*/
+  async getImportedBoxByUser (ctx) {
+    try {
+      const importedBox = await this.useCases.box.getImportedBoxByUser(ctx.state)
+      ctx.body = importedBox
     } catch (error) {
       this.handleError(ctx, error)
     }

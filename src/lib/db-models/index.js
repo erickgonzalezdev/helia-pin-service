@@ -10,6 +10,7 @@ class DbModels {
     this.BoxSignature = BoxSchemas.BoxSignature
     this.Pin = Pin
     this.Account = Users.AccountData
+    this.ImportedSignature = BoxSchemas.ImportedBoxSignature
   }
 }
 

@@ -24,4 +24,12 @@ const BoxSignatureScheme = new mongoose.Schema({
 
 const BoxSignature = mongoose.model('boxSignature', BoxSignatureScheme)
 
-export default { Box, BoxSignature }
+const importedBoxSignatureScheme = new mongoose.Schema({
+  createdAt: { type: Number, required: true },
+  signatureId: { type: String, ref: 'boxSignature', required: true },
+  owner: { type: String, required: true, ref: 'user' }
+})
+
+const ImportedBoxSignature = mongoose.model('importedSignature', importedBoxSignatureScheme)
+
+export default { Box, BoxSignature, ImportedBoxSignature }

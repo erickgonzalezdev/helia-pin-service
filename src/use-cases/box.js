@@ -16,6 +16,9 @@ export default class BoxUseCases {
     this.createSignature = this.createSignature.bind(this)
     this.getBoxSignatures = this.getBoxSignatures.bind(this)
     this.getBoxesByUser = this.getBoxesByUser.bind(this)
+    this.deleteSignature = this.deleteSignature.bind(this)
+    this.importSignature = this.importSignature.bind(this)
+    this.getImportedBoxByUser = this.getImportedBoxByUser.bind(this)
   }
 
   async createBox (inObj = {}) {
@@ -163,6 +166,83 @@ export default class BoxUseCases {
       return signatures
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getBoxSignatures() ${error.message}`)
+      throw error
+    }
+  }
+
+  async deleteSignature (inObj = {}) {
+    try {
+      // user that made the request and signature id to delete
+      const { user, signatureId } = inObj
+      if (!signatureId) throw new Error('signatureId is required!')
+      // Get signature data
+      const signature = await this.db.BoxSignature.findById(signatureId).populate('signatureOwner')
+
+      // Get associated box to the signature
+      const box = signature.signatureOwner
+      // Get Box owner
+      const userOwner = await this.db.Users.findById(box.owner)
+      // Only can be deleted by the owner
+      if (userOwner._id.toString() !== user._id.toString()) {
+        throw new Error('Unauthorized!')
+      }
+      // Delete Signature
+      await signature.deleteOne()
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/deleteSignature() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async importSignature (inObj = {}) {
+    try {
+      // user that made the request and signature to import
+      const { user, signature } = inObj
+      if (!signature) throw new Error('signature is required!')
+
+      // Get signature data
+      const sign = await this.db.BoxSignature.findOne({ signature })
+      if (!sign) throw new Error('Signature not found!')
+
+      const existing = await this.db.ImportedSignature.findOne({ signatureId: sign._id.toString(), owner: user._id.toString() })
+      if (existing) {
+        throw new Error('This key has already been imported.')
+      }
+
+      // Get associated Box
+      const box = await this.db.Box.findById(sign.signatureOwner)
+
+      // Only can be import by external users
+      if (box.owner === user._id.toString()) {
+        throw new Error('Own signatures cannot be imported')
+      }
+
+      const importedSignature = new this.db.ImportedSignature({
+        createdAt: new Date().getTime(),
+        owner: user._id.toString(),
+        signatureId: sign._id.toString()
+      })
+      await importedSignature.save()
+      return importedSignature
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/importSignature() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getImportedBoxByUser (inObj = {}) {
+    try {
+      const { user } = inObj
+      const importedBox = await this.db.ImportedSignature.find({ owner: user._id }).populate({
+        path: 'signatureId',
+        populate: {
+          path: 'signatureOwner'
+        }
+      })
+      return importedBox
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/getImportedBoxByUser() $ ${error.message}`)
       throw error
     }
   }

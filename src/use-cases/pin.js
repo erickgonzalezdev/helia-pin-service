@@ -82,7 +82,7 @@ export default class PinUseCases {
       }
 
       // Ensure that the signature belongs to the provided boxid
-      if (boxId && boxId !== box._id) {
+      if (boxId && boxId !== box._id.toString()) {
         throw new Error('The signature does not belong to provided box.')
       }
 
@@ -120,19 +120,17 @@ export default class PinUseCases {
 
   async getPinsByBox (inObj = {}) {
     try {
-      const { boxId } = inObj
+      const { boxId, user } = inObj
 
       const box = await this.db.Box.findById(boxId)
       if (!box) {
         throw new Error('Box not found!')
       }
 
-      /*
-
-        TODO:  validate box reader-permissions.
-         if(box.owner !== user._id.toString()){
-         throw new Error('Unauthorized')
-        } */
+      // TODO:  validate box reader-permissions.
+      if (user && box.owner !== user._id.toString()) {
+        throw new Error('Unauthorized')
+      }
 
       const pins = await this.db.Pin.find({ boxOwner: boxId }).populate('file', ['-host'])
 

@@ -59,7 +59,6 @@ export default class UsersUseCases {
 
       return userData
     } catch (error) {
-      console.log(error)
       this.wlogger.error(`Error in use-cases/createUser() $ ${error.message}`)
       throw error
     }
@@ -173,9 +172,9 @@ export default class UsersUseCases {
              <div style="width:500px ; padding: 1em ; border-radius: 10px; border: 2px solid #6C6D6F ; background : #A35EE2 ; color:white ; text-align: center; margin: 0 auto"><p style="margin-bottom:2em; font-size : 15px">Code Verification</p><h3 style="font-size: 25px"><strong>${code}</strong><h3></div>
              `
       }
-      await this.libraries.emailService.sendEmail(emailObj)
-
       await user.save()
+
+      await this.libraries.emailService.sendEmail(emailObj)
 
       return {
         result: true,

@@ -16,6 +16,7 @@ describe('e2e-box', () => {
     await cleanDb()
     await cleanNode()
     testData.user = await createTestUser()
+    testData.user2 = await createTestUser()
   })
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -700,8 +701,6 @@ describe('e2e-box', () => {
     })
     it('should generate box signature', async () => {
       try {
-        sandbox.stub(app.controller.useCases.box.db.Files, 'findById').resolves({ _id: 'smoke pin' })
-
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/box/sign`,
@@ -830,6 +829,332 @@ describe('e2e-box', () => {
     })
   })
 
+  describe('GET /box/import', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.box, 'getImportedBoxByUser').throws(new Error('test error'))
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+
+    it('should get imported signatures', async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+        const result = await axios(options)
+        assert(result.status === 200)
+        assert.isArray(result.data)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('POST /box/import', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+
+    it('should handle request error', async () => {
+      try {
+        const options = {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          },
+          url: `${LOCALHOST}/box/import`
+
+        }
+        await axios(options)
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert(error.response.status === 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should import box', async () => {
+      try {
+        const options = {
+          method: 'post',
+          url: `${LOCALHOST}/box/import`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user2.token}`
+          },
+          data: {
+            signature: testData.signature.signature
+          }
+        }
+        const result = await axios(options)
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('DELETE /box/sign/:id', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.box, 'deleteSignature').throws(new Error('test error'))
+
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should delete signature', async () => {
+      try {
+        const options = {
+          method: 'DELETE',
+          url: `${LOCALHOST}/box/sign/${testData.signature._id}`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.user.token}`
+          }
+        }
+        const result = await axios(options)
+
+        assert(result.status === 200)
+        assert.isTrue(result.data)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
   describe('DELETE /box/:id', () => {
     it('should reject if the authorization header is missing', async () => {
       try {
