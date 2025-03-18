@@ -17,9 +17,11 @@ export default class TimerController {
     this.unpinFilesPeriod = 60000 * this.config.reviewPinsPeriod * 1.5
     this.handleTargetNodePeriod = 60000 * this.config.reviewNodesPeriod
     this.cleanAccPeriod = 60000 * 2
+    this.handleUnprovidedPeriod = 30000 //* this.config.reviewPinsPeriod
 
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.handleTargetNode = this.handleTargetNode.bind(this)
+    this.handleUnprovidedFiles = this.handleUnprovidedFiles.bind(this)
     this.startTimers = this.startTimers.bind(this)
     this.unPinFiles = this.unPinFiles.bind(this)
     this.cleanExpiredAcc = this.cleanExpiredAcc.bind(this)
@@ -32,6 +34,9 @@ export default class TimerController {
 
     this.wlogger.info(`Starting handleUnpinedFiles interval of ${this.handleUnpinedPeriod / 60000} minutes`)
     this.handleUnpinedTimer = this.setInterval(this.handleUnpinedFiles, this.handleUnpinedPeriod)
+
+    this.wlogger.info(`Starting handleUnprovidedFiles interval of ${this.handleUnprovidedPeriod / 60000} minutes`)
+    this.handleUnprovidedTimer = this.setInterval(this.handleUnprovidedFiles, this.handleUnprovidedPeriod)
 
     this.wlogger.info(`Starting handleTargetNode interval of ${this.handleTargetNodePeriod / 60000} minutes`)
     this.handleTargetNodeTimer = this.setInterval(this.handleTargetNode, this.handleTargetNodePeriod)
@@ -70,6 +75,30 @@ export default class TimerController {
       // On error re-start the interval
       this.wlogger.info(`Starting handleUnpinedFiles interval after error for ${this.handleUnpinedPeriod / 60000} minutes`, error.message)
       this.handleUnpinedTimer = this.setInterval(this.handleUnpinedFiles, this.handleUnpinedPeriod)
+      return false
+    }
+  }
+
+  // Review al unpinned files , and re attemp pin it
+  async handleUnprovidedFiles () {
+    try {
+      // Stop interval
+      this.clearInterval(this.handleUnprovidedTimer)
+
+      this.wlogger.info('Stopped handleUnprovidedFiles interval , waiting for handler to be done!.')
+
+      await this.useCases.files.handleUnprovidedFiles()
+
+      // After finish process re-start the interval
+      this.wlogger.info(`Starting handleUnprovidedFiles interval  for ${this.handleUnprovidedPeriod / 60000} minutes`)
+      this.handleUnprovidedTimer = this.setInterval(this.handleUnprovidedFiles, this.handleUnprovidedPeriod)
+
+      return true
+    } catch (error) {
+      console.log(error)
+      // On error re-start the interval
+      this.wlogger.info(`Starting handleUnprovidedFiles interval after error for ${this.handleUnprovidedPeriod / 60000} minutes`, error.message)
+      this.handleUnprovidedTimer = this.setInterval(this.handleUnprovidedFiles, this.handleUnprovidedPeriod)
       return false
     }
   }

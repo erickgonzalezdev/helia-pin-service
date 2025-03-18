@@ -95,7 +95,42 @@ describe('#helia-ipfs-node.js', () => {
       assert.isFalse(result)
     })
   })
+  describe('#onSuccessRemoteProvide', () => {
+    it('should update file model', async () => {
+      const inObj = {
+        cid: testData.file.cid,
+        host: 'peerId'
+      }
 
+      const result = await uut.onSuccessRemoteProvide(inObj)
+      assert.equal(result._id.toString(), testData.file._id.toString())
+      assert.isTrue(result.provided)
+      assert.isNumber(result.providedAt)
+    })
+
+    it('should return false on error', async () => {
+      const inObj = {
+        cid: 'unknow cid',
+        host: 'peerId'
+      }
+      const result = await uut.onSuccessRemoteProvide(inObj)
+      assert.isFalse(result)
+    })
+    it('should return false if cid is not provided', async () => {
+      const inObj = {
+        host: 'peerId'
+      }
+      const result = await uut.onSuccessRemoteProvide(inObj)
+      assert.isFalse(result)
+    })
+    it('should return false if host is not provided', async () => {
+      const inObj = {
+        cid: 'unknow cid'
+      }
+      const result = await uut.onSuccessRemoteProvide(inObj)
+      assert.isFalse(result)
+    })
+  })
   describe('#onSuccessRemoteUnpin', () => {
     it('should update file model', async () => {
       const inObj = {

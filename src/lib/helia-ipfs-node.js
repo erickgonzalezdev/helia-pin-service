@@ -29,6 +29,8 @@ class HeliaNode {
     this.setTargetNode = this.setTargetNode.bind(this)
     this.tryLocallyPin = this.tryLocallyPin.bind(this)
     this.tryLocallyUnpin = this.tryLocallyUnpin.bind(this)
+    this.remoteProvide = this.remoteProvide.bind(this)
+    this.onSuccessRemoteProvide = this.onSuccessRemoteProvide.bind(this)
   }
 
   async start () {
@@ -45,7 +47,8 @@ class HeliaNode {
         node: this.node,
         topic: this.config.rpcTopic,
         onSuccessRemotePin: this.onSuccessRemotePin,
-        onSuccessRemoteUnpin: this.onSuccessRemoteUnpin
+        onSuccessRemoteUnpin: this.onSuccessRemoteUnpin,
+        onSuccessRemoteProvide: this.onSuccessRemoteProvide
       })
       await this.rpc.start()
 
@@ -60,6 +63,7 @@ class HeliaNode {
   async onSuccessRemotePin (data = {}) {
     try {
       const { cid, host } = data
+      console.log('host', host)
       if (!cid || typeof cid !== 'string') throw new Error('cid must be a string!')
       if (!host || typeof host !== 'string') throw new Error('host must be a string!')
 
@@ -79,6 +83,30 @@ class HeliaNode {
       return file
     } catch (error) {
       this.wlogger.error('Error on onSuccessRemotePin() ', error)
+      // skip error
+      return false
+    }
+  }
+
+  async onSuccessRemoteProvide (data = {}) {
+    try {
+      const { cid, host } = data
+      if (!cid || typeof cid !== 'string') throw new Error('cid must be a string!')
+      if (!host || typeof host !== 'string') throw new Error('host must be a string!')
+
+      this.wlogger.info('success remote provide ', data)
+
+      const file = await this.dbModels.Files.findOne({ cid })
+      if (!file) throw new Error('file not found!')
+
+      file.provided = true
+      file.providedAt = new Date().getTime()
+      await file.save()
+
+      this.wlogger.info(`${cid} file updated after provide.!`)
+      return file
+    } catch (error) {
+      this.wlogger.error('Error on onSuccessRemoteProvide() ', error)
       // skip error
       return false
     }
@@ -144,6 +172,25 @@ class HeliaNode {
     }
   }
 
+  // pin file remotely
+  remoteProvide (cid, target) {
+    try {
+      if (!cid) throw new Error('cid must be a string!')
+      if (!target) throw new Error('target must be a string!')
+      const rpcObj = {
+        toPeerId: target,
+        fromPeerId: this.node.peerId.toString(),
+        cid
+      }
+
+      this.rpc.requestRemoteProvide(rpcObj)
+      return rpcObj
+    } catch (error) {
+      this.wlogger.error('Error on remoteProvide() ', error.message)
+      return false
+    }
+  }
+
   // Pin strategy , looking for low space usage in a node  and select as node pin target.
   setTargetNode () {
     try {
@@ -176,7 +223,7 @@ class HeliaNode {
 
   async tryLocallyUnpin (cid) {
     try {
-      await this.node.unPinCid(this.CID.parse(cid))
+      await this.node.unPinCid(cid)
 
       return true
     } catch (error) {
@@ -187,7 +234,7 @@ class HeliaNode {
 
   async tryLocallyPin (cid) {
     try {
-      await this.node.pinCid(this.CID.parse(cid))
+      await this.node.pinCid(cid)
 
       return true
     } catch (error) {

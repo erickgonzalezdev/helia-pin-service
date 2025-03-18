@@ -206,4 +206,34 @@ describe('#TimerController', () => {
       }
     })
   })
+  describe('#handleUnprovidedFiles', () => {
+    it('should handle timer', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+
+        const result = await uut.handleUnprovidedFiles()
+        assert.isTrue(result)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval after success
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should return false on error', async () => {
+      try {
+        const clearISpy = sandbox.stub(uut, 'clearInterval').resolves(true)
+        const setISpy = sandbox.stub(uut, 'setInterval').resolves(true)
+        // Force an error.
+        sandbox.stub(uut.useCases.files, 'handleUnprovidedFiles').throws(new Error('test error'))
+
+        const res = await uut.handleUnprovidedFiles()
+        assert.isFalse(res)
+        assert.isTrue(clearISpy.calledOnce) // should stop interval on start func
+        assert.isTrue(setISpy.calledOnce) // should start interval on error
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
 })
