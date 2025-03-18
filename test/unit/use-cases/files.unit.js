@@ -228,4 +228,39 @@ describe('#file-use-case', () => {
       assert.isTrue(spy.calledOnce)
     })
   })
+
+  describe('#handleUnprovidedFiles', () => {
+    it('should send provide request for unprovided files ', async () => {
+      sandbox.stub(uut.db.Files, 'find').resolves([
+        { cid: 'cid', pinned: true, _id: 'file id', save: () => {} },
+        { cid: 'cid', pinned: true, _id: 'file id', targetNode: 'some node id', save: () => {} }
+      ])
+
+      const res = await uut.handleUnprovidedFiles()
+      assert.isTrue(res)
+    })
+
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
+        await uut.handleUnprovidedFiles()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should skip if file does not have associated target node', async () => {
+      sandbox.stub(uut.db.Files, 'find').resolves([
+        { cid: 'cid', pinned: true, _id: 'file id', targetNode: '', save: () => {} },
+        { cid: 'cid2', pinned: true, _id: 'file id2', targetNode: 'nodeid', save: () => {} }
+      ])
+
+      const spy = sandbox.stub(uut.heliaNode, 'remoteProvide').resolves(true)
+      const res = await uut.handleUnprovidedFiles()
+      assert.isTrue(res)
+      // assert.isTrue(spy.notCalled)
+      assert.isTrue(spy.calledOnce)
+    })
+  })
 })

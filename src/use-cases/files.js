@@ -13,7 +13,7 @@ export default class FileUseCases {
     this.getFile = this.getFile.bind(this)
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.unPinFiles = this.unPinFiles.bind(this)
-    this.sleep = this.sleep.bind(this)
+    this.handleUnprovidedFiles = this.handleUnprovidedFiles.bind(this)
   }
 
   async uploadFile (inObj = {}) {
@@ -51,6 +51,9 @@ export default class FileUseCases {
         await fileObj.save()
       }
       // Unarchive file if exits and its currently archived
+      /**
+       * UnArchived files can be added to the pin strategy.
+       */
       fileObj.archived = false
       fileObj.archivedDate = null
 
@@ -100,6 +103,7 @@ export default class FileUseCases {
           // unpin file from local node
           await this.heliaNode.tryLocallyUnpin(fileObj.cid)
           this.wlogger.info('pinned locally!')
+          // Archive this file to prevent to get try to pin again
           fileObj.archived = true
           fileObj.archivedDate = new Date().getTime()
 
@@ -117,6 +121,30 @@ export default class FileUseCases {
       return true
     } catch (error) {
       this.wlogger.error(`Error in use-cases/handleUnpinedFiles() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async handleUnprovidedFiles () {
+    try {
+      const unprovidedFiles = await this.db.Files.find({ pinned: true, provided: false, archived: false })
+      this.wlogger.info(`UnProvided files : ${unprovidedFiles.length}`)
+
+      for (let i = 0; i < unprovidedFiles.length; i++) {
+        const fileObj = unprovidedFiles[i]
+
+        this.wlogger.info('handling unprovided cid ', fileObj.cid)
+        const nodeToSendRequest = fileObj.targetNode
+        if (!nodeToSendRequest) {
+          this.wlogger.info(`Host not found to provide request for  cid : ${fileObj.cid} . Skipping`)
+          continue
+        }
+        this.heliaNode.remoteProvide(fileObj.cid, nodeToSendRequest)
+        // await this.sleep(this.handleUnpinedDelay)
+      }
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/handleUnprovidedFiles() $ ${error.message}`)
       throw error
     }
   }

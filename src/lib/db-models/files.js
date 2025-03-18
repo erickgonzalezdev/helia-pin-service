@@ -12,7 +12,9 @@ const Files = new mongoose.Schema({
   pinCount: { type: Number, default: 0 }, // pin quantity
   pinnedAt: { type: Number }, // pin date
   archived: { type: Boolean, default: false },
-  archivedDate: { type: Number }
+  archivedDate: { type: Number },
+  provided: { type: Boolean, default: false },
+  providedAt: { type: Number } // provide date
 
   // expiredAt: { type: String, required: true }
 })
