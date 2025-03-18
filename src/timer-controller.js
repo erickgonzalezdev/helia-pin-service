@@ -17,7 +17,7 @@ export default class TimerController {
     this.unpinFilesPeriod = 60000 * this.config.reviewPinsPeriod * 1.5
     this.handleTargetNodePeriod = 60000 * this.config.reviewNodesPeriod
     this.cleanAccPeriod = 60000 * 2
-    this.handleUnprovidedPeriod = 30000 //* this.config.reviewPinsPeriod
+    this.handleUnprovidedPeriod = 60000 * 2 //* this.config.reviewPinsPeriod
 
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.handleTargetNode = this.handleTargetNode.bind(this)
