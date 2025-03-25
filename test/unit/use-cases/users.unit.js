@@ -300,4 +300,87 @@ describe('#users-use-case', () => {
       }
     })
   })
+  describe('#verifyTelegram', () => {
+    it('should throw error if  user property if not provided', async () => {
+      try {
+        await uut.verifyTelegram()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'user is required')
+      }
+    })
+    it('should throw error if chatId property if not provided', async () => {
+      try {
+        const userMock = { save: () => { }, telegramVerified: false }
+
+        await uut.verifyTelegram({ user : userMock })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        // console.log(err)
+        assert.include(err.message, 'chatId is required')
+      }
+    })
+    it('should not update telegramVerified property on undefined code ', async () => {
+      try {
+        const userMock = { save: () => { }, telegramVerified: false }
+        await uut.verifyTelegram({ user: userMock  , chatId: 1234})
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Invalid Code')
+      }
+    })
+    it('should not update telegramVerified property on invalid code', async () => {
+      try {
+        uut.config.telegramVerificationCode = 12345678
+        const userMock = { save: () => { }, telegramVerified: false }
+        const code = 1235
+        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Invalid Code')
+      }
+    })
+    it('should handle already verified', async () => {
+      try {
+        uut.config.telegramVerificationCode = 12345
+        const userMock = { save: () => { }, telegramVerified: true , telegramChatId : 1234 }
+        const code = 12345
+        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'User already associated with this telegram id')
+      }
+    })
+    it('should handle existing code', async () => {
+      try {
+        sandbox.stub(uut.db.Users ,'findOne').resolves({ _id : 'already user with the provided code'})
+        uut.config.telegramVerificationCode = 12345
+        const userMock = { save: () => { } }
+        const code = 12345
+        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Telegram id is currently associated with another user')
+      }
+    })
+    it('should update telegramVerified property on valid code', async () => {
+      try {
+        uut.config.telegramVerificationCode = 12345678
+        const userMock = { save: () => { }, telegramVerified: false }
+        const code = 12345678
+        const result = await uut.verifyTelegram({ user: userMock, code , chatId: 1234})
+
+        assert.isTrue(result.telegramVerified)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
 })

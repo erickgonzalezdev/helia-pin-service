@@ -22,6 +22,7 @@ const config = {
   // Email service data
   emailServer: process.env.EMAIL_SERVER || 'server',
   emailUser: process.env.EMAIL_USER || '',
-  emailPassword: process.env.EMAIL_PASSWORD || ''
+  emailPassword: process.env.EMAIL_PASSWORD || '',
+  telegramVerificationCode :  process.env.TELEGRAM_VERIFICATION_CODE || '12345678'
 }
 export default config

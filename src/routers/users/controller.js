@@ -14,6 +14,8 @@ export default class UsersController {
     this.updateUser = this.updateUser.bind(this)
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
+    this.verifyTelegram = this.verifyTelegram.bind(this)
+
   }
 
   /**
@@ -203,4 +205,28 @@ export default class UsersController {
       this.handleError(ctx, err)
     }
   }
+
+    /**
+ * @api {POST} /users/telegram/verify Verify Telegram.
+ * @apiPermission user
+ * @apiName VerifyTelegram
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/telegram/verify
+ */
+    async verifyTelegram (ctx) {
+      try {
+        const code = ctx.request.body.code
+        const chatId = ctx.request.body.chatId
+        const user = ctx.state.user
+        const result = await this.useCases.users.verifyTelegram({ code, chatId, user })
+  
+        ctx.body = result
+      } catch (err) {
+        this.handleError(ctx, err)
+      }
+    }
+  
 }
