@@ -42,6 +42,7 @@ const UserShema = new mongoose.Schema({
   password: { type: String, required: true },
   account: { type: String, ref: 'account' },
   telegramVerified: { type: Boolean, default: false },
+  telegramChatId: { type: Number },
   emailVerified: { type: Boolean, default: false },
   emailVerificationCode: { type: Object },
   emailSentAt: { type: String },

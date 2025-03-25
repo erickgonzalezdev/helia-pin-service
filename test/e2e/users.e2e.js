@@ -615,7 +615,7 @@ describe('e2e-users', () => {
       }
     })
   })
-  describe('PUT /users/email/verify', () => {
+  describe('POST /users/email/verify', () => {
     it('should handle request error', async () => {
       try {
         sandbox.stub(app.controller.useCases.users, 'verifyEmailCode').throws(new Error('test error'))
@@ -733,6 +733,144 @@ describe('e2e-users', () => {
         const options = {
           method: 'POST',
           url: `${LOCALHOST}/users/email/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        const result = await axios(options)
+
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
+
+  describe('POST /users/telegram/verify', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'verifyTelegram').throws(new Error('test error'))
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should not fetch users if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
+          headers: {
+            Accept: 'application/json'
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if the authorization header has invalid scheme', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknown ${testData.token}`
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not fetch users if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer invalidtoken'
+
+          },
+          data: {
+            code: 123456
+          }
+        }
+
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should verify code', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'verifyTelegram').resolves(true)
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/telegram/verify`,
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${testData.token}`

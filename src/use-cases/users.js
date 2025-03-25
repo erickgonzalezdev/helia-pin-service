@@ -1,5 +1,6 @@
 export default class UsersUseCases {
-  constructor (config = {}) {
+  constructor(config = {}) {
+    this.config = config
     this.db = config.libraries.dbModels
     this.libraries = config.libraries
     this.wlogger = config.libraries.wlogger
@@ -13,9 +14,11 @@ export default class UsersUseCases {
     this.updateUser = this.updateUser.bind(this)
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
+    this.verifyTelegram = this.verifyTelegram.bind(this)
+
   }
 
-  async createUser (inObj = {}) {
+  async createUser(inObj = {}) {
     try {
       const { email, password } = inObj
       if (!email || typeof email !== 'string') {
@@ -64,7 +67,7 @@ export default class UsersUseCases {
     }
   }
 
-  async authUser (ctx) {
+  async authUser(ctx) {
     try {
       const user = await this.passport.authUser(ctx)
       if (!user) {
@@ -89,7 +92,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUser (inObj = {}) {
+  async getUser(inObj = {}) {
     try {
       const { id } = inObj
 
@@ -104,7 +107,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUsers () {
+  async getUsers() {
     try {
       const users = await this.db.Users.find({}, ['-password']).populate('account')
       return users
@@ -114,7 +117,7 @@ export default class UsersUseCases {
     }
   }
 
-  async updateUser (inObj = {}) {
+  async updateUser(inObj = {}) {
     try {
       const { existingData, newData } = inObj
       if (!existingData || typeof existingData !== 'object') {
@@ -136,7 +139,7 @@ export default class UsersUseCases {
     }
   }
 
-  async sendEmailVerificationCode (inObj = {}) {
+  async sendEmailVerificationCode(inObj = {}) {
     try {
       const { user } = inObj
 
@@ -189,7 +192,7 @@ export default class UsersUseCases {
   }
 
   // Verify email code verification
-  async verifyEmailCode (inObj = {}) {
+  async verifyEmailCode(inObj = {}) {
     try {
       const { code, user } = inObj
       if (!user) throw new Error('user is required')
@@ -207,4 +210,30 @@ export default class UsersUseCases {
       throw err
     }
   }
+  // Verify email code verification
+  async verifyTelegram(inObj = {}) {
+    try {
+      const { code, chatId, user } = inObj
+      if (!user) throw new Error('user is required')
+      if (!chatId) throw new Error('chatId is required')
+      if (!code || code !== this.config.telegramVerificationCode) throw new Error('Invalid Code.')
+      
+      if(user.telegramChatId === chatId){
+        throw new Error('User already associated with this telegram id.')
+      }
+      
+      const existingChatId = await this.db.Users.findOne({ telegramChatId: chatId })
+      if (existingChatId) throw new Error('Telegram id is currently associated with another user')
+
+      user.telegramVerified = true
+      user.telegramChatId = chatId
+
+      await user.save()
+      return user
+    } catch (err) {
+      this.wlogger.error(`Error in use-cases/verifyTelegram() $ ${err.message}`)
+      throw err
+    }
+  }
+
 }

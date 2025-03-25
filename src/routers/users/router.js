@@ -22,6 +22,7 @@ class RouterHanlder {
     this.updateUser = this.updateUser.bind(this)
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
+    this.verifyTelegram = this.verifyTelegram.bind(this)
   }
 
   async start (app) {
@@ -34,6 +35,7 @@ class RouterHanlder {
     this.router.put('/:id', this.updateUser)
     this.router.post('/email/verify', this.verifyEmailCode)
     this.router.get('/email/code', this.sendEmailVerificationCode)
+    this.router.post('/telegram/verify', this.verifyTelegram)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -71,6 +73,10 @@ class RouterHanlder {
   async verifyEmailCode (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.verifyEmailCode(ctx, next)
+  }
+  async verifyTelegram (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.verifyTelegram(ctx, next)
   }
 }
 
