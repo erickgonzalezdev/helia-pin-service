@@ -1,5 +1,5 @@
 export default class UsersUseCases {
-  constructor(config = {}) {
+  constructor (config = {}) {
     this.config = config
     this.db = config.libraries.dbModels
     this.libraries = config.libraries
@@ -15,10 +15,10 @@ export default class UsersUseCases {
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
     this.verifyTelegram = this.verifyTelegram.bind(this)
-
+    this.changePassword = this.changePassword.bind(this)
   }
 
-  async createUser(inObj = {}) {
+  async createUser (inObj = {}) {
     try {
       const { email, password } = inObj
       if (!email || typeof email !== 'string') {
@@ -67,7 +67,7 @@ export default class UsersUseCases {
     }
   }
 
-  async authUser(ctx) {
+  async authUser (ctx) {
     try {
       const user = await this.passport.authUser(ctx)
       if (!user) {
@@ -92,7 +92,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUser(inObj = {}) {
+  async getUser (inObj = {}) {
     try {
       const { id } = inObj
 
@@ -107,7 +107,7 @@ export default class UsersUseCases {
     }
   }
 
-  async getUsers() {
+  async getUsers () {
     try {
       const users = await this.db.Users.find({}, ['-password']).populate('account')
       return users
@@ -117,7 +117,7 @@ export default class UsersUseCases {
     }
   }
 
-  async updateUser(inObj = {}) {
+  async updateUser (inObj = {}) {
     try {
       const { existingData, newData } = inObj
       if (!existingData || typeof existingData !== 'object') {
@@ -139,7 +139,7 @@ export default class UsersUseCases {
     }
   }
 
-  async sendEmailVerificationCode(inObj = {}) {
+  async sendEmailVerificationCode (inObj = {}) {
     try {
       const { user } = inObj
 
@@ -192,7 +192,7 @@ export default class UsersUseCases {
   }
 
   // Verify email code verification
-  async verifyEmailCode(inObj = {}) {
+  async verifyEmailCode (inObj = {}) {
     try {
       const { code, user } = inObj
       if (!user) throw new Error('user is required')
@@ -210,18 +210,19 @@ export default class UsersUseCases {
       throw err
     }
   }
+
   // Verify email code verification
-  async verifyTelegram(inObj = {}) {
+  async verifyTelegram (inObj = {}) {
     try {
       const { code, chatId, user } = inObj
       if (!user) throw new Error('user is required')
       if (!chatId) throw new Error('chatId is required')
       if (!code || code !== this.config.telegramVerificationCode) throw new Error('Invalid Code.')
-      
-      if(user.telegramChatId === chatId){
+
+      if (user.telegramChatId === chatId) {
         throw new Error('User already associated with this telegram id.')
       }
-      
+
       const existingChatId = await this.db.Users.findOne({ telegramChatId: chatId })
       if (existingChatId) throw new Error('Telegram id is currently associated with another user')
 
@@ -236,4 +237,65 @@ export default class UsersUseCases {
     }
   }
 
+  async changePassword (inObj = {}) {
+    try {
+      const { user, newPassword, oldPassword } = inObj
+      if (!user) throw new Error('user is required')
+      if (!newPassword) throw new Error('newPassword is required')
+      if (!oldPassword) throw new Error('oldPassword is required')
+
+      // get user with password
+      const userWithPass = await this.db.Users.findById(user._id)
+      const isMatch = await userWithPass.validatePassword(oldPassword.toString())
+
+      if (!isMatch) throw new Error('Invalid old password')
+      user.password = newPassword
+      await user.save()
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/changePassword() $ ${error.message}`)
+      throw error
+    }
+  }
+
+/*   async resetPassword(inObj = {}){
+    try {
+      const { user } = inObj
+      if (!user) throw new Error('user is required')
+
+      const length = 12
+      const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
+      let newPassword = ''
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length)
+        newPassword += charset[randomIndex]
+      }
+
+      user.password = newPassword
+      const emailObj = {
+        to: [user.email],
+        subject: 'Password Reset Successfully!',
+        html: `Your password has been reset successfully, please use the following password to login:
+         <br>
+         <br>
+         <strong>${newPassword}</strong>
+         <br>
+         <br>
+         <br>
+         `
+      }
+
+      try {
+        await this.libraries.emailService.sendEmail(emailObj)
+      } catch (error) {
+        // Skip error
+      }
+      await user.save()
+
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/resetPassword() $ ${error.message}`)
+      throw error
+    }
+  } */
 }

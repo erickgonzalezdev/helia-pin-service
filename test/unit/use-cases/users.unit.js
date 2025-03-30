@@ -201,6 +201,74 @@ describe('#users-use-case', () => {
       assert.equal(result.username, newData.username)
     })
   })
+  describe('#changePassword', () => {
+    it('should throw an error if no input is given', async () => {
+      try {
+        await uut.changePassword()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'user is required')
+      }
+    })
+
+    it('should throw an error if newPassword is not provided', async () => {
+      try {
+        const user = testData.user
+        const data = {
+          user
+        }
+        await uut.changePassword(data)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'newPassword is required')
+      }
+    })
+
+    it('should throw an error if oldPassword is not provided', async () => {
+      try {
+        const user = testData.user
+        const data = {
+          user,
+          newPassword: 'testpass'
+        }
+        await uut.changePassword(data)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'oldPassword is required')
+      }
+    })
+    it('should throw an error if oldPassword does not match', async () => {
+      try {
+        const user = testData.user
+        const data = {
+          user,
+          newPassword: 'testpass',
+          oldPassword: '123456'
+        }
+        await uut.changePassword(data)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Invalid old password')
+      }
+    })
+
+    it('should update the existing user password', async () => {
+      const user = testData.user
+      user.emailVerificationCode = 1234
+      const data = {
+        user,
+        newPassword: 'testpass2',
+        oldPassword: 'anypass'
+      }
+      const result = await uut.changePassword(data)
+
+      assert.isTrue(result)
+    })
+  })
   describe('#verifyEmailCode', () => {
     it('should throw error if no user property if not provided', async () => {
       try {
@@ -315,7 +383,7 @@ describe('#users-use-case', () => {
       try {
         const userMock = { save: () => { }, telegramVerified: false }
 
-        await uut.verifyTelegram({ user : userMock })
+        await uut.verifyTelegram({ user: userMock })
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -326,7 +394,7 @@ describe('#users-use-case', () => {
     it('should not update telegramVerified property on undefined code ', async () => {
       try {
         const userMock = { save: () => { }, telegramVerified: false }
-        await uut.verifyTelegram({ user: userMock  , chatId: 1234})
+        await uut.verifyTelegram({ user: userMock, chatId: 1234 })
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -338,7 +406,7 @@ describe('#users-use-case', () => {
         uut.config.telegramVerificationCode = 12345678
         const userMock = { save: () => { }, telegramVerified: false }
         const code = 1235
-        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+        await uut.verifyTelegram({ user: userMock, code, chatId: 1234 })
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -348,9 +416,9 @@ describe('#users-use-case', () => {
     it('should handle already verified', async () => {
       try {
         uut.config.telegramVerificationCode = 12345
-        const userMock = { save: () => { }, telegramVerified: true , telegramChatId : 1234 }
+        const userMock = { save: () => { }, telegramVerified: true, telegramChatId: 1234 }
         const code = 12345
-        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+        await uut.verifyTelegram({ user: userMock, code, chatId: 1234 })
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -359,11 +427,11 @@ describe('#users-use-case', () => {
     })
     it('should handle existing code', async () => {
       try {
-        sandbox.stub(uut.db.Users ,'findOne').resolves({ _id : 'already user with the provided code'})
+        sandbox.stub(uut.db.Users, 'findOne').resolves({ _id: 'already user with the provided code' })
         uut.config.telegramVerificationCode = 12345
         const userMock = { save: () => { } }
         const code = 12345
-        await uut.verifyTelegram({ user: userMock, code , chatId: 1234 })
+        await uut.verifyTelegram({ user: userMock, code, chatId: 1234 })
 
         assert.fail('Unexpected code path.')
       } catch (err) {
@@ -375,7 +443,7 @@ describe('#users-use-case', () => {
         uut.config.telegramVerificationCode = 12345678
         const userMock = { save: () => { }, telegramVerified: false }
         const code = 12345678
-        const result = await uut.verifyTelegram({ user: userMock, code , chatId: 1234})
+        const result = await uut.verifyTelegram({ user: userMock, code, chatId: 1234 })
 
         assert.isTrue(result.telegramVerified)
       } catch (err) {
