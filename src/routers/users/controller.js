@@ -239,15 +239,15 @@ export default class UsersController {
 * @apiVersion 1.0.0
 *
 * @apiExample Example usage:
-* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "newPassword":"newpass123","oldPassword": 123456 }' localhost:5001/users/password
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "newPassword":"newpass123","currentPassword": 123456 }' localhost:5001/users/password
 */
   async changePassword (ctx) {
     try {
       const user = ctx.state.user
       const newPassword = ctx.request.body.newPassword
-      const oldPassword = ctx.request.body.oldPassword
+      const currentPassword = ctx.request.body.currentPassword
 
-      const result = await this.useCases.users.changePassword({ user, newPassword, oldPassword })
+      const result = await this.useCases.users.changePassword({ user, newPassword, currentPassword })
       ctx.body = result
     } catch (err) {
       this.handleError(ctx, err)

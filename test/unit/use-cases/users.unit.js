@@ -226,7 +226,7 @@ describe('#users-use-case', () => {
       }
     })
 
-    it('should throw an error if oldPassword is not provided', async () => {
+    it('should throw an error if currentPassword is not provided', async () => {
       try {
         const user = testData.user
         const data = {
@@ -237,22 +237,22 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'oldPassword is required')
+        assert.include(error.message, 'currentPassword is required')
       }
     })
-    it('should throw an error if oldPassword does not match', async () => {
+    it('should throw an error if currentPassword does not match', async () => {
       try {
         const user = testData.user
         const data = {
           user,
           newPassword: 'testpass',
-          oldPassword: '123456'
+          currentPassword: '123456'
         }
         await uut.changePassword(data)
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        assert.include(error.message, 'Invalid old password')
+        assert.include(error.message, 'Invalid current password')
       }
     })
 
@@ -262,7 +262,7 @@ describe('#users-use-case', () => {
       const data = {
         user,
         newPassword: 'testpass2',
-        oldPassword: 'anypass'
+        currentPassword: 'anypass'
       }
       const result = await uut.changePassword(data)
 
@@ -345,7 +345,7 @@ describe('#users-use-case', () => {
     })
     it('should send a new code', async () => {
       try {
-        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
 
         const userMock = { save: () => { }, emailSentAt: null }
         const result = await uut.sendEmailVerificationCode({ user: userMock })
@@ -359,6 +359,7 @@ describe('#users-use-case', () => {
         assert.equal(result.message, 'Code Sent Successfully.')
 
         assert.isTrue(result.result)
+        assert.isTrue(spy.called)
       } catch (err) {
         assert.fail('Unexpected code path.')
       }
@@ -477,13 +478,27 @@ describe('#users-use-case', () => {
         assert.include(err.message, 'Please wait 1 hour before requesting another password reset')
       }
     })
+    it('should no update user if email service fails', async () => {
+      try {
+        const userMock = { save: sandbox.spy(), generatePasswordResetToken: () => { } }
+        sandbox.stub(uut.db.Users, 'findOne').resolves(userMock)
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').throws(new Error('test error'))
+        await uut.sendPasswordResetEmail({ user: userMock, email: 'test@test.com' })
+        assert.isTrue(spy.called)
+        assert.isFalse(userMock.save.called)
+      } catch (err) {
+        console.log(err)
+        assert.fail('Unexpected code path.')
+      }
+    })
     it('should send password reset email', async () => {
       try {
-        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
 
         const result = await uut.sendPasswordResetEmail({ email: testData.user.email })
 
         assert.isString(result)
+        assert.isTrue(spy.called)
       } catch (err) {
         assert.fail('Unexpected code path.')
       }
@@ -509,12 +524,25 @@ describe('#users-use-case', () => {
         assert.include(err.message, 'Password reset token already used')
       }
     })
+    it('should no update user if email service fails', async () => {
+      try {
+        const userMock = { save: sandbox.spy() }
+        sandbox.stub(uut.db.Users, 'findOne').resolves(userMock)
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').throws(new Error('test error'))
+        await uut.resetPassword({ user: userMock })
+        assert.isTrue(spy.called)
+        assert.isFalse(userMock.save.called)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
     it('should reset password', async () => {
       try {
         testData.user.resetPasswordTokenUsed = false
-        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
         const result = await uut.resetPassword({ user: testData.user })
         assert.isString(result)
+        assert.isTrue(spy.called)
       } catch (err) {
         assert.fail('Unexpected code path.')
       }

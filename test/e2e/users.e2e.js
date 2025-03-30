@@ -623,7 +623,7 @@ describe('e2e-users', () => {
           },
           data: {
             newPassword: 'newpass123',
-            oldPassword: 'test'
+            currentPassword: 'test'
           }
         }
         const result = await axios(options)

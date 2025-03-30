@@ -16,6 +16,8 @@ export default class UserValidator {
     this.getToken = this.getToken.bind(this)
     this.validatePinsLimit = this.validatePinsLimit.bind(this)
     this.validateBoxesLimit = this.validateBoxesLimit.bind(this)
+    this.isTokenExpired = this.isTokenExpired.bind(this)
+    this.ensurePasswordResetToken = this.ensurePasswordResetToken.bind(this)
   }
 
   async ensureUser (ctx, next) {
@@ -161,6 +163,10 @@ export default class UserValidator {
         throw new Error('Token could not be retrieved from header')
       }
 
+      if (this.isTokenExpired(token)) {
+        throw new Error('Token expired!')
+      }
+
       let decoded = null
       try {
         decoded = this.jwt.verify(token, this.config.passKey)
@@ -180,6 +186,23 @@ export default class UserValidator {
       if (!ctx) throw error
       ctx.status = 401
       ctx.throw(401, error.message)
+    }
+  }
+
+  isTokenExpired (token) {
+    try {
+      const decoded = this.jwt.decode(token)
+      if (!decoded || !decoded.expiredAt) {
+        return true
+      }
+      // exp is in seconds, Date.now() is in milliseconds
+      const currentTime = Date.now()
+      const expiredAt = new Date(decoded.expiredAt).getTime()
+
+      const isExpired = expiredAt < currentTime
+      return isExpired
+    } catch (error) {
+      return true
     }
   }
 }

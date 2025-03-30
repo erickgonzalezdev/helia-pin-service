@@ -19,9 +19,7 @@ const AccountSchema = new mongoose.Schema({
   currentBox: { type: Number, default: 0 },
   expiredAt: { type: Number, default: null },
   archived: { type: Boolean, default: false },
-  expired: { type: Boolean, default: false },
-  resetPasswordTokenSentAt: { type: Number, default: null },
-  resetPasswordTokenUsed: { type: Boolean, default: false }
+  expired: { type: Boolean, default: false }
 })
 
 const AccountData = mongoose.model('account', AccountSchema)
@@ -48,7 +46,9 @@ const UserShema = new mongoose.Schema({
   emailVerified: { type: Boolean, default: false },
   emailVerificationCode: { type: Object },
   emailSentAt: { type: String },
-  paymentWalletId: { type: String, default: '' }
+  paymentWalletId: { type: String, default: '' },
+  resetPasswordTokenSentAt: { type: Number, default: null },
+  resetPasswordTokenUsed: { type: Boolean, default: false }
 })
 
 // Before saving, convert the password to a hash.

@@ -241,16 +241,16 @@ export default class UsersUseCases {
 
   async changePassword (inObj = {}) {
     try {
-      const { user, newPassword, oldPassword } = inObj
+      const { user, newPassword, currentPassword } = inObj
       if (!user) throw new Error('user is required')
       if (!newPassword) throw new Error('newPassword is required')
-      if (!oldPassword) throw new Error('oldPassword is required')
+      if (!currentPassword) throw new Error('currentPassword is required')
 
       // get user with password
       const userWithPass = await this.db.Users.findById(user._id)
-      const isMatch = await userWithPass.validatePassword(oldPassword.toString())
+      const isMatch = await userWithPass.validatePassword(currentPassword.toString())
 
-      if (!isMatch) throw new Error('Invalid old password')
+      if (!isMatch) throw new Error('Invalid current password')
       user.password = newPassword
       await user.save()
       return true
@@ -272,12 +272,15 @@ export default class UsersUseCases {
       if (user.resetPasswordTokenSentAt) {
         const now = Date.now()
         const diff = now - user.resetPasswordTokenSentAt
-        if (diff < 1000 * 60 * 60) {
-          throw new Error('Please wait 1 hour before requesting another password reset')
+        console.log('diff', diff)
+        const minutesDiff = 2
+        if (diff < 1000 * 60 * minutesDiff) {
+          throw new Error('You have a pending password reset request. Please wait 1 hour before requesting another password reset')
         }
       }
       const token = user.generatePasswordResetToken()
-      user.resetPasswordTokenSentAt = Date.now()
+      const now = new Date()
+      user.resetPasswordTokenSentAt = now.getTime()
       user.resetPasswordTokenUsed = false
       const emailObj = {
         to: [user.email],
@@ -285,12 +288,12 @@ export default class UsersUseCases {
         html: `Follow the link below to reset your password:
          <br>
          <br>
-         <a href="${this.config.frontendUrl}/reset-password?token=${token}">Reset Password</a>
+         <a href="${this.config.frontendUrl}/reset-password/${token}">Reset Password</a>
          <br>
          <br>
          <br>
          <span style="font-size: 12px; color: #6C6D6F;">This link will expire in 1 hour</span>
-         <span style="font-size: 12px; color:rgb(231, 101, 37);">If you did not request a password reset, please ignore this email.</span>
+         <span style="font-size: 12px; color:rgb(241, 0, 0);">If you did not request a password reset, please ignore this email.</span>
          `
       }
 
