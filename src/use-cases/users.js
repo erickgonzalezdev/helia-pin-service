@@ -273,12 +273,12 @@ export default class UsersUseCases {
         const now = Date.now()
         const diff = now - user.resetPasswordTokenSentAt
         console.log('diff', diff)
-        const minutesDiff = 2
+        const minutesDiff = 30
         if (diff < 1000 * 60 * minutesDiff) {
-          throw new Error('You have a pending password reset request. Please wait 1 hour before requesting another password reset')
+          throw new Error('You have a pending password reset request. Please wait 30 minutes before requesting another password reset')
         }
       }
-      const token = user.generatePasswordResetToken()
+      const token = user.generatePasswordResetToken(30)
       const now = new Date()
       user.resetPasswordTokenSentAt = now.getTime()
       user.resetPasswordTokenUsed = false

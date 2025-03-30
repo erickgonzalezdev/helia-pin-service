@@ -475,7 +475,7 @@ describe('#users-use-case', () => {
 
         assert.fail('Unexpected code path.')
       } catch (err) {
-        assert.include(err.message, 'Please wait 1 hour before requesting another password reset')
+        assert.include(err.message, 'Please wait 30 minutes before requesting another password reset')
       }
     })
     it('should no update user if email service fails', async () => {

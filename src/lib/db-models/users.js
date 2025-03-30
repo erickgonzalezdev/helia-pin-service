@@ -84,10 +84,10 @@ UserShema.methods.generateToken = function generateToken () {
   return token
 }
 
-UserShema.methods.generatePasswordResetToken = function generatePasswordResetToken () {
+UserShema.methods.generatePasswordResetToken = function generatePasswordResetToken (minutes = 10) {
   const user = this
   const expiredAt = new Date()
-  expiredAt.setMinutes(expiredAt.getMinutes() + 10)
+  expiredAt.setMinutes(expiredAt.getMinutes() + minutes)
   const token = jwt.sign({ id: user.id, type: 'passwordReset', expiredAt }, config.passKey)
   return token
 }
