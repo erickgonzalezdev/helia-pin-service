@@ -172,7 +172,6 @@ describe('e2e-account', () => {
         assert(result.status === 200)
         assert.isArray(data)
       } catch (error) {
-        console.log('error', error)
         assert.fail('Unexpected code path.')
       }
     })

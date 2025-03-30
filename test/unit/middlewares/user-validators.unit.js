@@ -65,7 +65,6 @@ describe('#User-Validators.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.include(error.message, 'Could not verify JWT')
       }
     })
@@ -170,7 +169,6 @@ describe('#User-Validators.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.include(error.message, 'Could not find user account type')
       }
     })
@@ -231,7 +229,6 @@ describe('#User-Validators.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.include(error.message, 'Could not find user account type')
       }
     })
@@ -294,7 +291,6 @@ describe('#User-Validators.js', () => {
 
         assert.fail('Unexpected code path')
       } catch (error) {
-        console.log(error)
         assert.include(error.message, 'Could not find user account type')
       }
     })
@@ -328,6 +324,111 @@ describe('#User-Validators.js', () => {
 
       const result = await uut.validateBoxesLimit(ctxMock)
       assert.isTrue(result)
+    })
+  })
+  describe('#ensurePasswordResetToken', () => {
+    it('should throw an error if ctx is not provided', async () => {
+      try {
+        await uut.ensurePasswordResetToken()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Koa context (ctx) is required!')
+      }
+    })
+    it('should throw an error if token is not provided', async () => {
+      try {
+        ctxMock.request.header.authorization = null
+        await uut.ensurePasswordResetToken(ctxMock)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Token could not be retrieved from header')
+      }
+    })
+    it('should throw an error if token is expired', async () => {
+      try {
+        sandbox.stub(uut, 'isTokenExpired').returns(true)
+        ctxMock.request.header.authorization = 'Bearer token'
+        await uut.ensurePasswordResetToken(ctxMock)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Token expired!')
+      }
+    })
+
+    it('should throw an error if token is not valid', async () => {
+      try {
+        sandbox.stub(uut, 'isTokenExpired').returns(false)
+        ctxMock.request.header.authorization = 'Bearer token'
+        await uut.ensurePasswordResetToken(ctxMock)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not verify JWT')
+      }
+    })
+    it('should throw an error if token is not valid type', async () => {
+      try {
+        sandbox.stub(uut, 'isTokenExpired').returns(false)
+        sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.jwt, 'verify').returns({ type: 'userAccess' })
+        sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
+        ctxMock.request.header.authorization = 'Bearer token'
+        await uut.ensurePasswordResetToken(ctxMock)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not verify JWT')
+      }
+    })
+    it('should throw an error if user is not found', async () => {
+      try {
+        sandbox.stub(uut, 'isTokenExpired').returns(false)
+        sandbox.stub(uut, 'getToken').returns('token')
+        sandbox.stub(uut.jwt, 'verify').returns({ type: 'passwordReset' })
+        sandbox.stub(uut.dbModels.Users, 'findById').resolves(null)
+        ctxMock.request.header.authorization = 'Bearer token'
+        await uut.ensurePasswordResetToken(ctxMock)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Could not find user')
+      }
+    })
+    it('should return true after success', async () => {
+      sandbox.stub(uut, 'isTokenExpired').returns(false)
+      sandbox.stub(uut, 'getToken').returns('token')
+      sandbox.stub(uut.jwt, 'verify').returns({ type: 'passwordReset' })
+      sandbox.stub(uut.dbModels.Users, 'findById').resolves({ _id: 'myUserId' })
+      ctxMock.request.header.authorization = 'Bearer token'
+      const result = await uut.ensurePasswordResetToken(ctxMock)
+      assert.isTrue(result)
+    })
+  })
+  describe('#isTokenExpired', () => {
+    it('should return true if token is expired', async () => {
+      const decodedMock = { expiredAt: new Date().getTime() - 1000 }
+      sandbox.stub(uut.jwt, 'decode').returns(decodedMock)
+      const result = uut.isTokenExpired('token')
+      assert.isTrue(result)
+    })
+    it('should return false if token is not expired', async () => {
+      const now = new Date()
+      now.setMinutes(now.getMinutes() + 1000)
+      const decodedMock = { expiredAt: now.getTime() }
+      sandbox.stub(uut.jwt, 'decode').returns(decodedMock)
+      const result = uut.isTokenExpired('token')
+      assert.isFalse(result)
+    })
+    it('should return true if token is not found', async () => {
+      sandbox.stub(uut.jwt, 'decode').returns(null)
+      const result = uut.isTokenExpired('token')
+      assert.isTrue(result)
+    })
+    it('should handle errors', async () => {
+      try {
+        sandbox.stub(uut.jwt, 'decode').throws(new Error('Could not decode token'))
+        const result = uut.isTokenExpired('token')
+        assert.isTrue(result)
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
     })
   })
 })

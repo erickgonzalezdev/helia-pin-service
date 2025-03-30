@@ -23,6 +23,9 @@ class RouterHanlder {
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
     this.verifyTelegram = this.verifyTelegram.bind(this)
+    this.changePassword = this.changePassword.bind(this)
+    this.sendPasswordResetEmail = this.sendPasswordResetEmail.bind(this)
+    this.resetPassword = this.resetPassword.bind(this)
   }
 
   async start (app) {
@@ -32,10 +35,13 @@ class RouterHanlder {
     this.router.post('/auth', this.authUser)
     this.router.get('/', this.getUsers)
     this.router.get('/:id', this.getUser)
+    this.router.put('/password', this.changePassword)
     this.router.put('/:id', this.updateUser)
     this.router.post('/email/verify', this.verifyEmailCode)
     this.router.get('/email/code', this.sendEmailVerificationCode)
     this.router.post('/telegram/verify', this.verifyTelegram)
+    this.router.get('/password/reset', this.resetPassword)
+    this.router.post('/password/reset', this.sendPasswordResetEmail)
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -74,9 +80,24 @@ class RouterHanlder {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.verifyEmailCode(ctx, next)
   }
+
   async verifyTelegram (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.verifyTelegram(ctx, next)
+  }
+
+  async changePassword (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.changePassword(ctx, next)
+  }
+
+  async sendPasswordResetEmail (ctx, next) {
+    await this.controller.sendPasswordResetEmail(ctx, next)
+  }
+
+  async resetPassword (ctx, next) {
+    await this.middleware.userValidators.ensurePasswordResetToken(ctx, next)
+    await this.controller.resetPassword(ctx, next)
   }
 }
 

@@ -39,7 +39,6 @@ class PaymentGateway {
       this.jwt = result.data.token
       return result.data
     } catch (error) {
-      console.log('error', error)
       this.wlogger.error(`Error in payment/auth() $ ${error.message}`)
       return false
     }

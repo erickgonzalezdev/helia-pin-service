@@ -15,7 +15,9 @@ export default class UsersController {
     this.sendEmailVerificationCode = this.sendEmailVerificationCode.bind(this)
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
     this.verifyTelegram = this.verifyTelegram.bind(this)
-
+    this.changePassword = this.changePassword.bind(this)
+    this.sendPasswordResetEmail = this.sendPasswordResetEmail.bind(this)
+    this.resetPassword = this.resetPassword.bind(this)
   }
 
   /**
@@ -206,27 +208,91 @@ export default class UsersController {
     }
   }
 
-    /**
- * @api {POST} /users/telegram/verify Verify Telegram.
- * @apiPermission user
- * @apiName VerifyTelegram
+  /**
+* @api {POST} /users/telegram/verify Verify Telegram.
+* @apiPermission user
+* @apiName VerifyTelegram
+* @apiGroup Users
+* @apiVersion 1.0.0
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/telegram/verify
+*/
+  async verifyTelegram (ctx) {
+    try {
+      const code = ctx.request.body.code
+      const chatId = ctx.request.body.chatId
+      const user = ctx.state.user
+      const result = await this.useCases.users.verifyTelegram({ code, chatId, user })
+
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+* @api {PUT} /users/password
+* @apiPermission user
+* @apiName ChangePassword
+* @apiGroup Users
+* @apiVersion 1.0.0
+*
+* @apiExample Example usage:
+* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "newPassword":"newpass123","currentPassword": 123456 }' localhost:5001/users/password
+*/
+  async changePassword (ctx) {
+    try {
+      const user = ctx.state.user
+      const newPassword = ctx.request.body.newPassword
+      const currentPassword = ctx.request.body.currentPassword
+
+      const result = await this.useCases.users.changePassword({ user, newPassword, currentPassword })
+      ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+ * @api {POST} /users/password/reset Send Password Reset Email.
+ * @apiPermission public
+ * @apiName SendPasswordResetEmail
  * @apiGroup Users
  * @apiVersion 1.0.0
  *
  * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/telegram/verify
+ * curl -H "Content-Type: application/json" -X POST -d '{ "email": "newuser@email.com" }' localhost:5001/users/password/reset
  */
-    async verifyTelegram (ctx) {
-      try {
-        const code = ctx.request.body.code
-        const chatId = ctx.request.body.chatId
-        const user = ctx.state.user
-        const result = await this.useCases.users.verifyTelegram({ code, chatId, user })
-  
-        ctx.body = result
-      } catch (err) {
-        this.handleError(ctx, err)
+  async sendPasswordResetEmail (ctx) {
+    try {
+      const email = ctx.request.body.email
+      const token = await this.useCases.users.sendPasswordResetEmail({ email })
+      ctx.body = {
+        token
       }
+    } catch (err) {
+      this.handleError(ctx, err)
     }
-  
+  }
+
+  /**
+ * @api {GET} /users/password/reset Reset Password.
+ * @apiPermission user
+ * @apiName ResetPassword
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST localhost:5001/users/password/reset
+ */
+  async resetPassword (ctx) {
+    try {
+      const user = ctx.state.user
+      await this.useCases.users.resetPassword({ user })
+      ctx.body = { success: true }
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
 }

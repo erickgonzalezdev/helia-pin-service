@@ -141,7 +141,6 @@ describe('e2e-users', () => {
         assert(result.data.user.email === 'email@email.com')
         assert(result.data.user.password === undefined)
       } catch (error) {
-        console.log('error.response.data', error.response.data)
         assert.fail('Unexpected code path.')
       }
     })
@@ -503,6 +502,138 @@ describe('e2e-users', () => {
     })
   })
 
+  describe('PUT /users/password', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'changePassword').throws(new Error('test error'))
+
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+
+          },
+          data: {
+            password: 'newpassword',
+            code: 1234
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should not update users password if the authorization header is missing', async () => {
+      try {
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json'
+          },
+          data: {
+            password: 'newpassword',
+            code: 1234
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 401)
+      }
+    })
+    it('should not update users password  if the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `${testData.token}`
+          },
+          data: {
+            password: 'newpassword',
+            code: 1234
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not update users password  if the authorization header has invalid scheme', async () => {
+      try {
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknown ${testData.token}`
+          },
+          data: {
+            password: 'newpassword',
+            code: 1234
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should not update users password if token is invalid', async () => {
+      try {
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer invalidtoken'
+          },
+          data: {
+            password: 'newpassword',
+            code: 1234
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should update user password', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'changePassword').resolves(true)
+        const options = {
+          method: 'PUT',
+          url: `${LOCALHOST}/users/password`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+          },
+          data: {
+            newPassword: 'newpass123',
+            currentPassword: 'test'
+          }
+        }
+        const result = await axios(options)
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
   describe('GET /users/email/code', () => {
     it('should handle request error', async () => {
       try {
@@ -752,7 +883,6 @@ describe('e2e-users', () => {
     })
   })
 
-
   describe('POST /users/telegram/verify', () => {
     it('should handle request error', async () => {
       try {
@@ -885,6 +1015,93 @@ describe('e2e-users', () => {
 
         assert(result.status === 200)
       } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+
+  describe('POST /users/password/reset', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'sendPasswordResetEmail').throws(new Error('test error'))
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/password/reset`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should reset password', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users.libraries.emailService, 'sendEmail').resolves(true)
+
+        const options = {
+          method: 'POST',
+          url: `${LOCALHOST}/users/password/reset`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.token}`
+          },
+          data: {
+            email: testData.user.email
+          }
+        }
+        const result = await axios(options)
+        testData.resetPasswordToken = result.data.token
+        assert(result.status === 200)
+      } catch (error) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('Get /users/password/reset', () => {
+    it('should handle request error', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'resetPassword').throws(new Error('test error'))
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/password/reset`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.resetPasswordToken}`
+          }
+        }
+        await axios(options)
+
+        assert.fail('Invalid code path.')
+      } catch (error) {
+        assert.equal(error.response.status, 422)
+        assert.isString(error.response.data)
+      }
+    })
+    it('should reset password', async () => {
+      try {
+        sandbox.stub(app.controller.useCases.users, 'resetPassword').resolves(true)
+
+        const options = {
+          method: 'GET',
+          url: `${LOCALHOST}/users/password/reset`,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${testData.resetPasswordToken}`
+          }
+        }
+        const result = await axios(options)
+
+        assert(result.status === 200)
+      } catch (error) {
+        // console.log('error', error)
         assert.fail('Unexpected code path.')
       }
     })

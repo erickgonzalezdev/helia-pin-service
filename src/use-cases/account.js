@@ -46,7 +46,6 @@ export default class AccountUseCases {
 
       return account
     } catch (error) {
-      console.log(error)
       this.wlogger.error(`Error in use-cases/createAccount() $ ${error.message}`)
       throw error
     }
@@ -110,7 +109,6 @@ export default class AccountUseCases {
 
       return account
     } catch (error) {
-      console.log(error)
       this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
       throw error
     }

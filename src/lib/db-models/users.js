@@ -46,7 +46,9 @@ const UserShema = new mongoose.Schema({
   emailVerified: { type: Boolean, default: false },
   emailVerificationCode: { type: Object },
   emailSentAt: { type: String },
-  paymentWalletId: { type: String, default: '' }
+  paymentWalletId: { type: String, default: '' },
+  resetPasswordTokenSentAt: { type: Number, default: null },
+  resetPasswordTokenUsed: { type: Boolean, default: false }
 })
 
 // Before saving, convert the password to a hash.
@@ -79,6 +81,14 @@ UserShema.methods.generateToken = function generateToken () {
   const user = this
   const token = jwt.sign({ id: user.id, type: 'userAccess' }, config.passKey)
 
+  return token
+}
+
+UserShema.methods.generatePasswordResetToken = function generatePasswordResetToken (minutes = 10) {
+  const user = this
+  const expiredAt = new Date()
+  expiredAt.setMinutes(expiredAt.getMinutes() + minutes)
+  const token = jwt.sign({ id: user.id, type: 'passwordReset', expiredAt }, config.passKey)
   return token
 }
 

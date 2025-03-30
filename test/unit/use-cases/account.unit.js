@@ -163,7 +163,6 @@ describe('#account-use-case', () => {
         assert.isObject(result)
         assert.property(result, 'expiredAt')
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path')
       }
     })
@@ -175,7 +174,6 @@ describe('#account-use-case', () => {
         assert.isObject(result)
         assert.property(result, 'expiredAt')
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path')
       }
     })
@@ -187,7 +185,6 @@ describe('#account-use-case', () => {
         assert.isObject(result)
         assert.property(result, 'expiredAt')
       } catch (error) {
-        console.log(error)
         assert.fail('Unexpected code path')
       }
     })
