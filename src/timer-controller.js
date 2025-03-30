@@ -95,7 +95,6 @@ export default class TimerController {
 
       return true
     } catch (error) {
-      console.log(error)
       // On error re-start the interval
       this.wlogger.info(`Starting handleUnprovidedFiles interval after error for ${this.handleUnprovidedPeriod / 60000} minutes`, error.message)
       this.handleUnprovidedTimer = this.setInterval(this.handleUnprovidedFiles, this.handleUnprovidedPeriod)

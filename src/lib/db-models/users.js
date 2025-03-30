@@ -19,7 +19,9 @@ const AccountSchema = new mongoose.Schema({
   currentBox: { type: Number, default: 0 },
   expiredAt: { type: Number, default: null },
   archived: { type: Boolean, default: false },
-  expired: { type: Boolean, default: false }
+  expired: { type: Boolean, default: false },
+  resetPasswordTokenSentAt: { type: Number, default: null },
+  resetPasswordTokenUsed: { type: Boolean, default: false }
 })
 
 const AccountData = mongoose.model('account', AccountSchema)
@@ -79,6 +81,14 @@ UserShema.methods.generateToken = function generateToken () {
   const user = this
   const token = jwt.sign({ id: user.id, type: 'userAccess' }, config.passKey)
 
+  return token
+}
+
+UserShema.methods.generatePasswordResetToken = function generatePasswordResetToken () {
+  const user = this
+  const expiredAt = new Date()
+  expiredAt.setMinutes(expiredAt.getMinutes() + 10)
+  const token = jwt.sign({ id: user.id, type: 'passwordReset', expiredAt }, config.passKey)
   return token
 }
 

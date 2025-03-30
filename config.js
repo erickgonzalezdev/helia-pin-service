@@ -23,6 +23,7 @@ const config = {
   emailServer: process.env.EMAIL_SERVER || 'server',
   emailUser: process.env.EMAIL_USER || '',
   emailPassword: process.env.EMAIL_PASSWORD || '',
-  telegramVerificationCode: process.env.TELEGRAM_VERIFICATION_CODE || '12345678'
+  telegramVerificationCode: process.env.TELEGRAM_VERIFICATION_CODE || '12345678',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000'
 }
 export default config

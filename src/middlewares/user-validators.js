@@ -151,4 +151,35 @@ export default class UserValidator {
       ctx.throw(401, error.message)
     }
   }
+
+  async ensurePasswordResetToken (ctx, next) {
+    try {
+      if (!ctx) throw new Error('Koa context (ctx) is required!')
+      const token = this.getToken(ctx)
+
+      if (!token) {
+        throw new Error('Token could not be retrieved from header')
+      }
+
+      let decoded = null
+      try {
+        decoded = this.jwt.verify(token, this.config.passKey)
+      } catch (err) {
+        throw new Error('Could not verify JWT')
+      }
+      if (decoded.type !== 'passwordReset') {
+        throw new Error('Could not verify JWT')
+      }
+      ctx.state.user = await this.dbModels.Users.findById(decoded.id, '-password')
+      if (!ctx.state.user) {
+        throw new Error('Could not find user')
+      }
+
+      return true
+    } catch (error) {
+      if (!ctx) throw error
+      ctx.status = 401
+      ctx.throw(401, error.message)
+    }
+  }
 }

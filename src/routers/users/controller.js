@@ -16,6 +16,8 @@ export default class UsersController {
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
     this.verifyTelegram = this.verifyTelegram.bind(this)
     this.changePassword = this.changePassword.bind(this)
+    this.sendPasswordResetEmail = this.sendPasswordResetEmail.bind(this)
+    this.resetPassword = this.resetPassword.bind(this)
   }
 
   /**
@@ -247,6 +249,48 @@ export default class UsersController {
 
       const result = await this.useCases.users.changePassword({ user, newPassword, oldPassword })
       ctx.body = result
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+ * @api {POST} /users/password/reset Send Password Reset Email.
+ * @apiPermission public
+ * @apiName SendPasswordResetEmail
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X POST -d '{ "email": "newuser@email.com" }' localhost:5001/users/password/reset
+ */
+  async sendPasswordResetEmail (ctx) {
+    try {
+      const email = ctx.request.body.email
+      const token = await this.useCases.users.sendPasswordResetEmail({ email })
+      ctx.body = {
+        token
+      }
+    } catch (err) {
+      this.handleError(ctx, err)
+    }
+  }
+
+  /**
+ * @api {GET} /users/password/reset Reset Password.
+ * @apiPermission user
+ * @apiName ResetPassword
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST localhost:5001/users/password/reset
+ */
+  async resetPassword (ctx) {
+    try {
+      const user = ctx.state.user
+      await this.useCases.users.resetPassword({ user })
+      ctx.body = { success: true }
     } catch (err) {
       this.handleError(ctx, err)
     }

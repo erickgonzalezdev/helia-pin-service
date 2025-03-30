@@ -340,8 +340,6 @@ describe('#users-use-case', () => {
         assert.isString(result.message)
         assert.equal(result.message, 'Rate Limit')
       } catch (err) {
-        console.log(err)
-
         assert.fail('Unexpected code path.')
       }
     })
@@ -362,8 +360,6 @@ describe('#users-use-case', () => {
 
         assert.isTrue(result.result)
       } catch (err) {
-        console.log(err)
-
         assert.fail('Unexpected code path.')
       }
     })
@@ -446,6 +442,79 @@ describe('#users-use-case', () => {
         const result = await uut.verifyTelegram({ user: userMock, code, chatId: 1234 })
 
         assert.isTrue(result.telegramVerified)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('#sendPasswordResetEmail', () => {
+    it('should throw error if  email property if not provided', async () => {
+      try {
+        await uut.sendPasswordResetEmail()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'email is required')
+      }
+    })
+    it('should throw error if user not found', async () => {
+      try {
+        sandbox.stub(uut.db.Users, 'findOne').resolves(null)
+        await uut.sendPasswordResetEmail({ email: 'test@test.com' })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'User not found')
+      }
+    })
+    it('should throw error if password reset token already sent', async () => {
+      try {
+        sandbox.stub(uut.db.Users, 'findOne').resolves({ resetPasswordTokenSentAt: Date.now() })
+        await uut.sendPasswordResetEmail({ email: 'test@test.com' })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Please wait 1 hour before requesting another password reset')
+      }
+    })
+    it('should send password reset email', async () => {
+      try {
+        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const result = await uut.sendPasswordResetEmail({ email: testData.user.email })
+
+        assert.isString(result)
+      } catch (err) {
+        assert.fail('Unexpected code path.')
+      }
+    })
+  })
+  describe('#resetPassword', () => {
+    it('should throw error if  user property if not provided', async () => {
+      try {
+        await uut.resetPassword()
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'user is required')
+      }
+    })
+    it('should throw error if password reset token already used', async () => {
+      try {
+        testData.user.resetPasswordTokenUsed = true
+        await uut.resetPassword({ user: testData.user })
+
+        assert.fail('Unexpected code path.')
+      } catch (err) {
+        assert.include(err.message, 'Password reset token already used')
+      }
+    })
+    it('should reset password', async () => {
+      try {
+        testData.user.resetPasswordTokenUsed = false
+        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const result = await uut.resetPassword({ user: testData.user })
+        assert.isString(result)
       } catch (err) {
         assert.fail('Unexpected code path.')
       }

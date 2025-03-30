@@ -16,6 +16,8 @@ export default class UsersUseCases {
     this.verifyEmailCode = this.verifyEmailCode.bind(this)
     this.verifyTelegram = this.verifyTelegram.bind(this)
     this.changePassword = this.changePassword.bind(this)
+    this.sendPasswordResetEmail = this.sendPasswordResetEmail.bind(this)
+    this.resetPassword = this.resetPassword.bind(this)
   }
 
   async createUser (inObj = {}) {
@@ -258,10 +260,60 @@ export default class UsersUseCases {
     }
   }
 
-/*   async resetPassword(inObj = {}){
+  // send password reset email link
+  // Send link to user to reset password
+  async sendPasswordResetEmail (inObj = {}) {
+    try {
+      const { email } = inObj
+      if (!email) throw new Error('email is required')
+
+      const user = await this.db.Users.findOne({ email })
+      if (!user) throw new Error('User not found')
+      if (user.resetPasswordTokenSentAt) {
+        const now = Date.now()
+        const diff = now - user.resetPasswordTokenSentAt
+        if (diff < 1000 * 60 * 60) {
+          throw new Error('Please wait 1 hour before requesting another password reset')
+        }
+      }
+      const token = user.generatePasswordResetToken()
+      user.resetPasswordTokenSentAt = Date.now()
+      user.resetPasswordTokenUsed = false
+      const emailObj = {
+        to: [user.email],
+        subject: 'Password Reset Request',
+        html: `Follow the link below to reset your password:
+         <br>
+         <br>
+         <a href="${this.config.frontendUrl}/reset-password?token=${token}">Reset Password</a>
+         <br>
+         <br>
+         <br>
+         <span style="font-size: 12px; color: #6C6D6F;">This link will expire in 1 hour</span>
+         <span style="font-size: 12px; color:rgb(231, 101, 37);">If you did not request a password reset, please ignore this email.</span>
+         `
+      }
+
+      try {
+        await this.libraries.emailService.sendEmail(emailObj)
+        await user.save()
+      } catch (error) {
+        // Skip error
+      }
+      this.wlogger.info(`Password reset email sent to ${user.email}`)
+      return token
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/sendPasswordResetEmail() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async resetPassword (inObj = {}) {
     try {
       const { user } = inObj
       if (!user) throw new Error('user is required')
+
+      if (user.resetPasswordTokenUsed) throw new Error('Password reset token already used')
 
       const length = 12
       const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
@@ -272,6 +324,8 @@ export default class UsersUseCases {
       }
 
       user.password = newPassword
+      user.resetPasswordTokenUsed = true
+
       const emailObj = {
         to: [user.email],
         subject: 'Password Reset Successfully!',
@@ -287,15 +341,15 @@ export default class UsersUseCases {
 
       try {
         await this.libraries.emailService.sendEmail(emailObj)
+        await user.save()
       } catch (error) {
         // Skip error
       }
-      await user.save()
-
-      return true
+      this.wlogger.info(`new password sent to ${user.email}`)
+      return newPassword
     } catch (error) {
       this.wlogger.error(`Error in use-cases/resetPassword() $ ${error.message}`)
       throw error
     }
-  } */
+  }
 }
