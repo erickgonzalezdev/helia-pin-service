@@ -10,6 +10,7 @@ export default class FilesController {
     this.uploadFile = this.uploadFile.bind(this)
     this.getFiles = this.getFiles.bind(this)
     this.getFile = this.getFile.bind(this)
+    this.importCID = this.importCID.bind(this)
   }
 
   /**
@@ -32,6 +33,32 @@ export default class FilesController {
       const file = ctx.request.files.file || ctx.request.files.upload
       const user = ctx.state.user
       const result = await this.useCases.files.uploadFile({ file, user })
+      ctx.body = result
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  /**
+ * @api {post} /files/cid Import file from cid.
+ * @apiPermission user
+ * @apiName ImportCid
+ * @apiGroup File
+ * @apiVersion 1.0.0
+ *
+ * @apiExample Example usage:
+ * curl -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "cid":"cid to import" }' localhost:5001/files/import/cid
+ *
+ * @apiParam {String} cid  content id.
+ *
+ * @apiSuccess {String}   CID  content id.
+ *
+ */
+  async importCID (ctx) {
+    try {
+      const body = ctx.request.body
+      const user = ctx.state.user
+      const result = await this.useCases.files.importCID({ cid: body.cid, user })
       ctx.body = result
     } catch (error) {
       this.handleError(ctx, error)

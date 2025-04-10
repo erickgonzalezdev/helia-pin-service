@@ -19,15 +19,16 @@ class RouterHanlder {
     this.uploadFile = this.uploadFile.bind(this)
     this.getFiles = this.getFiles.bind(this)
     this.getFile = this.getFile.bind(this)
+    this.importCID = this.importCID.bind(this)
   }
 
   async start (app) {
     if (!app) { throw new Error('App is required!') }
 
     this.router.post('/', koaBody({ multipart: true, formidable: { maxFileSize: 10 ** 6 * 1000 * 2 } }), this.uploadFile)
+    this.router.post('/import', this.importCID)
     this.router.get('/', this.getFiles)
     this.router.get('/:id', this.getFile)
-
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
   }
@@ -53,6 +54,11 @@ class RouterHanlder {
   async getFile (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getFile(ctx, next)
+  }
+
+  async importCID (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.importCID(ctx, next)
   }
 }
 

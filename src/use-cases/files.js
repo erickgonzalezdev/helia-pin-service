@@ -1,9 +1,11 @@
+import { fileTypeFromBuffer } from 'file-type'
 export default class FileUseCases {
   constructor (config = {}) {
     this.config = config
     this.db = config.libraries.dbModels
     this.heliaNode = config.libraries.heliaNode
     this.wlogger = config.libraries.wlogger
+    this.fileTypeFromBuffer = fileTypeFromBuffer
 
     this.handleUnpinedDelay = 1000 // 1seg
 
@@ -14,6 +16,7 @@ export default class FileUseCases {
     this.handleUnpinedFiles = this.handleUnpinedFiles.bind(this)
     this.unPinFiles = this.unPinFiles.bind(this)
     this.handleUnprovidedFiles = this.handleUnprovidedFiles.bind(this)
+    this.importCID = this.importCID.bind(this)
   }
 
   async uploadFile (inObj = {}) {
@@ -54,6 +57,71 @@ export default class FileUseCases {
       /**
        * UnArchived files can be added to the pin strategy.
        */
+      fileObj.archived = false
+      fileObj.archivedDate = null
+
+      return fileObj
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/uploadFile() ${error.message}`)
+      throw error
+    }
+  }
+
+  async importCID (inObj = {}) {
+    try {
+      const { cid, user } = inObj
+      if (!cid) {
+        throw new Error('cid is required!')
+      }
+      const account = await this.db.Account.findById(user.account)
+
+      if (!account) {
+        throw new Error('account is required!')
+      }
+
+      // Abort signal timeout
+      const signal = AbortSignal.timeout(60000 * 2)
+      const cidStats = await this.heliaNode.node.getStat(cid, { signal })
+
+      console.log(cidStats)
+
+      if (cidStats.type === 'directory') {
+        throw new Error('Directory not supported')
+      }
+      const file = {
+        size: Number(cidStats.fileSize),
+        originalFilename: cid,
+        mimetype: 'application/octet-stream',
+        filepath: cid
+      }
+
+      if (account.currentBytes + file.size > account.maxBytes) {
+        throw new Error('The account does not have enough space.')
+      }
+
+      // Upload file to the ipfs node
+      await this.heliaNode.node.lazyDownload(cid)
+
+      // pin file on local node
+      await this.heliaNode.tryLocallyPin(cid)
+
+      let fileObj = await this.db.Files.findOne({ cid })
+
+      // create file data into the db
+      if (!fileObj) {
+        const length = 10 ** 6 * 50 // max 50 mb
+        const content = await this.heliaNode.node.getContent(cid, { offset: 0, length })
+        const type = await this.fileTypeFromBuffer(content)
+        const mimeType = type?.mime || 'application/octet-stream'
+        fileObj = new this.db.Files({ cid })
+        fileObj.createdAt = new Date().getTime()
+        fileObj.type = mimeType
+        fileObj.name = file.originalFilename
+        fileObj.size = file.size
+        fileObj.pinned = false
+        await fileObj.save()
+      }
+
       fileObj.archived = false
       fileObj.archivedDate = null
 
