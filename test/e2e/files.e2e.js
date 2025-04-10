@@ -358,4 +358,101 @@ describe('e2e-file', () => {
       }
     })
   })
+  describe('POST /files/import', () => {
+    it('should reject if the authorization header is missing', async () => {
+      try {
+        const options = {
+          headers: {
+            Accept: 'application/json'
+          }
+        }
+        const form = new FormData()
+        await axios.post(`${LOCALHOST}/files/import`, form, options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should rejectif the authorization header is missing the scheme', async () => {
+      try {
+        const options = {
+          headers: {
+            Accept: 'application/json',
+            Authorization: '1'
+          }
+        }
+        const form = new FormData()
+        await axios.post(`${LOCALHOST}/files/import`, form, options)
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if the authorization header has invalid scheme', async () => {
+      const { token } = testData.user
+      try {
+        const options = {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Unknow ${token}`
+          }
+        }
+        const form = new FormData()
+        await axios.post(`${LOCALHOST}/files/import`, form, options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should reject if token is invalid', async () => {
+      try {
+        const options = {
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer 1'
+          }
+        }
+        const form = new FormData()
+        await axios.post(`${LOCALHOST}/files/import`, form, options)
+
+        assert.fail('Invalid code path.')
+      } catch (err) {
+        assert.equal(err.response.status, 401)
+      }
+    })
+    it('should handle request error', async () => {
+      try {
+        // Create a form and append the file to it.
+        const form = new FormData()
+        const axiosConfig = {
+          headers: form.getHeaders()
+        }
+        axiosConfig.headers.Authorization = `Bearer ${testData.user.token}`
+
+        // Send the file to the ipfs-file-stage server.
+        await axios.post(`${LOCALHOST}/files/import`, form, axiosConfig)
+
+        assert.fail('Unexpected code path.')
+      } catch (error) {
+        assert.isString(error.response.data)
+      }
+    })
+    it('should import cid', async () => {
+      sandbox.stub(app.controller.useCases.files, 'importCID').resolves({ cid: 'importedcid' })
+      // Create a form and append the file to it.
+      const form = new FormData()
+      const axiosConfig = {
+        headers: form.getHeaders()
+      }
+      axiosConfig.headers.Authorization = `Bearer ${testData.user.token}`
+      form.append('cid', 'importedcid')
+      // Send the file to the ipfs-file-stage server.
+      const result = await axios.post(`${LOCALHOST}/files/import`, form, axiosConfig)
+
+      assert(result.status === 200)
+      assert.equal(result.data.cid, 'importedcid')
+    })
+  })
 })

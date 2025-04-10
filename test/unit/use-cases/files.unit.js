@@ -111,6 +111,102 @@ describe('#file-use-case', () => {
       testData.file = result
     })
   })
+  describe('#importCID', () => {
+    it('should throw an error if no input is given', async () => {
+      try {
+        await uut.importCID()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'cid is required!')
+      }
+    })
+    it('should throw an error if no user is given', async () => {
+      try {
+        await uut.importCID({ cid: 'cid' })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Cannot read')
+      }
+    })
+
+    it('should handle node error', async () => {
+      try {
+        sandbox.stub(uut.heliaNode.node, 'getStat').throws(new Error('test error'))
+        await uut.importCID({ cid: 'cid', user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+
+    it('should handle download file error', async () => {
+      try {
+        sandbox.stub(uut.heliaNode.node, 'lazyDownload').throws(new Error('test error'))
+        await uut.importCID({ cid: 'cid', user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should throw error if account is not found!.', async () => {
+      try {
+        sandbox.stub(uut.db.Account, 'findById').resolves(null)
+        await uut.importCID({ cid: 'cid', user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'account is required!')
+      }
+    })
+    it('should throw error for insufficient account space.', async () => {
+      try {
+        sandbox.stub(uut.db.Account, 'findById').resolves({ maxBytes: 9, currentBytes: 0 })
+
+        await uut.importCID({ cid: 'cid', user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'The account does not have enough space.')
+      }
+    })
+    it('should throw error if cid is a directory.', async () => {
+      try {
+        sandbox.stub(uut.heliaNode.node, 'getStat').resolves({ type: 'directory' })
+
+        await uut.importCID({ cid: 'cid', user: testData.user })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Directory not supported')
+      }
+    })
+
+    it('should upload existing file', async () => {
+      sandbox.stub(uut, 'fileTypeFromBuffer').resolves({ mime: 'image/png' })
+      const result = await uut.importCID({ cid: 'pinnedcid', user: testData.user })
+
+      assert.isObject(result)
+      assert.property(result, 'cid')
+      assert.property(result, '_id')
+      assert.equal(result.cid, 'pinnedcid')
+      testData.file = result
+    })
+    it('should upload new file', async () => {
+      sandbox.stub(uut.db.Files, 'findOne').resolves(null)
+      sandbox.stub(uut, 'fileTypeFromBuffer').resolves({ mime: 'image/png' })
+      const result = await uut.importCID({ cid: 'pinnedcid', user: testData.user })
+
+      assert.isObject(result)
+      assert.property(result, 'cid')
+      assert.property(result, '_id')
+      assert.equal(result.cid, 'pinnedcid')
+      testData.file = result
+    })
+  })
 
   describe('#getFiles', () => {
     it('should handle error', async () => {

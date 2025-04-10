@@ -44,6 +44,9 @@ class HeliaNodeMock {
   async unPinCid () { return 'cid' }
   async uploadFile () { return 'cid' }
   async getDiskSize () { return 0 }
+  async getStat () { return { fileSize: 10 } }
+  async lazyDownload () { return 'cid' }
+  async getContent () { return 'cid' }
 }
 
 class PinRPCMock {
