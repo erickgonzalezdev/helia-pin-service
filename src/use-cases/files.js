@@ -195,12 +195,27 @@ export default class FileUseCases {
 
   async handleUnprovidedFiles () {
     try {
-      const unprovidedFiles = await this.db.Files.find({ pinned: true, provided: false, archived: false })
+      const unprovidedFilesRes = await this.db.Files.find({ pinned: true, archived: false })
+      // Files that are not provided and  the last provided time is older than 22 hours
+      const unprovidedFiles = unprovidedFilesRes.filter(file => {
+        if (!file.provided) {
+          return true
+        }
+        const hours = 22
+        const now = new Date().getTime()
+        const providedAt = new Date(file.providedAt).getTime()
+        const diff = now - providedAt
+        if (diff > 1000 * 60 * 60 * hours) {
+          return true
+        }
+        return false
+      })
       this.wlogger.info(`UnProvided files : ${unprovidedFiles.length}`)
-
       for (let i = 0; i < unprovidedFiles.length; i++) {
         const fileObj = unprovidedFiles[i]
-
+        fileObj.provided = false
+        fileObj.providedAt = null
+        await fileObj.save()
         this.wlogger.info('handling unprovided cid ', fileObj.cid)
         const nodeToSendRequest = fileObj.targetNode
         if (!nodeToSendRequest) {

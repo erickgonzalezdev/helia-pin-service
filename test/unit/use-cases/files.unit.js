@@ -335,7 +335,17 @@ describe('#file-use-case', () => {
       const res = await uut.handleUnprovidedFiles()
       assert.isTrue(res)
     })
+    it('should handle older provided files', async () => {
+      sandbox.stub(uut.db.Files, 'find').resolves([
+        { cid: 'cid', pinned: true, _id: 'file id', provided: true, providedAt: new Date().getTime() - 1000 * 60 * 60 * 23, save: () => {} },
+        { cid: 'cid', pinned: true, _id: 'file id', targetNode: 'some node id', save: () => {} },
+        { cid: 'cid', pinned: true, _id: 'file id3', provided: true, providedAt: new Date().getTime() - 1000 * 60 * 60 * 21, save: () => {} },
 
+      ])
+
+      const res = await uut.handleUnprovidedFiles()
+      assert.isTrue(res)
+    })
     it('should handle error', async () => {
       try {
         sandbox.stub(uut.db.Files, 'find').throws(new Error('test error'))
