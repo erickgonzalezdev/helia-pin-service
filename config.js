@@ -14,6 +14,7 @@ const config = {
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
   relay :  process.env.RELAY,
+  networking: process.env.NETWORKING,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
