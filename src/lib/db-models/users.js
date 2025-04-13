@@ -19,7 +19,8 @@ const AccountSchema = new mongoose.Schema({
   currentBox: { type: Number, default: 0 },
   expiredAt: { type: Number, default: null },
   archived: { type: Boolean, default: false },
-  expired: { type: Boolean, default: false }
+  expired: { type: Boolean, default: false },
+  paymentId: { type: String }
 })
 
 const AccountData = mongoose.model('account', AccountSchema)

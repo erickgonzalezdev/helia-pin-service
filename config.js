@@ -13,7 +13,7 @@ const config = {
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
-  relay :  process.env.RELAY,
+  relay: process.env.RELAY,
   networking: process.env.NETWORKING,
 
   // Payment data

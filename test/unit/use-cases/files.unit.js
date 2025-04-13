@@ -339,7 +339,7 @@ describe('#file-use-case', () => {
       sandbox.stub(uut.db.Files, 'find').resolves([
         { cid: 'cid', pinned: true, _id: 'file id', provided: true, providedAt: new Date().getTime() - 1000 * 60 * 60 * 23, save: () => {} },
         { cid: 'cid', pinned: true, _id: 'file id', targetNode: 'some node id', save: () => {} },
-        { cid: 'cid', pinned: true, _id: 'file id3', provided: true, providedAt: new Date().getTime() - 1000 * 60 * 60 * 21, save: () => {} },
+        { cid: 'cid', pinned: true, _id: 'file id3', provided: true, providedAt: new Date().getTime() - 1000 * 60 * 60 * 21, save: () => {} }
 
       ])
 

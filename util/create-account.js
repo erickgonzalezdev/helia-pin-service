@@ -1,33 +1,46 @@
-import axios from 'axios'
+import mongoose from 'mongoose'
+import config from '../config.js'
+import Libraries from '../src/lib/index.js'
+import UseCases from '../src/use-cases/index.js'
+config.paymentUrl = 'https://dev-payment.pinbox.io'
+const libraries = new Libraries(config)
+const useCases = new UseCases({ libraries })
+
 // Authorization
-const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDE0OTk0NTUzYzhiYTY4M2I3OTQ2ZSIsInR5cGUiOiJ1c2VyQWNjZXNzIiwiaWF0IjoxNzMyMzMxOTI0fQ.ZcFQHB-3d75sqxW1i0szJxnP-OrsEGAZ75fvbU7hxCQ'
 // User id to update account
-const userId = '67414994553c8ba683b7946e'
+const email = process.env.EMAIL
+const type = process.env.TYPE
 
 const createAcc = async () => {
-  const options = {
-    method: 'post',
-    url: 'http://localhost:5001/account',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${JWT}`
-    },
-    data: {
-      userId,
-      type: 1, // 1 , 2 3
-      expirationData: { months: 5, days: 0, hours: 0, minutes: 0 }
-    }
+  mongoose.Promise = global.Promise
+  // this.mongoose.set('useCreateIndex', true) // Stop deprecation warning.
+  await mongoose.connect(`mongodb://localhost:27017/${config.database}`)
+  console.log(`Db connected to ${config.database}`)
+  console.log('email', email)
+
+  // Get all payloads from mongo db
+  if (!email) {
+    console.log('No user email provided')
+    return
   }
-  const result = await axios(options)
+  const user = await libraries.dbModels.Users.findOne({ email })
+  if (!user) {
+    console.log('User not found')
+    return
+  }
+  if (!type) {
+    console.log('error')
+    return
+  }
 
-  const account = result.data.account
-  console.log('account', account)
+  const account = await useCases.accounts.createAccount({
+    userId: user._id,
+    type: Number(type),
+    paymentId: '0000000000'
+  })
 
-  const expired = new Date(account.expiredAt).toLocaleDateString()
-  console.log('Account expired at ', expired)
-
-  console.log(`Max Account Storage : ${account.maxBytes / 10 ** 6} mb`)
-  console.log(`Max size per file : ${account.maxFileBytes / 10 ** 6} mb`)
+  console.log(`Account: ${JSON.stringify(account, null, 2)}`)
+  mongoose.connection.close()
 }
 
 createAcc()
