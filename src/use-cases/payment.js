@@ -63,11 +63,12 @@ class PaymentUseCases {
 
       const payment = await this.paymentLib.validatePayment({ paymentId })
 
-      const { metadata } = payment
+      const { metadata, _id } = payment
 
       const account = await this.accountsUseCases.createAccount({
         userId: user._id,
-        type: metadata.accountType
+        type: metadata.accountType,
+        paymentId: _id
       })
 
       return {

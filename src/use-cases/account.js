@@ -15,7 +15,7 @@ export default class AccountUseCases {
   // Create  a user account,
   async createAccount (inObj = {}) {
     try {
-      const { userId, type } = inObj
+      const { userId, type, paymentId } = inObj
 
       if (!userId) throw new Error('userId must be a string')
       if (!type) throw new Error('type must be a number')
@@ -38,6 +38,7 @@ export default class AccountUseCases {
       const account = new this.db.Account(accData)
       account.owner = user._id.toString()
       account.createdAt = new Date().getTime()
+      account.paymentId = paymentId
 
       // Assign new account to user.
       user.account = account._id.toString()
