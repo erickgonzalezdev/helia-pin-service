@@ -15,6 +15,7 @@ const config = {
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
   relay: process.env.RELAY,
   networking: process.env.NETWORKING,
+  announce: process.env.ANNOUNCE,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
