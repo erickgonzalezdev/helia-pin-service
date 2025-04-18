@@ -187,15 +187,27 @@ describe('#helia-ipfs-node.js', () => {
     })
     it('should define node with low space usage', async () => {
       const subscriptionListMock = [
-        { peerId: 'peer1', diskSize: 100 },
-        { peerId: 'peer2', diskSize: 200 },
-        { peerId: 'peer3', diskSize: 50 },
-        { peerId: 'peer4', diskSize: 500 }
+        { peerId: 'peer1', diskSize: 100, role: 'pinner' },
+        { peerId: 'peer2', diskSize: 200, role: 'pinner' },
+        { peerId: 'peer3', diskSize: 50, role: 'pinner' },
+        { peerId: 'peer4', diskSize: 500, role: 'pinner' }
       ]
       uut.rpc = { getSubscriptionList: () => { return subscriptionListMock } }
       const result = uut.setTargetNode()
       assert.isString(result)
       assert.equal(result, 'peer3', 'Expected peer3 to be selected')
+    })
+    it('should define node with low space usage ignoring non-pinner nodes', async () => {
+      const subscriptionListMock = [
+        { peerId: 'peer1', diskSize: 100, role: 'pinner' },
+        { peerId: 'peer2', diskSize: 200, role: 'pinner' },
+        { peerId: 'peer3', diskSize: 50, role: 'delegator' },
+        { peerId: 'peer4', diskSize: 500, role: 'delegator' }
+      ]
+      uut.rpc = { getSubscriptionList: () => { return subscriptionListMock } }
+      const result = uut.setTargetNode()
+      assert.isString(result)
+      assert.equal(result, 'peer1', 'Expected peer3 to be selected')
     })
   })
 
