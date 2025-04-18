@@ -27,7 +27,7 @@
     "axios": "1.7.2",
     "bcryptjs": "2.4.3",
     "file-type": "^20.4.1",
-    "helia-ipfs-node": "^3.0.1",
+    "helia-ipfs-node": "^3.0.2",
     "jsonwebtoken": "9.0.2",
     "kcors": "2.2.2",
     "koa": "2.15.3",
