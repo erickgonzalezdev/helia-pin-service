@@ -26,6 +26,7 @@ class Libp2pMock {
   getMultiaddrs () { return [] }
   async dial () { return true }
   async getConnections () { return [] }
+  async handle () { return true }
 }
 
 class HeliaNodeMock {

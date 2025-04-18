@@ -1,4 +1,4 @@
-import { HeliaNode as Node, Server, PinRPC, GB } from 'helia-ipfs-node/src/lib.js'
+import { HeliaNode as Node, Server, PinRPC, GB, PFTProtocol } from 'helia-ipfs-node/src/lib.js'
 import { CID } from 'multiformats/cid'
 
 class HeliaNode {
@@ -46,12 +46,18 @@ class HeliaNode {
       this.rpc = new this.PinRPC({
         node: this.node,
         topic: this.config.rpcTopic,
+        role: this.config.role,
         onSuccessRemotePin: this.onSuccessRemotePin,
         onSuccessRemoteUnpin: this.onSuccessRemoteUnpin,
         onSuccessRemoteProvide: this.onSuccessRemoteProvide
       })
       await this.rpc.start()
 
+      this.pft = new PFTProtocol({
+        node: this.node,
+        topic: this.config.rpcTopic
+      })
+      await this.pft.start()
       this.gb = new this.GB({ node: this.node, period: this.config.gcPeriod })
       await this.gb.start()
     } catch (error) {
@@ -198,7 +204,10 @@ class HeliaNode {
         throw new Error('node rpc is not initialized')
       }
 
-      const nodeList = this.rpc.getSubscriptionList()
+      const nodeFullList = this.rpc.getSubscriptionList()
+      // Get all pinner nodes
+      const nodeList = nodeFullList.filter(node => node.role === 'pinner')
+      console.log('Pinner nodes : ', nodeList)
 
       if (!nodeList.length) {
         throw new Error('node list is empty')

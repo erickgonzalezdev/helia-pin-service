@@ -7,15 +7,16 @@ const config = {
   passKey: process.env.PASS_KEY || 'signature-salt-key',
   koaSessionKey: 'koa-session-secret-key',
   env,
+  // Node Data
   gatewayPort: process.env.GATEWAY_PORT || 8080,
   rpcTopic: process.env.TOPIC || 'pin-rpc-topic',
-  pinHostPeerId: process.env.PIN_HOST || '12D3KooWE2d8BnfLqVRJ3HZusgTUVHFq5EJezp49firDSbUe7MoR',
   reviewPinsPeriod: process.env.REVIEW_PINS_PERIOD || 5, // Minutes
   reviewNodesPeriod: process.env.REVIEW_NODES_PERIOD || 10, // Minutes
   gcPeriod: process.env.GC_PERIOD || 60, // Minutes
   relay: process.env.RELAY,
-  networking: process.env.NETWORKING,
   announce: process.env.ANNOUNCE,
+  alias: process.env.ALIAS || 'pinbox-dev',
+  role: process.env.ROLE,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
