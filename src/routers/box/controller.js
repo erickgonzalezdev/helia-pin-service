@@ -77,7 +77,7 @@ export default class PinBoxController {
 * @apiName GetBoxes
 * @apiGroup Box
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box
 *
@@ -117,7 +117,7 @@ export default class PinBoxController {
  * @apiName UpdateBox
  * @apiGroup Box
  * @apiVersion 1.0.0
- *
+ * @apiIgnore
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "description": "new description" }' localhost:5001/box/<id>
 
@@ -139,7 +139,7 @@ export default class PinBoxController {
    * @apiPermission user
    * @apiName DeleteBox
    * @apiGroup Box
-   *
+   * @apiIgnore
    * @apiExample Example usage:
    * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/box/<id>
    *

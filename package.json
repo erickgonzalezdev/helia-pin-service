@@ -11,7 +11,8 @@
     "test:all": "export ENVIROMENT=test && c8 --reporter=text mocha --exit --timeout 15000 --recursive test/unit test/e2e/",
     "coverage:report": "export ENVIROMENT=test && c8 --reporter=html mocha --exit --timeout 15000 --recursive test/unit/ test/e2e/",
     "lint": "standard --env mocha --fix",
-    "docs": "./node_modules/.bin/apidoc -i src/ -o docs"
+    "docs": "./node_modules/.bin/apidoc -i src/ -o docs",
+    "docs:production": "export API_URL=https://api.pinbox.cloud &&  ./node_modules/.bin/apidoc -i src/ -o docs  && node util/docs-replace-url.js"
   },
   "repository": {
     "type": "git",
@@ -55,9 +56,9 @@
     "standard": "^17.1.0"
   },
   "apidoc": {
-    "name": "helia-pin",
+    "name": " ",
     "url": "localhost:5001",
     "version": "1.0.0",
-    "description": "helia-pin-doc"
+    "description": "RESTful API documentation for PinBox Cloud"
   }
 }

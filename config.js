@@ -17,6 +17,8 @@ const config = {
   announce: process.env.ANNOUNCE,
   alias: process.env.ALIAS || 'pinbox-dev',
   role: process.env.ROLE,
+  tcpPort: process.env.TCP_PORT,
+  wsPort: process.env.WS_PORT,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,

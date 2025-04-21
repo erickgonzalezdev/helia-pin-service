@@ -74,7 +74,7 @@ export default class FilesController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/files
- *
+ * @apiIgnore
  */
   async getFiles (ctx) {
     try {
@@ -94,7 +94,7 @@ export default class FilesController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/files/<id>
- *
+ * @apiIgnore
  */
   async getFile (ctx) {
     try {

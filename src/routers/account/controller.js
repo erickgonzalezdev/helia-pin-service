@@ -18,6 +18,8 @@ export default class AccountController {
  * @apiName CreateAccount
  * @apiGroup Accounts
  * @apiVersion 1.0.0
+ * @apiIgnore
+ *
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/free
@@ -41,6 +43,7 @@ export default class AccountController {
 * @apiName RefreshAccount
 * @apiGroup Accounts
 * @apiVersion 1.0.0
+* @apiIgnore
 *
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/<id>
@@ -64,7 +67,7 @@ export default class AccountController {
 * @apiName GetAccountsData
 * @apiGroup Accounts
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json"  -X GET  localhost:5001/account/pricing
 *
