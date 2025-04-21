@@ -19,6 +19,7 @@ const config = {
   role: process.env.ROLE,
   tcpPort: process.env.TCP_PORT,
   wsPort: process.env.WS_PORT,
+  announceAddress: process.env.ANNOUNCE_ADDRESS,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
