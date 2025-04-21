@@ -20,6 +20,7 @@ const config = {
   tcpPort: process.env.TCP_PORT,
   wsPort: process.env.WS_PORT,
   announceAddr: process.env.ANNOUNCE_ADDRESS,
+  serverDHTProvide: process.env.SERVER_DHT_PROVIDE,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
