@@ -32,10 +32,6 @@ export default class UsersController {
  *
  * @apiParam {String} email User Email.
  * @apiParam {String} password User Password.
- *
- * @apiSuccess {Object}   user            User object
- * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.email     User Email
  * @apiIgnore
  */
   async createUser (ctx) {
@@ -63,10 +59,6 @@ export default class UsersController {
  * @apiParam {String} email  User Email.
  * @apiParam {String} password  User Password.
  *
- * @apiSuccess {String}   token          Encoded JWT
- * @apiSuccess {Object}   user           User object
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.email     User email
  *
  */
 
@@ -289,6 +281,7 @@ export default class UsersController {
  * @apiName ResetPassword
  * @apiGroup Users
  * @apiVersion 1.0.0
+ * @apiIgnore
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST localhost:5001/users/password/reset

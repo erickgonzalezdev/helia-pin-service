@@ -13,19 +13,22 @@ export default class AccountController {
   }
 
   /**
- * @api {get} /accounts/free Get free account
- * @apiPermission user
- * @apiName CreateAccount
- * @apiGroup Accounts
- * @apiVersion 1.0.0
- * @apiIgnore
- *
- *
- * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/free
- *
- *
- */
+   * @api {get} /accounts/free Get free account
+   * @apiPermission user
+   * @apiName CreateAccount
+   * @apiGroup Accounts
+   * @apiVersion 1.0.0
+   * @apiIgnore
+   *
+   * @apiSuccess {Object} account Account details
+   * @apiSuccess {String} account.id Account ID
+   * @apiSuccess {String} account.type Account type
+   * @apiSuccess {Object} account.balance Account balance
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/free
+   *
+   */
   async getFreeAccount (ctx) {
     try {
       const account = await this.useCases.accounts.getFreeAccount(ctx.state.user)
@@ -38,18 +41,24 @@ export default class AccountController {
   }
 
   /**
-* @api {post} /accounts Get Account by id.
-* @apiPermission user
-* @apiName RefreshAccount
-* @apiGroup Accounts
-* @apiVersion 1.0.0
-* @apiIgnore
-*
-* @apiExample Example usage:
-* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/<id>
-*
-*
-*/
+   * @api {post} /accounts Get Account by id.
+   * @apiPermission user
+   * @apiName RefreshAccount
+   * @apiGroup Accounts
+   * @apiVersion 1.0.0
+   * @apiIgnore
+   *
+   * @apiParam {String} id Account ID
+   *
+   * @apiSuccess {Object} account Updated account details
+   * @apiSuccess {String} account.id Account ID
+   * @apiSuccess {String} account.type Account type
+   * @apiSuccess {Object} account.balance Account balance
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET  localhost:5001/account/<id>
+   *
+   */
   async refreshAccount (ctx) {
     try {
       const account = await this.useCases.accounts.refreshAccount(ctx.params)
@@ -62,17 +71,21 @@ export default class AccountController {
   }
 
   /**
-* @api {post} /accounts/pricing Get Accounts pricing data.
-* @apiPermission user
-* @apiName GetAccountsData
-* @apiGroup Accounts
-* @apiVersion 1.0.0
-* @apiIgnore
-* @apiExample Example usage:
-* curl -H "Content-Type: application/json"  -X GET  localhost:5001/account/pricing
-*
-*
-*/
+   * @api {post} /accounts/pricing Get Accounts pricing data.
+   * @apiPermission user
+   * @apiName GetAccountsData
+   * @apiGroup Accounts
+   * @apiVersion 1.0.0
+   * @apiIgnore
+   *
+   * @apiSuccess {Object} data Pricing data
+   * @apiSuccess {Array} data.plans Available pricing plans
+   * @apiSuccess {Object} data.features Features for each plan
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json"  -X GET  localhost:5001/account/pricing
+   *
+   */
   async getAccountsData (ctx) {
     try {
       const data = await this.useCases.accounts.getAccountsData()
