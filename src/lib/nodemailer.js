@@ -21,12 +21,17 @@ class NodemailerLib {
     try {
       this.wlogger.info('email data', this.config.emailServer, this.config.emailUser, this.config.emailPassword)
       this.transporter = this.nodemailer.createTransport({
-        host: this.config.emailServer,
+ /*        host: this.config.emailServer,
         port: 465,
         auth: {
           user: this.config.emailUser,
           pass: this.config.emailPassword
-        }
+        } */
+       service: 'gmail',
+       auth: {
+        user: this.config.emailUser,
+        pass: this.config.emailPassword
+       }
       })
 
       this.wlogger.info('Email service transport started!')
