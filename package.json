@@ -59,7 +59,7 @@
     "name": " ",
     "url": "localhost:5001",
     "version": "1.0.0",
-    "description": "REST API documentation for <a href='https://pinbox.cloud' target='_blank'>PinBox Cloud</a>",
+    "description": "<img src='https://gateway.pinbox.cloud/ipfs/bafybeieyui37pwilobnckczebyc624pcob4ydbyoq3a2umsbjluxft4ncq' alt='PinBox Cloud' width='100' height='100' style='border-radius: 50%; margin-right: 10px;'> API documentation for <a href='https://pinbox.cloud' target='_blank'>PinBox Cloud</a>",
     "template": {
       "defaultLanguage": "en",
       "withGenerator": false

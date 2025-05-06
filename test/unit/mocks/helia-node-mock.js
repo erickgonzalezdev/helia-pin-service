@@ -21,6 +21,7 @@ class Libp2pMock {
     this.services = {
       pubsub: new Pubsub()
     }
+    this.addEventListener = () => {}
   }
 
   getMultiaddrs () { return [] }
@@ -37,6 +38,9 @@ class HeliaNodeMock {
       libp2p: new Libp2pMock(),
       gc: () => {}
     }
+    this.opts = {
+    }
+    this.addresses = ['/ip4/127.0.0.1/tcp/4001/p2p/QmHash']
   }
 
   async start () {}

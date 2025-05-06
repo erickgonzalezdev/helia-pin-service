@@ -22,6 +22,7 @@ export default class FileUseCases {
   async uploadFile (inObj = {}) {
     try {
       const { file, user } = inObj
+      console.log('file', file)
       if (!file) {
         throw new Error('file is required!')
       }
@@ -45,9 +46,15 @@ export default class FileUseCases {
 
       // create file data into the db
       if (!fileObj) {
+        const length = 10 ** 6 * 50 // max 50 mb
+        const content = await this.heliaNode.node.getContent(cid, { offset: 0, length })
+        const type = await this.fileTypeFromBuffer(content)
+        console.log('type', type)
+        const mimeType = type?.mime || file.mimetype
+        console.log('mimeType', mimeType)
         fileObj = new this.db.Files({ cid })
         fileObj.createdAt = new Date().getTime()
-        fileObj.type = file.mimetype
+        fileObj.type = mimeType
         fileObj.name = file.originalFilename
         fileObj.size = file.size
         fileObj.pinned = false
