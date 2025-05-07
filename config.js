@@ -31,6 +31,7 @@ const config = {
   emailServer: process.env.EMAIL_SERVER || 'server',
   emailUser: process.env.EMAIL_USER || '',
   emailPassword: process.env.EMAIL_PASSWORD || '',
+  emailFrom: process.env.EMAIL_FROM || '',
   telegramVerificationCode: process.env.TELEGRAM_VERIFICATION_CODE || '12345678',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000'
 }
