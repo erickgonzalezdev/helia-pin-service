@@ -101,6 +101,7 @@ describe('#file-use-case', () => {
     })
 
     it('should upload file', async () => {
+      sandbox.stub(uut, 'fileTypeFromBuffer').resolves({ mime: 'image/png' })
       sandbox.stub(uut.heliaNode.node, 'uploadFile').resolves('pinnedcid')
       const result = await uut.uploadFile({ file: FileMock, user: testData.user })
 

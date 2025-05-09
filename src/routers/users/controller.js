@@ -32,11 +32,7 @@ export default class UsersController {
  *
  * @apiParam {String} email User Email.
  * @apiParam {String} password User Password.
- *
- * @apiSuccess {Object}   user            User object
- * @apiSuccess {ObjectId} users._id       User id
- * @apiSuccess {String}   users.email     User Email
- *
+ * @apiIgnore
  */
   async createUser (ctx) {
     try {
@@ -63,10 +59,6 @@ export default class UsersController {
  * @apiParam {String} email  User Email.
  * @apiParam {String} password  User Password.
  *
- * @apiSuccess {String}   token          Encoded JWT
- * @apiSuccess {Object}   user           User object
- * @apiSuccess {ObjectId} user._id       User id
- * @apiSuccess {String}   user.email     User email
  *
  */
 
@@ -97,6 +89,7 @@ export default class UsersController {
  * @apiSuccess {Object}   user            User object
  * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   user.email     User email
+ * @apiIgnore
  */
   async getUser (ctx, next) {
     try {
@@ -126,6 +119,7 @@ export default class UsersController {
 * @apiSuccess {Object}   user            User object
 * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   user.email     User email
+ * @apiIgnore
 */
   async getUsers (ctx) {
     try {
@@ -151,6 +145,7 @@ export default class UsersController {
  *
  * @apiSuccess {ObjectId} users._id       User id
  * @apiSuccess {String}   user.email      User email
+ * @apiIgnore
  */
 
   async updateUser (ctx) {
@@ -173,6 +168,7 @@ export default class UsersController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/email/verify
+ * @apiIgnore
  */
   async verifyEmailCode (ctx) {
     try {
@@ -195,7 +191,7 @@ export default class UsersController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/users/email/code
- *
+ * @apiIgnore
  */
   async sendEmailVerificationCode (ctx) {
     try {
@@ -217,6 +213,7 @@ export default class UsersController {
 *
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "code": 123456 }' localhost:5001/users/telegram/verify
+* @apiIgnore
 */
   async verifyTelegram (ctx) {
     try {
@@ -240,6 +237,7 @@ export default class UsersController {
 *
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "newPassword":"newpass123","currentPassword": 123456 }' localhost:5001/users/password
+* @apiIgnore
 */
   async changePassword (ctx) {
     try {
@@ -263,6 +261,7 @@ export default class UsersController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X POST -d '{ "email": "newuser@email.com" }' localhost:5001/users/password/reset
+ * @apiIgnore
  */
   async sendPasswordResetEmail (ctx) {
     try {
@@ -282,6 +281,7 @@ export default class UsersController {
  * @apiName ResetPassword
  * @apiGroup Users
  * @apiVersion 1.0.0
+ * @apiIgnore
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST localhost:5001/users/password/reset

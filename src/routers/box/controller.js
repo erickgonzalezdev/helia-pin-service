@@ -30,8 +30,7 @@ export default class PinBoxController {
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "label": "my box", "description": "art box"  }' localhost:5001/box
  *
  * @apiParam {String} label Box title.
- * @apiParam {String} description  Box description.
- *
+ * @apiParam {String} description Box description.
  *
  */
   async createBox (ctx) {
@@ -57,6 +56,7 @@ export default class PinBoxController {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/<id>
  *
+ * @apiParam {String} id Box unique ID.
  */
   async getBox (ctx, next) {
     try {
@@ -77,7 +77,7 @@ export default class PinBoxController {
 * @apiName GetBoxes
 * @apiGroup Box
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box
 *
@@ -117,10 +117,13 @@ export default class PinBoxController {
  * @apiName UpdateBox
  * @apiGroup Box
  * @apiVersion 1.0.0
- *
+ * @apiIgnore
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X PUT -d '{ "description": "new description" }' localhost:5001/box/<id>
-
+ *
+ * @apiParam {String} id Box unique ID.
+ * @apiParam {String} [label] Box title.
+ * @apiParam {String} [description] Box description.
  */
 
   async updateBox (ctx) {
@@ -139,10 +142,11 @@ export default class PinBoxController {
    * @apiPermission user
    * @apiName DeleteBox
    * @apiGroup Box
-   *
+   * @apiIgnore
    * @apiExample Example usage:
    * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/box/<id>
    *
+   * @apiParam {String} id Box unique ID.
    */
 
   async deleteBox (ctx) {
@@ -164,6 +168,8 @@ export default class PinBoxController {
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "label": "signature label", "boxId": "my box id"  }' localhost:5001/box/sign
 *
+* @apiParam {String} label Signature label.
+* @apiParam {String} boxId ID of the box to sign.
 */
 
   async createSignature (ctx) {
@@ -186,6 +192,7 @@ export default class PinBoxController {
 * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/box/sign/<id>
 *
+* @apiParam {String} id Box unique ID.
 */
 
   async getBoxSignatures (ctx) {
@@ -209,6 +216,7 @@ export default class PinBoxController {
    * @apiExample Example usage:
    * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/box/sign/<id>
    *
+   * @apiParam {String} id Signature unique ID.
    */
 
   async deleteSignature (ctx) {
@@ -230,6 +238,7 @@ export default class PinBoxController {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "signature": "box signature" }'localhost:5001/box/import
  *
+ * @apiParam {String} signature Box signature to import.
  */
 
   async importSignature (ctx) {

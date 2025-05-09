@@ -18,6 +18,9 @@ export default class PinController {
  * @apiName AddPin
  * @apiGroup Pin
  *
+ * @apiParam {String} pinId The ID of the pin to add
+ * @apiParam {String} boxId The ID of the box to add the pin to
+ *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X POST -d '{  "pinId": "my pin id", "boxId": "my box id"  }' localhost:5001/pin
  *
@@ -50,6 +53,8 @@ export default class PinController {
  * @apiName GetPinsByBox
  * @apiGroup Pin
  *
+ * @apiParam {String} id The ID of the box to get pins from
+ *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/pin/box/<id>
  *
@@ -66,15 +71,17 @@ export default class PinController {
   }
 
   /**
-* @api {delete} /pin/:id Delete Pin.
-* @apiPermission User
-* @apiName DeletePin
-* @apiGroup Pin
-*
-* @apiExample Example usage:
-* curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/pin/<id>
-*
-*/
+ * @api {delete} /pin/:id Delete Pin.
+ * @apiPermission User
+ * @apiName DeletePin
+ * @apiGroup Pin
+ *
+ * @apiParam {String} id The ID of the pin to delete
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X DELETE localhost:5001/pin/<id>
+ *
+ */
   async deletePin (ctx) {
     try {
       const pinId = ctx.request.params.id

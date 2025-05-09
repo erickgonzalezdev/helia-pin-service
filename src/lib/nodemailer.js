@@ -21,12 +21,26 @@ class NodemailerLib {
     try {
       this.wlogger.info('email data', this.config.emailServer, this.config.emailUser, this.config.emailPassword)
       this.transporter = this.nodemailer.createTransport({
-        host: this.config.emailServer,
+        /*        host: this.config.emailServer,
         port: 465,
         auth: {
           user: this.config.emailUser,
           pass: this.config.emailPassword
+        } */
+        /*      service: 'gmail',
+             auth: {
+               user: this.config.emailUser,
+               pass: this.config.emailPassword
+             } */
+
+        host: 'smtp.zoho.com',
+        port: 465, // Usa 465 para SSL o 587 para TLS
+        secure: true, // true para SSL (465), false para STARTTLS (587)
+        auth: {
+          user: this.config.emailUser,
+          pass: this.config.emailPassword
         }
+
       })
 
       this.wlogger.info('Email service transport started!')
@@ -45,7 +59,7 @@ class NodemailerLib {
       if (!html || typeof html !== 'string') throw new Error('<html> property must be a string.')
 
       const sendObj = {
-        from: this.config.emailUser,
+        from: this.config.emailFrom || this.config.emailUser,
         to,
         subject,
         html

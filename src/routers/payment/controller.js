@@ -19,7 +19,7 @@ export default class PaymentController {
  * @apiName CreatePayment
  * @apiGroup Payments
  * @apiVersion 1.0.0
- *
+ * @apiIgnore
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -X POST -d '{"accountType": 1  , chain:'avax' }' localhost:5001/payment
  *
@@ -44,7 +44,7 @@ export default class PaymentController {
 * @apiName ValidatePayment
 * @apiGroup Payments
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -X POST -d '{"paymentId": 'payment id' }' localhost:5001/payment/validate
 *
@@ -67,7 +67,7 @@ export default class PaymentController {
 * @apiName CancelPayment
 * @apiGroup Payments
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -X DELETE  localhost:5001/payment/cancel/<id>
 *
@@ -88,7 +88,7 @@ export default class PaymentController {
 * @apiName GetUserPayments
 * @apiGroup Payments
 * @apiVersion 1.0.0
-*
+* @apiIgnore
 * @apiExample Example usage:
 * curl -H "Content-Type: application/json" -X DELETE  localhost:5001/payment/user/
 *

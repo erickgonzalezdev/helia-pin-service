@@ -11,7 +11,8 @@
     "test:all": "export ENVIROMENT=test && c8 --reporter=text mocha --exit --timeout 15000 --recursive test/unit test/e2e/",
     "coverage:report": "export ENVIROMENT=test && c8 --reporter=html mocha --exit --timeout 15000 --recursive test/unit/ test/e2e/",
     "lint": "standard --env mocha --fix",
-    "docs": "./node_modules/.bin/apidoc -i src/ -o docs"
+    "docs": "./node_modules/.bin/apidoc -i src/ -o docs",
+    "docs:production": "export API_URL=https://api.pinbox.cloud &&  ./node_modules/.bin/apidoc -i src/ -o docs  && node util/docs-replace-url.js  && cp -arv --remove-destination docs-template/assets docs/"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,7 @@
     "axios": "1.7.2",
     "bcryptjs": "2.4.3",
     "file-type": "^20.4.1",
-    "helia-ipfs-node": "^3.0.6",
+    "helia-ipfs-node": "https://github.com/erickgonzalezdev/helia-ipfs-node/tree/experimental2",
     "jsonwebtoken": "9.0.2",
     "kcors": "2.2.2",
     "koa": "2.15.3",
@@ -55,9 +56,13 @@
     "standard": "^17.1.0"
   },
   "apidoc": {
-    "name": "helia-pin",
+    "name": " ",
     "url": "localhost:5001",
     "version": "1.0.0",
-    "description": "helia-pin-doc"
+    "description": "<img src='https://gateway.pinbox.cloud/ipfs/bafybeieyui37pwilobnckczebyc624pcob4ydbyoq3a2umsbjluxft4ncq' alt='PinBox Cloud' width='100' height='100' style='border-radius: 50%; margin-right: 10px;'> API documentation for <a href='https://pinbox.cloud' target='_blank'>PinBox Cloud</a>",
+    "template": {
+      "defaultLanguage": "en",
+      "withGenerator": false
+    }
   }
 }

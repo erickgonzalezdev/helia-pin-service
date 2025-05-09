@@ -23,9 +23,9 @@ export default class FilesController {
  * @apiExample Example usage:
  * curl -H "Authorization: Bearer <JWT Token>" --form upload=@image.jpeg localhost:5001/files
  *
- * @apiParam {FILE} File to upload.
+ * @apiParam {FILE} file The file to upload
  *
- * @apiSuccess {String}   CID  content id.
+ * @apiSuccess {String} CID  content id.
  *
  */
   async uploadFile (ctx) {
@@ -49,9 +49,9 @@ export default class FilesController {
  * @apiExample Example usage:
  * curl -H "Authorization: Bearer <JWT Token>" -X POST -d '{ "cid":"cid to import" }' localhost:5001/files/import/cid
  *
- * @apiParam {String} cid  content id.
+ * @apiParam {String} cid The content identifier to import
  *
- * @apiSuccess {String}   CID  content id.
+ * @apiSuccess {String} CID  content id.
  *
  */
   async importCID (ctx) {
@@ -74,7 +74,7 @@ export default class FilesController {
  *
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/files
- *
+ * @apiIgnore
  */
   async getFiles (ctx) {
     try {
@@ -95,6 +95,9 @@ export default class FilesController {
  * @apiExample Example usage:
  * curl -H "Content-Type: application/json" -H "Authorization: Bearer <JWT Token>" -X GET localhost:5001/files/<id>
  *
+ * @apiParam {String} id The file data identifier
+ *
+ * @apiIgnore
  */
   async getFile (ctx) {
     try {

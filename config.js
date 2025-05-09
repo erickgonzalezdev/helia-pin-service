@@ -17,6 +17,12 @@ const config = {
   announce: process.env.ANNOUNCE,
   alias: process.env.ALIAS || 'pinbox-dev',
   role: process.env.ROLE,
+  tcpPort: process.env.TCP_PORT,
+  wsPort: process.env.WS_PORT,
+  announceAddr: process.env.ANNOUNCE_ADDRESS,
+  serverDHTProvide: process.env.SERVER_DHT_PROVIDE,
+  pinOnGetContent: process.env.PIN_ON_GET_CONTENT,
+  unpinOnLastAccessOfHours: process.env.UNPIN_ON_LAST_ACCESS_OF_HOURS,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,
@@ -27,6 +33,7 @@ const config = {
   emailServer: process.env.EMAIL_SERVER || 'server',
   emailUser: process.env.EMAIL_USER || '',
   emailPassword: process.env.EMAIL_PASSWORD || '',
+  emailFrom: process.env.EMAIL_FROM || '',
   telegramVerificationCode: process.env.TELEGRAM_VERIFICATION_CODE || '12345678',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000'
 }
