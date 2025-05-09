@@ -21,6 +21,8 @@ const config = {
   wsPort: process.env.WS_PORT,
   announceAddr: process.env.ANNOUNCE_ADDRESS,
   serverDHTProvide: process.env.SERVER_DHT_PROVIDE,
+  pinOnGetContent: process.env.PIN_ON_GET_CONTENT,
+  unpinOnLastAccessOfHours: process.env.UNPIN_ON_LAST_ACCESS_OF_HOURS,
 
   // Payment data
   paymentUrl: process.env.PAYMENT_URL || paymentUrl,

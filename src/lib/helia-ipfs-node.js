@@ -40,7 +40,13 @@ class HeliaNode {
       this.wlogger.info('node started!')
 
       // Start Gateway.
-      this.gateway = new this.HeliaServer({ node: this.node, port: this.config.gatewayPort })
+      this.gateway = new this.HeliaServer({
+        node: this.node,
+        port: this.config.gatewayPort,
+        pinOnGetContent: this.config.pinOnGetContent,
+        unpinOnLastAccessOfHours: this.config.unpinOnLastAccessOfHours
+      })
+
       await this.gateway.start()
 
       this.rpc = new this.PinRPC({
