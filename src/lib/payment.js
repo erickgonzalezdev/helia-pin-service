@@ -21,6 +21,7 @@ class PaymentGateway {
     this.validatePayment = this.validatePayment.bind(this)
     this.cancelPayment = this.cancelPayment.bind(this)
     this.getPaymentsByWallet = this.getPaymentsByWallet.bind(this)
+    this.getWalletById = this.getWalletById.bind(this)
   }
 
   async auth () {
@@ -145,6 +146,27 @@ class PaymentGateway {
       const options = {
         method: 'get',
         url: `${this.url}/payments/wallet/${walletId}`,
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${this.jwt}`
+        }
+      }
+      const result = await this.axios.request(options)
+      return result.data
+    } catch (error) {
+      this.wlogger.error(`Error in payment/getPaymentsByWallet() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getWalletById (inObj = {}) {
+    try {
+      if (!this.jwt) await this.auth()
+      const { walletId } = inObj
+      if (!walletId) throw new Error('wallet id is required!')
+      const options = {
+        method: 'get',
+        url: `${this.url}/wallets/${walletId}`,
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${this.jwt}`

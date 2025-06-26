@@ -95,6 +95,7 @@ describe('#payment-use-case', () => {
     })
     it('should create payment and handle user with existing wallet', async () => {
       try {
+        sandbox.stub(uut.paymentLib, 'getWalletById').resolves(true)
         sandbox.stub(uut.paymentLib, 'createPayment').resolves({})
 
         const payment = await uut.createPayment({ user: testData.user, chain: 'crypto chain', accountType: 1 })
