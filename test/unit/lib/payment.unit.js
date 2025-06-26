@@ -163,12 +163,41 @@ describe('#payment.js', () => {
       }
     })
 
-    it('should auth to payment server', async () => {
+    it('should get payments', async () => {
       sandbox.stub(uut.axios, 'request').resolves({ data: [] })
 
       const result = await uut.getPaymentsByWallet()
 
       assert.isArray(result)
+    })
+  })
+  describe('#getWalletById', () => {
+    it('should throw error if walletid is not provided', async () => {
+      try {
+        await uut.getWalletById()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'wallet id is required!')
+      }
+    })
+    it('should handle axios error', async () => {
+      try {
+        sandbox.stub(uut.axios, 'request').throws(new Error('test error'))
+        await uut.getWalletById({ walletId: 'wallet id' })
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+
+    it('should get wallet id', async () => {
+      sandbox.stub(uut.axios, 'request').resolves({ data: {} })
+
+      const result = await uut.getWalletById({ walletId: 'wallet id' })
+
+      assert.exists(result)
     })
   })
 })

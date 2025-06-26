@@ -25,7 +25,16 @@ class PaymentUseCases {
       if (!chain || typeof chain !== 'string') throw new Error('chain is required.')
       if (!accountType) throw new Error('accountType is required.')
 
-      if (!user.paymentWalletId) {
+      let hasWallet
+      console.log(user)
+      try {
+        hasWallet = await this.paymentLib.getWalletById({ walletId: user.paymentWalletId })
+      } catch (error) {
+        hasWallet = false
+      }
+
+      console.log('hasWallet', hasWallet)
+      if (!hasWallet) {
         const wallet = await this.paymentLib.createWallet({ name: user._id, description: 'pinbox user wallet' })
         console.log('adding wallet ot user', wallet._id)
         user.paymentWalletId = wallet._id
