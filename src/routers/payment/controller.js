@@ -11,6 +11,9 @@ export default class PaymentController {
     this.validatePayment = this.validatePayment.bind(this)
     this.cancelPayment = this.cancelPayment.bind(this)
     this.getUserPayments = this.getUserPayments.bind(this)
+    this.createPaymentReport = this.createPaymentReport.bind(this)
+    this.getReports = this.getReports.bind(this)
+
   }
 
   /**
@@ -99,6 +102,30 @@ export default class PaymentController {
       const payments = await this.useCases.payments.getUserPayments(ctx.state.user)
       ctx.body = {
         payments
+      }
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  async createPaymentReport (ctx) {
+    try {
+      const inObj = ctx.request.body
+      inObj.user = ctx.state.user
+      const report = await this.useCases.payments.reportPayment(inObj)
+      ctx.body = {
+        report
+      }
+    } catch (error) {
+      this.handleError(ctx, error)
+    }
+  }
+
+  async getReports (ctx) {
+    try {
+      const paymentReports = await this.useCases.payments.getReports()
+      ctx.body = {
+        paymentReports
       }
     } catch (error) {
       this.handleError(ctx, error)

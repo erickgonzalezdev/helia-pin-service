@@ -194,4 +194,80 @@ describe('#payment-use-case', () => {
       }
     })
   })
+  describe('#reportPayment', () => {
+    it('should throw an error if user input is missing', async () => {
+      try {
+        await uut.reportPayment()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'user model is required')
+      }
+    })
+    it('should throw an error if paymentId input is missing', async () => {
+      try {
+        const input = {
+          user: testData.user
+        }
+        await uut.reportPayment(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'Payment id is required')
+      }
+    })
+    it('should throw an error if paymentId has a pending report', async () => {
+      try {
+        sandbox.stub(uut.db.PaymentReport, 'findOne').resolves({ id: 'existing payment id' })
+
+        const input = {
+          user: testData.user,
+          paymentId: 'paymentId'
+        }
+        await uut.reportPayment(input)
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'The payment already has a pending report')
+      }
+    })
+
+    it('should create payyment report', async () => {
+      try {
+        sandbox.stub(uut.db.PaymentReport, 'findOne').resolves(null)
+        const input = {
+          user: testData.user,
+          paymentId: 'paymentId'
+        }
+        const result = await uut.reportPayment(input)
+        assert.isObject(result)
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
+
+  describe('#getReports', () => {
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.PaymentReport, 'find').throws(new Error('test error'))
+
+        await uut.getReports()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+    it('should get reports', async () => {
+      try {
+        sandbox.stub(uut.db.PaymentReport, 'find').resolves([])
+
+        const result = await uut.getReports()
+        assert.isArray(result)
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+  })
 })

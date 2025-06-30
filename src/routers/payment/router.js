@@ -19,6 +19,9 @@ class RouterHanlder {
     this.validatePayment = this.validatePayment.bind(this)
     this.cancelPayment = this.cancelPayment.bind(this)
     this.getUserPayments = this.getUserPayments.bind(this)
+    this.createPaymentReport = this.createPaymentReport.bind(this)
+    this.getReports = this.getReports.bind(this)
+
   }
 
   async start (app) {
@@ -28,6 +31,9 @@ class RouterHanlder {
     this.router.post('/validate', this.validatePayment)
     this.router.delete('/cancel/:id', this.cancelPayment)
     this.router.get('/user', this.getUserPayments)
+    this.router.post('/report', this.createPaymentReport)
+    this.router.get('/reports', this.getReports)
+
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -51,6 +57,15 @@ class RouterHanlder {
   async getUserPayments (ctx, next) {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getUserPayments(ctx, next)
+  }
+
+  async createPaymentReport (ctx, next) {
+    await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.createPaymentReport(ctx, next)
+  }
+  async getReports (ctx, next) {
+    // await this.middleware.userValidators.ensureUser(ctx, next)
+    await this.controller.getReports(ctx, next)
   }
 }
 

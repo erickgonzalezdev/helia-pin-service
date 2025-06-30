@@ -16,6 +16,8 @@ class PaymentUseCases {
     this.validatePayment = this.validatePayment.bind(this)
     this.cancelPayment = this.cancelPayment.bind(this)
     this.getUserPayments = this.getUserPayments.bind(this)
+    this.reportPayment = this.reportPayment.bind(this)
+    this.getReports = this.getReports.bind(this)
   }
 
   async createPayment (inObj = {}) {
@@ -114,6 +116,41 @@ class PaymentUseCases {
       return payments
     } catch (error) {
       this.wlogger.error(`Error in payment/getPaymentsByUser() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async reportPayment (inObj = {}) {
+    const { description, paymentId, user } = inObj
+    try {
+      if (!user) throw new Error('user model is required.')
+      if (!paymentId) throw new Error('Payment id is required.')
+
+      const existingPaymentReport = await this.db.PaymentReport.findOne({ paymentId })
+      if (existingPaymentReport) throw new Error('The payment already has a pending report')
+
+      const paymentReportObj = {
+        createdAt: new Date().getTime(),
+        description,
+        paymentId,
+        user: user._id.toString()
+      }
+      const paymentReport = new this.db.PaymentReport(paymentReportObj)
+      await paymentReport.save()
+      return paymentReport
+    } catch (error) {
+      this.wlogger.error(`Error in payment/reportPayment() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async getReports () {
+    try {
+      const paymentReports = await this.db.PaymentReport.find({})
+
+      return paymentReports
+    } catch (error) {
+      this.wlogger.error(`Error in payment/getReports() $ ${error.message}`)
       throw error
     }
   }
