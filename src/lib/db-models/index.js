@@ -2,6 +2,8 @@ import Users from './users.js'
 import Files from './files.js'
 import BoxSchemas from './box.js'
 import Pin from './pin.js'
+import PaymentReport from './payment-report.js'
+
 class DbModels {
   constructor () {
     this.Users = Users.User
@@ -11,6 +13,7 @@ class DbModels {
     this.Pin = Pin
     this.Account = Users.AccountData
     this.ImportedSignature = BoxSchemas.ImportedBoxSignature
+    this.PaymentReport = PaymentReport
   }
 }
 
