@@ -1,6 +1,7 @@
 export default class AccountUseCases {
   constructor (config = {}) {
     this.db = config.libraries.dbModels
+    this.libraries = config.libraries
     this.wlogger = config.libraries.wlogger
     this.accountLib = config.libraries.accountLib
 
@@ -10,6 +11,7 @@ export default class AccountUseCases {
     this.getFreeAccount = this.getFreeAccount.bind(this)
     this.cleanExpiredAcc = this.cleanExpiredAcc.bind(this)
     this.getAccountsData = this.getAccountsData.bind(this)
+    this.notifyExpiredDate = this.notifyExpiredDate.bind(this)
   }
 
   // Create  a user account,
@@ -122,7 +124,7 @@ export default class AccountUseCases {
       // Current Timestamp
       const now = new Date().getTime()
       // Get all users with current actived account.
-      const users = await this.db.Users.find({ }).populate('account')
+      const users = await this.db.Users.find({}).populate('account')
 
       // Map each account
       for (let i = 0; i < users.length; i++) {
@@ -135,11 +137,69 @@ export default class AccountUseCases {
           await this.db.Pin.deleteMany({ userOwner: acc.owner })
           await this.db.Box.deleteMany({ owner: acc.owner })
           await this.refreshAccount({ id: acc._id.toString() })
+        } else {
+          // verify if account is expired in 3 days
+          await this.notifyExpiredDate()
         }
       }
       return users
     } catch (error) {
       this.wlogger.error(`Error in use-cases/getFreeAccount() $ ${error.message}`)
+      throw error
+    }
+  }
+
+  async notifyExpiredDate () {
+    try {
+      // Get all users with current actived account.
+      const users = await this.db.Users.find({}).populate('account')
+
+      // Map each account
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i]
+        const acc = user.account
+        // Continue if the users does not have an associated account.
+        if (!acc) { continue }
+        if (acc.expired) { continue }
+        if (acc.renewNotified) { continue }
+        // calc if epiredAt is in 3 days or less
+        const now = new Date().getTime()
+        const daysToExpired = new Date(acc.expiredAt)
+        daysToExpired.setDate(daysToExpired.getDate() - 3)
+        // if 3 days or less before expire, notify user
+        if (daysToExpired.getTime() < now) {
+          const expiredAt = new Date(acc.expiredAt)
+          // notify user
+          const emailObj = {
+            to: [user.email],
+            subject: 'Your Account is Expiring',
+            html: `Your account is expiring , please renew your account to avoid losing your data.
+            <br>
+            <br>
+            <span>Account type: ${acc.typeLabel}</span>
+            <br>
+            <span>Expired At: ${expiredAt.toISOString().split('T')[0]}</span>
+            <br>
+            <span>Disk Usage: ${acc.currentBytes / 1024 / 1024} MB </span>
+            <br>
+            <span>Pins: ${acc.currentPins}</span>
+            <br>
+            <span>Boxes: ${acc.currentBox} }</span>
+            `
+          }
+
+          try {
+            await this.libraries.emailService.sendEmail(emailObj)
+            acc.renewNotified = true
+            await acc.save()
+          } catch (error) {
+            // Skip error
+          }
+        }
+      }
+      return true
+    } catch (error) {
+      this.wlogger.error(`Error in use-cases/notifyExpiredDate() $ ${error.message}`)
       throw error
     }
   }

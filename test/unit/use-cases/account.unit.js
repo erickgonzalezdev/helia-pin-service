@@ -274,4 +274,120 @@ describe('#account-use-case', () => {
       }
     })
   })
+
+  describe('#notifyExpiredDate', () => {
+    it('should notify expired date', async () => {
+      try {
+        // Expired Timestamp mock
+        const mockTS = new Date()
+        mockTS.setDate(mockTS.getDate() + 2)
+        // Acount Mock
+        const accountMock = { _id: 'acc id', expiredAt: mockTS.getTime(), save: () => { } }
+        // Users array Mock
+        const usersMock = [{ _id: 'id', account: accountMock }]
+
+        sandbox.stub(uut.db.Users, 'find').returns({ populate: () => { return usersMock } })
+        sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+        const res = await uut.notifyExpiredDate()
+
+        assert.isTrue(res)
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should skip if account is not expired in 3 days or less', async () => {
+      try {
+        // Expired Timestamp mock
+        const mockTS = new Date()
+        mockTS.setDate(mockTS.getDate() + 4)
+        // Account Mock
+        const accountMock = { _id: 'acc id', expiredAt: mockTS.getTime() }
+        // Users array Mock
+        const usersMock = [{ _id: 'id', account: accountMock }]
+
+        sandbox.stub(uut.db.Users, 'find').returns({ populate: () => { return usersMock } })
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const res = await uut.notifyExpiredDate()
+
+        assert.isTrue(res)
+        assert.isTrue(spy.notCalled, 'expedted not send email')
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+
+    it('should handle users without acc', async () => {
+      try {
+        // Expired Timestamp mock
+        const mockTS = new Date()
+        mockTS.setDate(mockTS.getDate() + 2)
+        // Account mock
+        // Users array Mock
+        const usersMock = [{ _id: 'id', account: null }]
+
+        sandbox.stub(uut.db.Users, 'find').returns({ populate: () => { return usersMock } })
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const res = await uut.notifyExpiredDate()
+
+        assert.isTrue(res)
+        assert.isTrue(spy.notCalled, 'expedted not send email')
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should handle expired account', async () => {
+      try {
+        // Expired Timestamp mock
+        const mockTS = new Date()
+        mockTS.setDate(mockTS.getDate() - 2)
+        // Account mock
+        // Users array Mock
+        const usersMock = [{ _id: 'id', account: { expired: true, renewNotified: false } }]
+
+        sandbox.stub(uut.db.Users, 'find').returns({ populate: () => { return usersMock } })
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const res = await uut.notifyExpiredDate()
+
+        assert.isTrue(res)
+        assert.isTrue(spy.notCalled, 'expedted not send email')
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+    it('should handle already notified', async () => {
+      try {
+        // Expired Timestamp mock
+        const mockTS = new Date()
+        mockTS.setDate(mockTS.getDate() + 2)
+        // Account mock
+        // Users array Mock
+        const usersMock = [{ _id: 'id', account: { expired: false, renewNotified: true } }]
+
+        sandbox.stub(uut.db.Users, 'find').returns({ populate: () => { return usersMock } })
+        const spy = sandbox.stub(uut.libraries.emailService, 'sendEmail').resolves(true)
+
+        const res = await uut.notifyExpiredDate()
+
+        assert.isTrue(res)
+        assert.isTrue(spy.notCalled, 'expedted not send email')
+      } catch (error) {
+        assert.fail('Unexpected code path')
+      }
+    })
+
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(uut.db.Users, 'find').throws(new Error('test error'))
+
+        await uut.notifyExpiredDate()
+
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+  })
 })
