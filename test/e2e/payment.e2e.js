@@ -557,14 +557,13 @@ describe('e2e-account', () => {
     })
   })
   describe('GET /payment/reports', () => {
-
     it('should handle request error', async () => {
       try {
         sandbox.stub(app.controller.useCases.payments, 'getReports').throws(new Error('test error'))
         const options = {
           method: 'GET',
           headers: {
-            Accept: 'application/json',
+            Accept: 'application/json'
           },
           url: `${LOCALHOST}/payment/reports`
 
@@ -582,7 +581,7 @@ describe('e2e-account', () => {
       const options = {
         method: 'GET',
         headers: {
-          Accept: 'application/json',
+          Accept: 'application/json'
         },
         url: `${LOCALHOST}/payment/reports`
 

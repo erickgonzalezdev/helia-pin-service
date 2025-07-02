@@ -13,7 +13,6 @@ export default class PaymentController {
     this.getUserPayments = this.getUserPayments.bind(this)
     this.createPaymentReport = this.createPaymentReport.bind(this)
     this.getReports = this.getReports.bind(this)
-
   }
 
   /**

@@ -20,7 +20,9 @@ const AccountSchema = new mongoose.Schema({
   expiredAt: { type: Number, default: null },
   archived: { type: Boolean, default: false },
   expired: { type: Boolean, default: false },
-  paymentId: { type: String }
+  paymentId: { type: String },
+  expiredNotified: { type: Boolean, default: false },
+  renewNotified: { type: Boolean, default: false }
 })
 
 const AccountData = mongoose.model('account', AccountSchema)

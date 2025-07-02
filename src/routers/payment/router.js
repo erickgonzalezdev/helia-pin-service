@@ -21,7 +21,6 @@ class RouterHanlder {
     this.getUserPayments = this.getUserPayments.bind(this)
     this.createPaymentReport = this.createPaymentReport.bind(this)
     this.getReports = this.getReports.bind(this)
-
   }
 
   async start (app) {
@@ -33,7 +32,6 @@ class RouterHanlder {
     this.router.get('/user', this.getUserPayments)
     this.router.post('/report', this.createPaymentReport)
     this.router.get('/reports', this.getReports)
-
 
     app.use(this.router.routes())
     app.use(this.router.allowedMethods())
@@ -63,6 +61,7 @@ class RouterHanlder {
     await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.createPaymentReport(ctx, next)
   }
+
   async getReports (ctx, next) {
     // await this.middleware.userValidators.ensureUser(ctx, next)
     await this.controller.getReports(ctx, next)

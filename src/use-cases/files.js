@@ -22,7 +22,6 @@ export default class FileUseCases {
   async uploadFile (inObj = {}) {
     try {
       const { file, user } = inObj
-      console.log('file', file)
       if (!file) {
         throw new Error('file is required!')
       }
